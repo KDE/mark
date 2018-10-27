@@ -46,6 +46,9 @@ AnnotatorDialog::AnnotatorDialog(QString file, QString outputPath, OutputType ou
 
     connect(ui->saveButton, &QAbstractButton::clicked, this, &AnnotatorDialog::savePolygon);
     connect(ui->undoButton, &QAbstractButton::clicked, this, &AnnotatorDialog::undo);
+
+    ui->saveButton->setEnabled(false);
+    ui->undoButton->setEnabled(false);
 }
 
 AnnotatorDialog::~AnnotatorDialog()
@@ -112,13 +115,27 @@ void AnnotatorDialog::repaint()
         ui->graphicsView->scene()->removeItem(item);
 
     for (QPolygonF polygon : m_savedPolygons)
-        processPolygon(polygon, Qt::GlobalColor::green);
+        processPolygon(polygon, Qt::GlobalColor::blue, true);
 
     processPolygon(m_currentPolygon, Qt::GlobalColor::red);
+
+    ui->saveButton->setEnabled(m_currentPolygon.size() > 1 &&
+                               m_currentPolygon.first() == m_currentPolygon.last());
+
+    ui->undoButton->setEnabled(!m_currentPolygon.empty());
 }
 
-void AnnotatorDialog::processPolygon(QPolygonF& polygon, Qt::GlobalColor color)
+void AnnotatorDialog::processPolygon(QPolygonF& polygon, Qt::GlobalColor color, bool fill)
 {
+    if (fill) {
+        QColor c(color);
+        c.setAlpha(20);
+
+        QGraphicsPolygonItem *pol = ui->graphicsView->scene()->addPolygon(polygon, QPen(color, 2), QBrush(c));
+
+        m_items << pol;
+    }
+
     for (auto it = polygon.begin(); it != polygon.end(); it++) {
         QGraphicsRectItem *rect;
 
