@@ -119,7 +119,7 @@ void AnnotatorDialog::repaint()
     for (QPolygonF polygon : m_savedPolygons)
         processPolygon(polygon, Qt::GlobalColor::blue, true);
 
-    processPolygon(m_currentPolygon, Qt::GlobalColor::red);
+    processPolygon(m_currentPolygon, Qt::GlobalColor::red, false, true);
 
     ui->saveButton->setEnabled(m_currentPolygon.size() > 1 &&
                                m_currentPolygon.first() == m_currentPolygon.last());
@@ -127,7 +127,7 @@ void AnnotatorDialog::repaint()
     ui->undoButton->setEnabled(!m_currentPolygon.empty());
 }
 
-void AnnotatorDialog::processPolygon(QPolygonF& polygon, Qt::GlobalColor color, bool fill)
+void AnnotatorDialog::processPolygon(QPolygonF& polygon, Qt::GlobalColor color, bool fill, bool focusFirst)
 {
     if (fill) {
         QColor c(color);
@@ -141,7 +141,7 @@ void AnnotatorDialog::processPolygon(QPolygonF& polygon, Qt::GlobalColor color, 
     for (auto it = polygon.begin(); it != polygon.end(); it++) {
         QGraphicsRectItem *rect;
 
-        if (it == polygon.begin())
+        if (focusFirst && it == polygon.begin())
             rect = new QGraphicsRectItem(0, 0, POLYGON_BEGIN_RECT_DIST, POLYGON_BEGIN_RECT_DIST);
         else
             rect = new QGraphicsRectItem(0, 0, 1, 1);

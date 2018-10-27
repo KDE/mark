@@ -38,7 +38,7 @@ private slots:
 
 private:
 
-    void processPolygon(QPolygonF& polygon, Qt::GlobalColor color, bool fill = false);
+    void processPolygon(QPolygonF& polygon, Qt::GlobalColor color, bool fill = false, bool focusFirst = false);
 
     void saveXML();
 

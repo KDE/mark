@@ -75,7 +75,7 @@ void MainWindow::annotateDir(bool checked)
     QString outputPath = ui->outputPath->text();
 
     QString path = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
-                                                    "/home",
+                                                    QDir::homePath(),
                                                     QFileDialog::ShowDirsOnly
                                                     | QFileDialog::DontResolveSymlinks);
 
@@ -98,7 +98,7 @@ void MainWindow::selectOutputPath(bool checked)
     Q_UNUSED(checked);
 
     QString path = QFileDialog::getExistingDirectory(this, tr("Select Directory"),
-                                                    "/home",
+                                                    QDir::homePath(),
                                                     QFileDialog::ShowDirsOnly
                                                     | QFileDialog::DontResolveSymlinks);
 
