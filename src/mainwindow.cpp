@@ -3,10 +3,8 @@
 
 #include "annotatordialog.h"
 
-#include <QDebug>
 #include <QDir>
 #include <QFileDialog>
-#include <QPicture>
 #include <QAbstractButton>
 
 MainWindow::MainWindow(QWidget *parent) :

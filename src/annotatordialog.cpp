@@ -1,8 +1,7 @@
 #include "annotatordialog.h"
 #include "ui_annotatordialog.h"
 
-#include <QDebug>
-#include <QGraphicsRectItem>
+#include <QGraphicsItem>
 #include <QMessageBox>
 #include <QMouseEvent>
 #include <QScreen>
@@ -86,7 +85,8 @@ bool AnnotatorDialog::eventFilter(QObject *watched, QEvent *event)
         int posX = mouseEv->pos().x() - diffW;
         int posY = mouseEv->pos().y() - diffH;
 
-        if (posX >= 0 && posX <= ui->graphicsView->scene()->width() && posY >= 0 && posY <= ui->graphicsView->scene()->height()) {
+        if (posX >= 0 && posX <= ui->graphicsView->scene()->width() && 
+                posY >= 0 && posY <= ui->graphicsView->scene()->height()) {
 
             QPointF point(posX, posY);
 

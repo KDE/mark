@@ -2,8 +2,7 @@
 #define ANNOTATORDIALOG_H
 
 #include <QDialog>
-#include <QGraphicsLineItem>
-#include <QGraphicsRectItem>
+#include <QGraphicsItem>
 
 namespace Ui {
 class AnnotatorDialog;
