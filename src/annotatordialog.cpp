@@ -6,6 +6,8 @@
 #include <QMouseEvent>
 #include <QScreen>
 
+#define POLYGON_BEGIN_RECT_DIST 10
+
 AnnotatorDialog::AnnotatorDialog(QString file, QString outputPath, OutputType outputType, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::AnnotatorDialog),
@@ -95,7 +97,7 @@ bool AnnotatorDialog::eventFilter(QObject *watched, QEvent *event)
 
             if (!m_currentPolygon.empty()) {
                 QRectF rect(m_currentPolygon.first(),
-                            QPointF(m_currentPolygon.first().x() + 10, m_currentPolygon.first().y() + 10));
+                            QPointF(m_currentPolygon.first().x() + POLYGON_BEGIN_RECT_DIST, m_currentPolygon.first().y() + POLYGON_BEGIN_RECT_DIST));
 
                 if (rect.contains(point))
                     point = QPointF(m_currentPolygon.first());
@@ -140,7 +142,7 @@ void AnnotatorDialog::processPolygon(QPolygonF& polygon, Qt::GlobalColor color, 
         QGraphicsRectItem *rect;
 
         if (it == polygon.begin())
-            rect = new QGraphicsRectItem(0, 0, 10, 10);
+            rect = new QGraphicsRectItem(0, 0, POLYGON_BEGIN_RECT_DIST, POLYGON_BEGIN_RECT_DIST);
         else
             rect = new QGraphicsRectItem(0, 0, 1, 1);
 
