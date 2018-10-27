@@ -15,7 +15,7 @@ AnnotatorDialog::AnnotatorDialog(QString file, QString outputPath, OutputType ou
 {
     ui->setupUi(this);
 
-    setWindowTitle(file);
+    setWindowTitle("QAnnotator - " + file);
 
     if (!outputPath.endsWith('/'))
         outputPath.append('/');
