@@ -103,7 +103,7 @@
     <item row="4" column="0">
      <widget class="QPushButton" name="chooseDirButton">
       <property name="text">
-       <string>Choose Directory</string>
+       <string>Choose Folder</string>
       </property>
      </widget>
     </item>

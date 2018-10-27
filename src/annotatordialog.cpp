@@ -54,7 +54,7 @@ AnnotatorDialog::AnnotatorDialog(QString file, QString outputPath, OutputType ou
 
     ui->saveButton->setIcon(QIcon::fromTheme("borderpainter"));
     ui->undoButton->setIcon(QIcon::fromTheme("edit-undo"));
-    ui->restartButton->setIcon(QIcon::fromTheme("view-refresh"));
+    ui->restartButton->setIcon(QIcon::fromTheme("edit-clear-all"));
     ui->addClassButton->setIcon(QIcon::fromTheme("list-add"));
     ui->colorButton->setIcon(QIcon::fromTheme("color-picker"));
 
@@ -150,8 +150,9 @@ void AnnotatorDialog::restartPolygons(bool checked)
 {
     Q_UNUSED(checked)
 
-    if (!m_savedPolygons.isEmpty()) {
+    if (!m_currentPolygon.isEmpty() || !m_savedPolygons.isEmpty()) {
         m_savedPolygons.clear();
+        m_currentPolygon.clear();
         repaint();
     }
 }
@@ -213,9 +214,12 @@ bool AnnotatorDialog::eventFilter(QObject *watched, QEvent *event)
         int posX = mouseEv->pos().x() - diffW;
         int posY = mouseEv->pos().y() - diffH;
 
+        // Check if its clicking on the origin of some polygon
         auto it = std::find_if(m_savedPolygons.begin(), m_savedPolygons.end(),
                 [&](AnnotatorItem& item) {
-                    QRectF rect(item.first(), QPointF(item.first().x() + POLYGON_BEGIN_RECT_DIST, item.first().y() + POLYGON_BEGIN_RECT_DIST));
+                    QRectF rect(item.first(),
+                                QPointF(item.first().x() + POLYGON_BEGIN_RECT_DIST,
+                                        item.first().y() + POLYGON_BEGIN_RECT_DIST));
 
                     return rect.contains(QPointF(posX, posY));
                 });
@@ -233,8 +237,10 @@ bool AnnotatorDialog::eventFilter(QObject *watched, QEvent *event)
 
             if (!m_currentPolygon.empty()) {
                 QRectF rect(m_currentPolygon.first(),
-                            QPointF(m_currentPolygon.first().x() + POLYGON_BEGIN_RECT_DIST, m_currentPolygon.first().y() + POLYGON_BEGIN_RECT_DIST));
+                            QPointF(m_currentPolygon.first().x() + POLYGON_BEGIN_RECT_DIST,
+                                    m_currentPolygon.first().y() + POLYGON_BEGIN_RECT_DIST));
 
+                // Close it if it is clicking in the origin of the current polygon
                 if (rect.contains(point))
                     point = QPointF(m_currentPolygon.first());
             }
@@ -257,8 +263,7 @@ void AnnotatorDialog::repaint()
 
     processItem(m_currentPolygon, false);
 
-    ui->saveButton->setEnabled(m_currentPolygon.size() > 1 &&
-                               m_currentPolygon.first() == m_currentPolygon.last());
+    ui->saveButton->setEnabled(m_currentPolygon.size() > 1 && m_currentPolygon.isClosed());
 
     ui->undoButton->setEnabled(!m_currentPolygon.isEmpty());
     ui->restartButton->setEnabled(!m_savedPolygons.isEmpty());

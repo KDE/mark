@@ -26,7 +26,7 @@
      <item>
       <widget class="QToolButton" name="saveButton">
        <property name="text">
-        <string>Finish Polygon</string>
+        <string>Close Polygon</string>
        </property>
        <property name="toolButtonStyle">
         <enum>Qt::ToolButtonTextBesideIcon</enum>
@@ -83,7 +83,7 @@
      <item>
       <widget class="QToolButton" name="restartButton">
        <property name="text">
-        <string>Restart</string>
+        <string>Erase Polygons</string>
        </property>
        <property name="toolButtonStyle">
         <enum>Qt::ToolButtonTextBesideIcon</enum>
