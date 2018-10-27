@@ -1,2 +1,2 @@
 # qannotator
-Simple image annotator made with Qt.
+Simple image annotator.
