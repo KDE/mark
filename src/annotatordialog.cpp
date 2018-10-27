@@ -4,12 +4,15 @@
 #include <QComboBox>
 #include <QColorDialog>
 #include <QtGlobal>
+#include <QFileInfo>
 #include <QGraphicsItem>
 #include <QMessageBox>
 #include <QMouseEvent>
+#include <QRegularExpression>
 #include <QScreen>
 #include <QShortcut>
 #include <QTime>
+#include <QXmlStreamWriter>
 
 #include <QDebug>
 
@@ -28,8 +31,8 @@ AnnotatorDialog::AnnotatorDialog(QString file, QString outputPath, OutputType ou
 
     setWindowTitle("QAnnotator - " + file);
 
-    if (!outputPath.endsWith('/'))
-        outputPath.append('/');
+    if (!m_outputPath.endsWith('/'))
+        m_outputPath.append('/');
 
     QGraphicsScene *scene = new QGraphicsScene;
     scene->setItemIndexMethod(QGraphicsScene::NoIndex);
@@ -73,10 +76,10 @@ AnnotatorDialog::AnnotatorDialog(QString file, QString outputPath, OutputType ou
     QShortcut *finishShortcut = new QShortcut(QKeySequence(Qt::Modifier::CTRL + Qt::Key::Key_S), this);
     connect(finishShortcut, &QShortcut::activated, [this](){ finishPolygon(false); });
 
-    QShortcut *undoShortcut = new QShortcut(QKeySequence(Qt::Modifier::CTRL + Qt::Key::Key_U), this);
+    QShortcut *undoShortcut = new QShortcut(QKeySequence(Qt::Modifier::CTRL + Qt::Key::Key_Z), this);
     connect(undoShortcut, &QShortcut::activated, [this](){ undo(false); });
 
-    QShortcut *colorShortcut = new QShortcut(QKeySequence(Qt::Modifier::CTRL + Qt::Key::Key_Z), this);
+    QShortcut *colorShortcut = new QShortcut(QKeySequence(Qt::Modifier::CTRL + Qt::Key::Key_X), this);
     connect(colorShortcut, &QShortcut::activated, [this](){ pickColor(false); });
 
     QShortcut *restartShortcut = new QShortcut(QKeySequence(Qt::Modifier::CTRL + Qt::Key::Key_R), this);
@@ -105,7 +108,7 @@ void AnnotatorDialog::finishPolygon(bool checked)
 
     if (m_currentPolygon.isEmpty())
         return;
-    else if (m_currentPolygon.isClosed()) {
+    else if (m_currentPolygon.size() > 1 && m_currentPolygon.isClosed()) {
         m_savedPolygons << m_currentPolygon;
         m_currentPolygon.clear();
 
@@ -183,12 +186,11 @@ void AnnotatorDialog::addClass(bool checked)
 
     ui->classNumber->setCurrentIndex(m_classQuantity - 1);
 
-    if (!m_currentPolygon.isEmpty()) {
-        m_currentPolygon.setColor(m_classColors[m_classQuantity - 1]);
-        m_currentPolygon.setItemClass(m_classQuantity - 1);
+    m_currentPolygon.setColor(m_classColors[m_classQuantity - 1]);
+    m_currentPolygon.setItemClass(m_classQuantity - 1);
 
+    if (!m_currentPolygon.isEmpty())
         repaint();
-    }
 }
 
 void AnnotatorDialog::changeClass(int index)
@@ -205,13 +207,24 @@ bool AnnotatorDialog::eventFilter(QObject *watched, QEvent *event)
     QMouseEvent *mouseEv = dynamic_cast<QMouseEvent*>(event);
 
     if (mouseEv) {
-        // TODO: Check if the touched region is the origin of a previous polygon
-        // And if it is, you should set the selected polygon as the current one
         int diffW = int((ui->graphicsView->width() - ui->graphicsView->scene()->width()) / 2);
         int diffH = int((ui->graphicsView->height() - ui->graphicsView->scene()->height()) / 2);
 
         int posX = mouseEv->pos().x() - diffW;
         int posY = mouseEv->pos().y() - diffH;
+
+        auto it = std::find_if(m_savedPolygons.begin(), m_savedPolygons.end(),
+                [&](AnnotatorItem& item) {
+                    QRectF rect(item.first(), QPointF(item.first().x() + POLYGON_BEGIN_RECT_DIST, item.first().y() + POLYGON_BEGIN_RECT_DIST));
+
+                    return rect.contains(QPointF(posX, posY));
+                });
+
+        if (it != m_savedPolygons.end()) {
+            m_currentPolygon = *it;
+            m_savedPolygons.erase(it);
+            repaint();
+        }
 
         if (posX >= 0 && posX <= ui->graphicsView->scene()->width() && 
                 posY >= 0 && posY <= ui->graphicsView->scene()->height()) {
@@ -246,8 +259,6 @@ void AnnotatorDialog::repaint()
 
     ui->saveButton->setEnabled(m_currentPolygon.size() > 1 &&
                                m_currentPolygon.first() == m_currentPolygon.last());
-
-    // TODO: Click on polygon first point and select its class
 
     ui->undoButton->setEnabled(!m_currentPolygon.isEmpty());
     ui->restartButton->setEnabled(!m_savedPolygons.isEmpty());
@@ -306,10 +317,67 @@ void AnnotatorDialog::accept()
 
 void AnnotatorDialog::saveXML()
 {
-    // TODO: Salvar como XML
+    if (m_savedPolygons.isEmpty())
+        return;
+
+    QFileInfo fileInfo(m_file);
+
+    QString outputFile = m_outputPath + fileInfo.fileName();
+
+    outputFile.replace(QRegularExpression(".jpg|.png|.xpm"), ".xml");
+
+    QFile fileOut(outputFile);
+
+    if (!fileOut.open(QIODevice::WriteOnly | QIODevice::Text))
+        return;
+
+    QXmlStreamWriter xmlWriter(&fileOut);
+
+    xmlWriter.writeStartElement("annotation");
+
+    for (AnnotatorItem &item : m_savedPolygons) {
+        xmlWriter.writeStartElement("object");
+
+        xmlWriter.writeStartElement("id");
+        xmlWriter.writeCharacters(QString::number(item.itemClass()));
+        xmlWriter.writeEndElement();
+
+        xmlWriter.writeStartElement("polygon");
+
+        for (QPointF &point : item) {
+            xmlWriter.writeStartElement("pt");
+
+            xmlWriter.writeStartElement("x");
+
+            xmlWriter.writeCharacters(QString::number(point.x()));
+
+            xmlWriter.writeEndElement();
+
+            xmlWriter.writeStartElement("y");
+
+            xmlWriter.writeCharacters(QString::number(point.y()));
+
+            xmlWriter.writeEndElement();
+
+            xmlWriter.writeEndElement();
+        }
+
+        xmlWriter.writeEndElement();
+
+        xmlWriter.writeEndElement();
+    }
+
+    xmlWriter.writeEndElement();
+
+    xmlWriter.writeEndDocument();
+
+    fileOut.close();
 }
 
 void AnnotatorDialog::saveJSON()
 {
+    if (m_savedPolygons.isEmpty())
+        return;
+
     // TODO: Salvar como JSON
 }
