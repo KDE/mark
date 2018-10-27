@@ -25,11 +25,13 @@ CONFIG += c++11
 SOURCES += \
         src/main.cpp \
         src/mainwindow.cpp \
-    src/annotatordialog.cpp
+    src/annotatordialog.cpp \
+    src/annotatoritem.cpp
 
 HEADERS += \
         src/mainwindow.h \
-    src/annotatordialog.h
+    src/annotatordialog.h \
+    src/annotatoritem.h
 
 FORMS += \
         src/mainwindow.ui \

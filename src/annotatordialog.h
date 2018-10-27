@@ -1,6 +1,8 @@
 #ifndef ANNOTATORDIALOG_H
 #define ANNOTATORDIALOG_H
 
+#include "annotatoritem.h"
+
 #include <QDialog>
 #include <QGraphicsItem>
 
@@ -32,13 +34,23 @@ public:
 
 private slots:
 
-    void savePolygon(bool checked);
+    void finishPolygon(bool checked);
 
     void undo(bool checked);
 
+    void pickColor(bool checked);
+
+    void restartPolygons(bool checked);
+
+    void updateClasses(bool checked = false);
+
+    void addClass(bool checked);
+
+    void changeClass(int index);
+
 private:
 
-    void processPolygon(QPolygonF& polygon, Qt::GlobalColor color, bool fill = false, bool focusFirst = false);
+    void processItem(AnnotatorItem& polygon, bool fill = false);
 
     void saveXML();
 
@@ -52,10 +64,13 @@ private:
 
     OutputType m_outputType;
 
-    QPolygonF m_currentPolygon;
-    QVector<QPolygonF> m_savedPolygons;
+    int m_classQuantity;
+
+    AnnotatorItem m_currentPolygon;
+    QVector<AnnotatorItem> m_savedPolygons;
 
     QVector<QGraphicsItem*> m_items;
+    QVector<QColor> m_classColors;
 };
 
 #endif // ANNOTATORDIALOG_H

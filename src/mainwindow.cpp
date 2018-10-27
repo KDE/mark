@@ -21,6 +21,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->chooseDirButton, &QAbstractButton::clicked, this, &MainWindow::annotateDir);
     connect(ui->selectOutputButton, &QAbstractButton::clicked, this, &MainWindow::selectOutputPath);
 
+    ui->chooseDirButton->setIcon(QIcon::fromTheme("document-open-folder"));
+    ui->chooseFileButton->setIcon(QIcon::fromTheme("quickopen-file"));
+
     ui->outputType->addItems({"XML", "JSON"});
 
     ui->outputPath->setText(QDir::homePath());
