@@ -1,2 +1,2 @@
 # qannotator
-Simple image annotator.
+Scientific tool for data annotation.
