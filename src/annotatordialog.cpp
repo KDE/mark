@@ -24,8 +24,7 @@ AnnotatorDialog::AnnotatorDialog(QString file, QString outputPath, OutputType ou
     m_file(file),
     m_outputPath(outputPath),
     m_outputType(outputType),
-    m_classQuantity(1),
-    m_currentPolygon(AnnotatorItem(Qt::GlobalColor::red, 0))
+    m_classQuantity(1)
 {
     ui->setupUi(this);
 
@@ -91,6 +90,12 @@ AnnotatorDialog::AnnotatorDialog(QString file, QString outputPath, OutputType ou
     ui->saveButton->setEnabled(false);
     ui->undoButton->setEnabled(false);
     ui->restartButton->setEnabled(false);
+
+    m_currentPolygon.setItemClass(0);
+
+    qsrand((uint)QTime::currentTime().msec());
+
+    m_currentPolygon.setColor(QColor(qrand() % 256, qrand() % 256, qrand() % 256));
 
     m_classColors << m_currentPolygon.color();
 
@@ -177,9 +182,7 @@ void AnnotatorDialog::addClass(bool checked)
 {
     m_classQuantity++;
 
-    QTime time = QTime::currentTime();
-
-    qsrand((uint)time.msec());
+    qsrand((uint)QTime::currentTime().msec());
 
     m_classColors << QColor(qrand() % 256, qrand() % 256, qrand() % 256);
 
