@@ -91,7 +91,7 @@ AnnotatorDialog::AnnotatorDialog(QString file, QString outputPath, OutputType ou
     ui->undoButton->setEnabled(false);
     ui->restartButton->setEnabled(false);
 
-    m_currentPolygon.setItemClass(0);
+    m_currentPolygon.setItemClass(1);
 
     qsrand((uint)QTime::currentTime().msec());
 
@@ -175,7 +175,7 @@ void AnnotatorDialog::updateClasses(bool checked)
         ui->classNumber->addItem(QIcon(colorPix), QString::number(i + 1));
     }
 
-    ui->classNumber->setCurrentIndex(m_currentPolygon.itemClass());
+    ui->classNumber->setCurrentIndex(m_currentPolygon.itemClass() - 1);
 }
 
 void AnnotatorDialog::addClass(bool checked)
@@ -191,7 +191,7 @@ void AnnotatorDialog::addClass(bool checked)
     ui->classNumber->setCurrentIndex(m_classQuantity - 1);
 
     m_currentPolygon.setColor(m_classColors[m_classQuantity - 1]);
-    m_currentPolygon.setItemClass(m_classQuantity - 1);
+    m_currentPolygon.setItemClass(m_classQuantity);
 
     if (!m_currentPolygon.isEmpty())
         repaint();
@@ -199,7 +199,7 @@ void AnnotatorDialog::addClass(bool checked)
 
 void AnnotatorDialog::changeClass(int index)
 {
-    m_currentPolygon.setItemClass(index);
+    m_currentPolygon.setItemClass(index + 1);
     m_currentPolygon.setColor(m_classColors[index]);
 
     if (!m_currentPolygon.isEmpty() || !m_savedPolygons.isEmpty())
@@ -313,6 +313,8 @@ void AnnotatorDialog::accept()
         saveXML();
     else if (m_outputType == OutputType::JSON)
         saveJSON();
+    else if (m_outputType == OutputType::AnnotImage)
+        saveAnnotatedImage();
     else {
        QMessageBox message(this);
        message.setWindowTitle("Error");
@@ -388,4 +390,28 @@ void AnnotatorDialog::saveJSON()
         return;
 
     // TODO: Salvar como JSON
+}
+
+void AnnotatorDialog::saveAnnotatedImage()
+{
+    QImage image(m_file);
+
+    QImage result(image.width(), image.height(), QImage::Format::Format_RGB32);
+
+    QPainter painter(&result);
+
+    std::sort(m_savedPolygons.begin(), m_savedPolygons.end(), [](AnnotatorItem a, AnnotatorItem b) { 
+            return a.boundingRect().height() * a.boundingRect().width() < b.boundingRect().height() * b.boundingRect().width();});
+
+    for (AnnotatorItem& item : m_savedPolygons) {
+        painter.setBrush(QBrush(QColor(item.itemClass(), item.itemClass(), item.itemClass())));
+
+        painter.drawConvexPolygon(item);
+    }
+
+    QStringList fileNameList = m_file.split('/');
+
+    QString name = fileNameList.last();
+
+    result.save(m_outputPath + "annotated_" + name);
 }

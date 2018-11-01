@@ -17,6 +17,7 @@ class AnnotatorDialog : public QDialog
 public:
     enum OutputType {
         XML,
+        AnnotImage,
         JSON,
         Unknown
     };
@@ -55,6 +56,8 @@ private:
     void saveXML();
 
     void saveJSON();
+
+    void saveAnnotatedImage();
 
 private:
     Ui::AnnotatorDialog *ui;

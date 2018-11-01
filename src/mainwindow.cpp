@@ -3,6 +3,7 @@
 
 #include "annotatordialog.h"
 
+#include <QDebug>
 #include <QDir>
 #include <QFileDialog>
 #include <QAbstractButton>
@@ -24,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->chooseDirButton->setIcon(QIcon::fromTheme("document-open-folder"));
     ui->chooseFileButton->setIcon(QIcon::fromTheme("quickopen-file"));
 
-    ui->outputType->addItems({"XML", "JSON"});
+    ui->outputType->addItems({"XML", "Annotated Image", "JSON"});
 
     ui->outputPath->setText(QDir::homePath());
 
@@ -46,6 +47,8 @@ void MainWindow::annotateFile(bool checked)
         outputType = AnnotatorDialog::OutputType::XML;
     else if (ui->outputType->currentText() == "JSON")
         outputType = AnnotatorDialog::OutputType::JSON;
+    else if (ui->outputType->currentText() == "Annotated Image")
+        outputType = AnnotatorDialog::OutputType::AnnotImage;
     else
         outputType = AnnotatorDialog::OutputType::Unknown;
 
@@ -70,6 +73,8 @@ void MainWindow::annotateDir(bool checked)
 
     if (ui->outputType->currentText() == "XML")
         outputType = AnnotatorDialog::OutputType::XML;
+    else if (ui->outputType->currentText() == "Annotated Image")
+        outputType = AnnotatorDialog::OutputType::AnnotImage;
     else if (ui->outputType->currentText() == "JSON")
         outputType = AnnotatorDialog::OutputType::JSON;
     else
