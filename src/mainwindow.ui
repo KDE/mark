@@ -27,7 +27,7 @@
          </font>
         </property>
         <property name="text">
-         <string>QAnnotator</string>
+         <string>marK</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>

@@ -14,7 +14,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    setWindowTitle("QAnnotator");
+    setWindowTitle("marK");
 
     setWindowIcon(QIcon(":res/pencil.jpg"));
 
@@ -57,7 +57,7 @@ void MainWindow::annotateFile(bool checked)
     QString file = QFileDialog::getOpenFileName(this,
                                                 "Open Image",
                                                 QDir::homePath(),
-                                                "Images (*.png *.xpm *.jpg)");
+                                                "Images (*.png *.xpm *.jpg *.jpeg)");
 
     if (!file.isEmpty()) {
         AnnotatorDialog annotator(file, outputPath, outputType, this);
