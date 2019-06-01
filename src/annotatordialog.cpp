@@ -14,8 +14,6 @@
 #include <QTime>
 #include <QXmlStreamWriter>
 
-#include <QDebug>
-
 #define POLYGON_BEGIN_RECT_DIST 10
 
 AnnotatorDialog::AnnotatorDialog(QString file, QString outputPath, OutputType outputType, QWidget *parent) :
@@ -28,7 +26,7 @@ AnnotatorDialog::AnnotatorDialog(QString file, QString outputPath, OutputType ou
 {
     ui->setupUi(this);
 
-    setWindowTitle("QAnnotator - " + file);
+    setWindowTitle("marK - " + file);
 
     if (!m_outputPath.endsWith('/'))
         m_outputPath.append('/');
@@ -48,6 +46,8 @@ AnnotatorDialog::AnnotatorDialog(QString file, QString outputPath, OutputType ou
     scene->addPixmap(image);
 
     ui->graphicsView->setScene(scene);
+    ui->graphicsView->setCursor(Qt::CrossCursor);
+
     ui->graphicsView->installEventFilter(this);
     ui->graphicsView->adjustSize();
 
