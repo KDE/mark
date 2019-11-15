@@ -4,6 +4,7 @@
     <file>qml/ItemViewer.qml</file>
     <file>qml/ActionBox.qml</file>
     <file>qml/ItemList.qml</file>
+    <file>qml/CustomMenuBar.qml</file>
     <file>res/circle_icon.png</file>
     <file>res/polygon_icon.png</file>
     <file>res/rect_icon.png</file>

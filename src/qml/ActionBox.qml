@@ -2,6 +2,7 @@ import QtQuick 2.0
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.12
 import QtQml.Models 2.1
+import QtQuick.Dialogs 1.3
 
 GroupBox
 {
@@ -10,6 +11,17 @@ GroupBox
 
     anchors.fill: parent
     anchors.margins: 5
+
+    property var currentColor: "#000000"
+
+    ColorDialog {
+        id: colorDialog
+        title: "Please choose a color"
+
+        onAccepted: {
+            groupbox.currentColor = colorDialog.color
+        }
+    }
 
     ColumnLayout {
         width: childrenRect.width
@@ -55,9 +67,57 @@ GroupBox
                 anchors.fill: parent
 
                 ComboBox {
+                    id: classcombobox
+
                     Layout.alignment: Qt.AlignHCenter
 
-                    model: ["A", "B", "C"]
+                    editable: true
+
+                    onAccepted: {
+                        model.set(currentIndex, {"text": editText})
+                        classcombobox.reload()
+                    }
+
+                    model: ListModel {
+                        property var current: 0
+                    }
+
+                    /*
+                    contentItem: Rectangle {
+                        height: parent.height
+                        width: classcombobox.width
+                        Rectangle {
+                            id: contentcolorcombobox
+                            color: "red"
+                            width: classcombobox.width * 0.2
+                            height: classcombobox.height / 2
+                        }
+                        Text {
+                            text: classcombobox.displayText
+                            x: contentcolorcombobox.width + 10
+                            width: classcombobox.width * 0.5
+                            height: classcombobox.height / 2
+                        }
+                    }*/
+
+                    delegate: ItemDelegate {
+                        width: classcombobox.width
+                        contentItem: Rectangle {
+                            Rectangle {
+                                id: contentcolor
+                                color: "red"
+                                width: classcombobox.width * 0.2
+                                height: parent.height
+                            }
+                            Text {
+                                text: modelData
+                                x: contentcolor.width + 10
+                                width: classcombobox.width * 0.5
+                                height: parent.height
+                            }
+                        }
+                        highlighted: classcombobox.highlightedIndex === index
+                    }
                 }
 
                 RowLayout {
@@ -65,11 +125,18 @@ GroupBox
                     Button {
                         Layout.preferredWidth: parent.width / 2
                         text: "Edit Color"
+
+                        onClicked: colorDialog.open()
                     }
 
                     Button {
                         Layout.preferredWidth: parent.width / 2
                         text: "New Class"
+
+                        onClicked: {
+                            classcombobox.model.current += 1
+                            classcombobox.model.append({ text: classcombobox.model.current.toString() })
+                        }
                     }
                 }
             }
