@@ -75,10 +75,10 @@ GroupBox
 
                     onAccepted: {
                         model.set(currentIndex, {"text": editText})
-                        classcombobox.reload()
                     }
 
                     model: ListModel {
+                        id: classcomboboxmodel
                         property var current: 0
                     }
 
@@ -110,7 +110,7 @@ GroupBox
                                 height: parent.height
                             }
                             Text {
-                                text: modelData
+                                text: classcomboboxmodel.get(index)["text"]
                                 x: contentcolor.width + 10
                                 width: classcombobox.width * 0.5
                                 height: parent.height
