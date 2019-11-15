@@ -29,6 +29,9 @@ GroupBox
 
         GroupBox {
             id: shapes
+
+            property string selectedShape: "polygon"
+
             title: "Shapes"
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignHCenter
@@ -38,23 +41,35 @@ GroupBox
                 anchors.fill: parent
 
                 ToolButton {
+                    property string name: "polygon"
                     Layout.alignment: Qt.AlignHCenter
                     icon.source: "qrc:res/polygon_icon.png"
+                    highlighted: shapes.selectedShape === name
+                    onClicked: shapes.selectedShape = name
                 }
 
                 ToolButton {
+                    property string name: "circle"
                     Layout.alignment: Qt.AlignHCenter
                     icon.source: "qrc:res/circle_icon.png"
+                    highlighted: shapes.selectedShape === name
+                    onClicked: shapes.selectedShape = name
                 }
 
                 ToolButton {
+                    property string name: "rect"
                     Layout.alignment: Qt.AlignHCenter
                     icon.source: "qrc:res/rect_icon.png"
+                    highlighted: shapes.selectedShape === name
+                    onClicked: shapes.selectedShape = name
                 }
 
                 ToolButton {
+                    property string name: "triangle"
                     Layout.alignment: Qt.AlignHCenter
                     icon.source: "qrc:res/triangle_icon.png"
+                    highlighted: shapes.selectedShape === name
+                    onClicked: shapes.selectedShape = name
                 }
             }
         }
