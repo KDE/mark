@@ -19,7 +19,7 @@ GroupBox {
             folder: filedialog.fileUrl
             sortField: FolderListModel.Name
 
-            nameFilters: ["*.png"]
+            nameFilters: ["*.png", "*.jpg", "*.jpeg"]
         }
 
         Component {

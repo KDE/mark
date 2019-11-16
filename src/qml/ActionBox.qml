@@ -89,7 +89,8 @@ GroupBox
                     editable: true
 
                     onAccepted: {
-                        model.set(currentIndex, {"text": editText})
+                        if (currentIndex !== -1)
+                            model.set(currentIndex, {"text": editText})
                     }
 
                     model: ListModel {
