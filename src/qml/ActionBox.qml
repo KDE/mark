@@ -120,7 +120,7 @@ GroupBox
                         contentItem: Rectangle {
                             Rectangle {
                                 id: contentcolor
-                                color: "red"
+                                color: model.color
                                 width: classcombobox.width * 0.2
                                 height: parent.height
                             }
@@ -150,7 +150,7 @@ GroupBox
 
                         onClicked: {
                             classcombobox.model.current += 1
-                            classcombobox.model.append({ text: classcombobox.model.current.toString() })
+                            classcombobox.model.append({ text: classcombobox.model.current.toString(), color: '#'+Math.floor(Math.random()*16777215).toString(16) })
                         }
                     }
                 }
