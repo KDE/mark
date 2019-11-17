@@ -5,7 +5,7 @@ import Qt.labs.folderlistmodel 2.12
 GroupBox {
     anchors.fill: parent
     anchors.margins: 5
-    title: "Files"
+    title: qsTr("Files")
 
     ListView {
         id: itemlistview

@@ -16,7 +16,7 @@ GroupBox
 
     ColorDialog {
         id: colorDialog
-        title: "Please choose a color"
+        title: qsTr("Please choose a color")
 
         onAccepted: {
             groupbox.currentColor = colorDialog.color
@@ -32,7 +32,7 @@ GroupBox
 
             property string selectedShape: "polygon"
 
-            title: "Shapes"
+            title: qsTr("Shapes")
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignHCenter
 
@@ -75,7 +75,7 @@ GroupBox
         }
 
         GroupBox {
-            title: "Classes"
+            title: qsTr("Classes")
             Layout.fillWidth: true
 
             ColumnLayout {
@@ -139,14 +139,14 @@ GroupBox
                     Layout.preferredWidth: parent.width
                     Button {
                         Layout.preferredWidth: parent.width / 2
-                        text: "Edit Color"
+                        text: qsTr("Edit Color")
 
                         onClicked: colorDialog.open()
                     }
 
                     Button {
                         Layout.preferredWidth: parent.width / 2
-                        text: "New Class"
+                        text: qsTr("New Class")
 
                         onClicked: {
                             classcombobox.model.current += 1
@@ -158,19 +158,19 @@ GroupBox
         }
 
         GroupBox {
-            title: "Edit"
+            title: qsTr("Edit")
             Layout.fillWidth: true
 
             RowLayout {
                 anchors.fill: parent
                 Button {
                     Layout.preferredWidth: parent.width / 2
-                    text: "Erase"
+                    text: qsTr("Erase")
                 }
 
                 Button {
                     Layout.preferredWidth: parent.width / 2
-                    text: "Undo"
+                    text: qsTr("Undo")
                 }
             }
         }
