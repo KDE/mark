@@ -13,7 +13,7 @@ MenuBar {
 
     FileDialog {
         id: filedialog
-        title: "Please select a file or directory..."
+        title: qsTr("Please select a file or directory...")
         nameFilters: ["Image files (*.jpg *.png)"]
         selectFolder: true
         folder: shortcuts.home
@@ -42,54 +42,54 @@ MenuBar {
     }
 
     Menu {
-        title: "File"
+        title: qsTr("File")
 
         Action {
-            text: "New"
+            text: qsTr("New")
         }
 
         Action {
-            text: "Open..."
+            text: qsTr("Open...")
             shortcut: "Ctrl+O"
             onTriggered: filedialog.open()
         }
 
         Action {
-            text: "Open recent..."
+            text: qsTr("Open recent...")
         }
     }
 
     Menu {
-        title: "Help"
+        title: qsTr("Help")
 
         Action {
-            text: "marK Handbook"
+            text: qsTr("marK Handbook")
         }
 
         Action {
-            text: "What's this?"
-        }
-
-        MenuSeparator { }
-
-        Action {
-            text: "Report bug"
+            text: qsTr("What's this?")
         }
 
         MenuSeparator { }
 
         Action {
-            text: "Donate"
+            text: qsTr("Report bug")
         }
 
         MenuSeparator { }
 
         Action {
-            text: "About marK"
+            text: qsTr("Donate")
+        }
+
+        MenuSeparator { }
+
+        Action {
+            text: qsTr("About marK")
         }
 
         Action {
-            text: "About KDE"
+            text: qsTr("About KDE")
         }
     }
 }

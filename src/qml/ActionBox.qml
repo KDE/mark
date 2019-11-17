@@ -12,14 +12,14 @@ GroupBox
     anchors.fill: parent
     anchors.margins: 5
 
-    property var currentColor: "#000000"
+    property var currentColor: classesModel.get(classcombobox.model.current).color
 
     ColorDialog {
         id: colorDialog
-        title: "Please choose a color"
+        title: qsTr("Please choose a color")
 
         onAccepted: {
-            groupbox.currentColor = colorDialog.color
+            classesModel.set(classcombobox.model.current, {"color": colorDialog.color.toString()})
         }
     }
 
@@ -32,7 +32,7 @@ GroupBox
 
             property string selectedShape: "polygon"
 
-            title: "Shapes"
+            title: qsTr("Shapes")
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignHCenter
 
@@ -75,7 +75,7 @@ GroupBox
         }
 
         GroupBox {
-            title: "Classes"
+            title: qsTr("Classes")
             Layout.fillWidth: true
 
             ColumnLayout {
@@ -94,8 +94,12 @@ GroupBox
                     }
 
                     model: ListModel {
-                        id: classcomboboxmodel
-                        property var current: 0
+                        id: classesModel
+
+                        ListElement {
+                            text: qsTr("New class")
+                            color: "red"
+                        }
                     }
 
                     /*
@@ -121,12 +125,12 @@ GroupBox
                         contentItem: Rectangle {
                             Rectangle {
                                 id: contentcolor
-                                color: "red"
+                                color: model.color
                                 width: classcombobox.width * 0.2
                                 height: parent.height
                             }
                             Text {
-                                text: classcomboboxmodel.get(index)["text"]
+                                text: model.get(index).text
                                 x: contentcolor.width + 10
                                 width: classcombobox.width * 0.5
                                 height: parent.height
@@ -140,18 +144,19 @@ GroupBox
                     Layout.preferredWidth: parent.width
                     Button {
                         Layout.preferredWidth: parent.width / 2
-                        text: "Edit Color"
+                        text: qsTr("Edit Color")
 
                         onClicked: colorDialog.open()
                     }
 
                     Button {
                         Layout.preferredWidth: parent.width / 2
-                        text: "New Class"
+                        text: qsTr("New Class")
 
                         onClicked: {
-                            classcombobox.model.current += 1
-                            classcombobox.model.append({ text: classcombobox.model.current.toString() })
+                            let current = classcombobox.model.count
+                            classcombobox.model.append({text: qsTr("New class") + " (" + current + ")",
+                                                        color: '#'+Math.floor(Math.random()*16777215).toString(16) })
                         }
                     }
                 }
@@ -159,19 +164,19 @@ GroupBox
         }
 
         GroupBox {
-            title: "Edit"
+            title: qsTr("Edit")
             Layout.fillWidth: true
 
             RowLayout {
                 anchors.fill: parent
                 Button {
                     Layout.preferredWidth: parent.width / 2
-                    text: "Erase"
+                    text: qsTr("Erase")
                 }
 
                 Button {
                     Layout.preferredWidth: parent.width / 2
-                    text: "Undo"
+                    text: qsTr("Undo")
                     onClicked: itemviewer.canvas.clearCanvas()
                 }
             }
