@@ -12,14 +12,14 @@ GroupBox
     anchors.fill: parent
     anchors.margins: 5
 
-    property var currentColor: "#000000"
+    property var currentColor: classesModel.get(classcombobox.model.current).color
 
     ColorDialog {
         id: colorDialog
         title: qsTr("Please choose a color")
 
         onAccepted: {
-            groupbox.currentColor = colorDialog.color
+            classesModel.set(classcombobox.model.current, {"color": colorDialog.color.toString()})
         }
     }
 
@@ -94,7 +94,12 @@ GroupBox
                     }
 
                     model: ListModel {
-                        property var current: 0
+                        id: classesModel
+
+                        ListElement {
+                            text: qsTr("New class")
+                            color: "red"
+                        }
                     }
 
                     /*
@@ -125,7 +130,7 @@ GroupBox
                                 height: parent.height
                             }
                             Text {
-                                text: modelData
+                                text: model.text
                                 x: contentcolor.width + 10
                                 width: classcombobox.width * 0.5
                                 height: parent.height
@@ -149,8 +154,9 @@ GroupBox
                         text: qsTr("New Class")
 
                         onClicked: {
-                            classcombobox.model.current += 1
-                            classcombobox.model.append({ text: classcombobox.model.current.toString(), color: '#'+Math.floor(Math.random()*16777215).toString(16) })
+                            let current = classcombobox.model.count
+                            classcombobox.model.append({text: qsTr("New class") + " (" + current + ")",
+                                                        color: '#'+Math.floor(Math.random()*16777215).toString(16) })
                         }
                     }
                 }
