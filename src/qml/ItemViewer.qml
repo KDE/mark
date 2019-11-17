@@ -24,6 +24,7 @@ Rectangle
 
         property int lastX: -1
         property int lastY: -1
+        property var selectedColor: actionBox.currentColor
 
         contextType: "2d"
 
@@ -53,7 +54,7 @@ Rectangle
         onPaint: {
             var ctx = getContext("2d")
             ctx.lineWidth = 4
-            ctx.strokeStyle = "#000000"
+            ctx.strokeStyle = selectedColor
             ctx.beginPath()
 
             if (lastX > 0 && lastY > 0)
@@ -67,7 +68,7 @@ Rectangle
 
             polygons.append({"x": lastX, "y": lastY})
 
-            console.log(polygons.get(polygons.count - 1)["x"] + " " + polygons.get(polygons.count - 1)["y"])
+            console.log(polygons.get(polygons.count - 1)["x"] + " " + polygons.get(polygons.count - 1)["y"], selectedColor)
 
         }
     }
