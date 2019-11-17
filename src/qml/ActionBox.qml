@@ -172,6 +172,7 @@ GroupBox
                 Button {
                     Layout.preferredWidth: parent.width / 2
                     text: "Undo"
+                    onClicked: itemviewer.canvas.clearCanvas()
                 }
             }
         }

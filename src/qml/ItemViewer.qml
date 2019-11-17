@@ -39,6 +39,7 @@ Rectangle
         MouseArea {
             id: area
             anchors.fill: parent
+            hoverEnabled: false
 
             onClicked: {
                 canvas.lastX = mouseX
@@ -65,10 +66,41 @@ Rectangle
             ctx.lineTo(lastX, lastY)
             ctx.stroke()
 
-            polygons.append({"x": lastX, "y": lastY})
+            if (lastX > 0 && lastY > 0) {
+                polygons.append({"x": lastX, "y": lastY})
+                console.log(polygons.get(polygons.count - 1)["x"] + " " + polygons.get(polygons.count - 1)["y"])
+            }
+        }
 
-            console.log(polygons.get(polygons.count - 1)["x"] + " " + polygons.get(polygons.count - 1)["y"])
+        property var clearCanvas: function() {
 
+            console.log("Here")
+
+            var ctx = getContext("2d")
+            ctx.reset()
+
+            if (polygons.count > 0)
+                polygons.remove(polygons.count - 1)
+
+            lastX = -1
+            lastY = -1
+
+            for (var i = 0; i < polygons.count; i++) {
+                canvas.requestPaint()
+                var ctx = getContext("2d")
+                ctx.lineWidth = 4
+                ctx.strokeStyle = "#000000"
+                ctx.beginPath()
+
+                if (lastX > 0 && lastY > 0)
+                    ctx.moveTo(lastX, lastY)
+
+                ctx.lineTo(polygons.get(i)["x"], polygons.get(i)["y"])
+                ctx.stroke()
+                
+                lastX = polygons.get(i)["x"]
+                lastY = polygons.get(i)["y"]
+            }
         }
     }
 }
