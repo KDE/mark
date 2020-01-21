@@ -1,11 +1,16 @@
-#include "mainwindow.h"
+#include "mark.h"
 #include <QApplication>
+#include <QScreen>
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    MainWindow w;
+    QApplication app(argc, argv);
+    
+    marK w;
+    w.setFixedSize(qApp->primaryScreen()->availableSize());
+    w.setWindowState(Qt::WindowMaximized);
     w.show();
 
-    return a.exec();
+    return app.exec();
 }
+
