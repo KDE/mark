@@ -209,7 +209,7 @@ void marK::savePolygons(OutputType type)
     else if (type == OutputType::JSON)
         document = Serializer::toJSON(m_ui->annotatorWidget->savedPolygons());
 
-    if (document != nullptr)
+    if (!document.isEmpty())
     {
         QString outputFile(m_filepath);
         outputFile.replace(QRegularExpression(".jpg|.png|.xpm"), (type == OutputType::XML ? ".xml" : ".json"));
