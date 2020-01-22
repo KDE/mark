@@ -24,18 +24,18 @@
 class PolygonClass
 {
 public:
-    explicit PolygonClass(QString text);
-    explicit PolygonClass(QString text, QColor color);
+    explicit PolygonClass(QString name);
+    explicit PolygonClass(QString name, QColor color);
     
 public:
-    QString text() const { return m_text; }
+    QString name() const { return m_name; }
     QColor color() const { return m_color; }
     
-    void setText(const QString& text) { m_text = text; }
+    void setName(const QString& name) { m_name = name; }
     void setColor(const QColor& color) { m_color = color; }
 
 private:
-    QString m_text;
+    QString m_name;
     QColor m_color;
 };
 

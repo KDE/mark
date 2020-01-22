@@ -167,7 +167,7 @@ void marK::addNewClass()
     QPixmap colorPix(70, 45);
     colorPix.fill(newClass->color());
 
-    m_ui->comboBox->addItem(QIcon(colorPix), newClass->text());
+    m_ui->comboBox->addItem(QIcon(colorPix), newClass->name());
     m_ui->comboBox->setCurrentIndex(classQt);
 
     m_ui->annotatorWidget->setCurrentPolygonClass(newClass);

@@ -20,16 +20,16 @@
 #include <QTime>
 #include <QtGlobal>
 
-PolygonClass::PolygonClass(QString text) :
-    m_text(text)
+PolygonClass::PolygonClass(QString name) :
+    m_name(name)
 {
     qsrand((uint)QTime::currentTime().msec());
 
     m_color = QColor(qrand() % 256, qrand() % 256, qrand() % 256);
 }
 
-PolygonClass::PolygonClass(QString text, QColor color) :
-    m_text(text),
+PolygonClass::PolygonClass(QString name, QColor color) :
+    m_name(name),
     m_color(color)
 {
 }
