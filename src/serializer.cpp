@@ -14,6 +14,8 @@ QString Serializer::toXML(const QVector<Polygon>& annotatedPolygons)
 
     QString xmldoc;
     QXmlStreamWriter xmlWriter(&xmldoc);
+    xmlWriter.setAutoFormatting(true);
+    xmlWriter.writeStartDocument();
 
     xmlWriter.writeStartElement("annotation");
 
