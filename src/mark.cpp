@@ -140,8 +140,11 @@ void marK::changeImage(QListWidgetItem *current, QListWidgetItem *previous)
 {
     if (current != nullptr) {
         QString imagePath = QDir(m_currentDirectory).filePath(current->text());
-        m_filepath = imagePath;
-        m_ui->annotatorWidget->changeImage(imagePath);
+
+        if (imagePath != m_filepath) {
+            m_filepath = imagePath;
+            m_ui->annotatorWidget->changeImage(imagePath);
+        }
     }
 }
 
@@ -201,10 +204,9 @@ void marK::savePolygons(OutputType type)
 {
     QString document;
 
-    if (type == XML)
+    if (type == OutputType::XML)
         document = Serializer::toXML(m_ui->annotatorWidget->savedPolygons());
-
-    else if (type == JSON)
+    else if (type == OutputType::JSON)
         document = Serializer::toJSON(m_ui->annotatorWidget->savedPolygons());
 
     if (document != nullptr)
@@ -220,14 +222,12 @@ void marK::savePolygons(OutputType type)
 
         fileOut.close();
     }
-
-    qDebug() << m_ui->annotatorWidget->savedPolygons().size();
 }
 
 QString marK::handleFilename(OutputType type)
 {
-    QString outputFilename = m_filepath;
-    outputFilename.replace(QRegularExpression(".jpg|.png|.xpm"), (type == XML ? ".xml" : ".json"));
+    QString outputFilename(m_filepath);
+    outputFilename.replace(QRegularExpression(".jpg|.png|.xpm"), (type == marK::OutputType::XML ? ".xml" : ".json"));
     return outputFilename;
 }
 

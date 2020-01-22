@@ -34,13 +34,14 @@ class marK : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit marK(QWidget *parent = nullptr);
-    ~marK() override;
-public:
-    enum OutputType{
+    enum class OutputType {
         XML,
         JSON
     };
+
+public:
+    explicit marK(QWidget *parent = nullptr);
+    ~marK() override;
 
 public:
     void changeDirectory();
@@ -54,8 +55,8 @@ public slots:
     void updateFiles(const QString &path);
     void addNewClass();
     void selectClassColor();
-    void saveToJson() { savePolygons(JSON); };
-    void saveToXml() { savePolygons(XML); };
+    void saveToJson() { savePolygons(OutputType::JSON); };
+    void saveToXml() { savePolygons(OutputType::XML); };
 
 private:
     QScopedPointer<Ui::marK> m_ui;

@@ -7,7 +7,7 @@
 #include <QJsonArray>
 #include <QXmlStreamWriter>
 
-QString Serializer::toXML(QVector<Polygon> annotatedPolygons)
+QString Serializer::toXML(const QVector<Polygon>& annotatedPolygons)
 {
     if (annotatedPolygons.isEmpty())
         return nullptr;
@@ -17,7 +17,7 @@ QString Serializer::toXML(QVector<Polygon> annotatedPolygons)
 
     xmlWriter.writeStartElement("annotation");
 
-    for (Polygon item : annotatedPolygons) {
+    for (const Polygon& item : annotatedPolygons) {
         xmlWriter.writeStartElement("object");
 
         xmlWriter.writeStartElement("class");
@@ -26,7 +26,7 @@ QString Serializer::toXML(QVector<Polygon> annotatedPolygons)
 
         xmlWriter.writeStartElement("polygon");
 
-        for (QPointF &point : item) {
+        for (const QPointF& point : item) {
             xmlWriter.writeStartElement("pt");
 
             xmlWriter.writeStartElement("x");
@@ -56,14 +56,14 @@ QString Serializer::toXML(QVector<Polygon> annotatedPolygons)
     return xmldoc;
 }
 
-QString Serializer::toJSON(QVector<Polygon> annotatedPolygons)
+QString Serializer::toJSON(const QVector<Polygon>& annotatedPolygons)
 {
     if(annotatedPolygons.isEmpty())
         return nullptr;
 
     QJsonArray classesArray;
 
-    for (Polygon item : annotatedPolygons) {
+    for (const Polygon& item : annotatedPolygons) {
         QJsonObject recordObject;
 
         recordObject.insert("Class", item.polygonClass()->name());
@@ -71,7 +71,7 @@ QString Serializer::toJSON(QVector<Polygon> annotatedPolygons)
         QJsonObject polygonObj;
         QJsonArray polygonsArray;
 
-        for (QPointF &point : item) {
+        for (const QPointF &point : item) {
             QJsonObject ptObj;
 
             ptObj.insert("x", QString::number(point.x()));

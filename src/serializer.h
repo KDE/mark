@@ -9,7 +9,7 @@
 class Serializer
 {
 public:
-    static QString toJSON(QVector<Polygon> annotatedPolygons);
-    static QString toXML(QVector<Polygon> annotatedPolygons);
+    static QString toJSON(const QVector<Polygon>& annotatedPolygons);
+    static QString toXML(const QVector<Polygon>& annotatedPolygons);
 };
 #endif // SERIALIZER_H
