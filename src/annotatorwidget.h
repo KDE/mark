@@ -56,6 +56,9 @@ public:
     void setCurrentPolygonClass(PolygonClass* polygonClass) { m_currentPolygon.setPolygonClass(polygonClass); repaint(); }
     void setShape(Shape shape) { m_shape = shape; }
 
+    // TODO: scale a point
+    QPointF scaledPoint(const QPointF& point) const { return QPointF(point.x(), point.y()); }
+
 public slots:
     void undo();
     
@@ -66,6 +69,9 @@ private:
     QVector<QGraphicsItem*> m_items;
     QGraphicsPixmapItem* m_currentImage;
     Shape m_shape;
+
+    qreal m_scaleW;
+    qreal m_scaleH;
 };
 
 #endif // ANNOTATORWIDGET_H

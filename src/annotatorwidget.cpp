@@ -28,7 +28,9 @@ AnnotatorWidget::AnnotatorWidget(QWidget* parent):
     QWidget(parent),
     m_ui(new Ui::AnnotatorWidget),
     m_currentImage(nullptr),
-    m_shape(AnnotatorWidget::Shape::Polygon)
+    m_shape(AnnotatorWidget::Shape::Polygon),
+    m_scaleW(0.0),
+    m_scaleH(0.0)
 {
     m_ui->setupUi(this);
 
@@ -50,8 +52,10 @@ QVector<Polygon> AnnotatorWidget::savedPolygons() const
     QVector<Polygon> copyPolygons(m_savedPolygons);
 
     for (Polygon& polygon : copyPolygons)
-        for (QPointF& point : polygon)
+        for (QPointF& point : polygon) {
             point -= m_currentImage->pos();
+            point = scaledPoint(point);
+        }
 
     return copyPolygons;
 }
@@ -166,18 +170,26 @@ void AnnotatorWidget::changeImage(QString imagePath)
     clear();
 
     QPixmap image(imagePath);
+    QPixmap scaledImage;
 
     if (image.height() >= 1280)
-        image = image.scaledToHeight(int(1280 * 0.8));
+        scaledImage = image.scaledToHeight(int(1280 * 0.8));
     if (image.width() >= 960)
-        image = image.scaledToWidth(int(960 * 0.8));
+        scaledImage = image.scaledToWidth(int(960 * 0.8));
+
+    if (!scaledImage.isNull()) {
+        m_scaleW = qreal(scaledImage.width()) / qreal(image.width());
+        m_scaleH = qreal(scaledImage.height()) / qreal(image.height());
+        qDebug() << m_scaleW << m_scaleH;
+        image = scaledImage;
+    }
 
     QGraphicsPixmapItem *pixmapItem = scene->addPixmap(image);
 
-    int x_scene = scene->width() / 2;
-    int y_scene = scene->height() / 2;
-    int x_image = image.width() / 2;
-    int y_image = image.height() / 2;
+    int x_scene = int(scene->width() / 2);
+    int y_scene = int(scene->height() / 2);
+    int x_image = int(image.width() / 2);
+    int y_image = int(image.height() / 2);
 
     pixmapItem->setPos(x_scene - x_image, y_scene - y_image);
 
