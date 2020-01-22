@@ -48,7 +48,6 @@ public:
     void changeImage(int currentRow);
     void updateFiles();
     void savePolygons(OutputType type);
-    QString handleFilename(OutputType type);
 
 public slots:
     void changeImage(QListWidgetItem *current, QListWidgetItem *previous);

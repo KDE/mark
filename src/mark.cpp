@@ -211,7 +211,8 @@ void marK::savePolygons(OutputType type)
 
     if (document != nullptr)
     {
-        QString outputFile = handleFilename(type);
+        QString outputFile(m_filepath);
+        outputFile.replace(QRegularExpression(".jpg|.png|.xpm"), (type == OutputType::XML ? ".xml" : ".json"));
 
         QFile fileOut(outputFile);
 
@@ -222,13 +223,6 @@ void marK::savePolygons(OutputType type)
 
         fileOut.close();
     }
-}
-
-QString marK::handleFilename(OutputType type)
-{
-    QString outputFilename(m_filepath);
-    outputFilename.replace(QRegularExpression(".jpg|.png|.xpm"), (type == marK::OutputType::XML ? ".xml" : ".json"));
-    return outputFilename;
 }
 
 marK::~marK() = default;
