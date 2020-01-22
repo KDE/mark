@@ -44,6 +44,18 @@ AnnotatorWidget::~AnnotatorWidget()
 {
 }
 
+// TODO: improve me and remove this loop
+QVector<Polygon> AnnotatorWidget::savedPolygons() const
+{
+    QVector<Polygon> copyPolygons(m_savedPolygons);
+
+    for (Polygon& polygon : copyPolygons)
+        for (QPointF& point : polygon)
+            point -= m_currentImage->pos();
+
+    return copyPolygons;
+}
+
 bool AnnotatorWidget::eventFilter(QObject* watched, QEvent* event)
 {
     QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>(event);
@@ -51,7 +63,6 @@ bool AnnotatorWidget::eventFilter(QObject* watched, QEvent* event)
     if (m_currentImage != nullptr && mouseEvent != nullptr) {
         QPoint point = mouseEvent->pos();
         QPointF clickedPoint = m_ui->graphicsView->mapToScene(point);
-        
         bool isImageClicked = m_ui->graphicsView->scene()->itemAt(clickedPoint, m_ui->graphicsView->transform()) == m_currentImage;
 
         auto savedPolClicked = std::find_if(

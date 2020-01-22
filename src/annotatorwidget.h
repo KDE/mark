@@ -41,12 +41,11 @@ public:
 
 public:
     explicit AnnotatorWidget(QWidget* parent = nullptr);
-    
     ~AnnotatorWidget() override;
 
 public:
-    QVector<Polygon> savedPolygons() const { return m_savedPolygons; }
-    
+    QVector<Polygon> savedPolygons() const;
+
     bool eventFilter(QObject* watched, QEvent* event) override;
     void changeImage(QString imagePath);
     void clear();
