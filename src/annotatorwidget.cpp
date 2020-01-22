@@ -51,42 +51,32 @@ bool AnnotatorWidget::eventFilter(QObject* watched, QEvent* event)
     if (m_currentImage != nullptr && mouseEvent != nullptr) {
         QPoint point = mouseEvent->pos();
         QPointF clickedPoint = m_ui->graphicsView->mapToScene(point);
+        
+        bool isImageClicked = m_ui->graphicsView->scene()->itemAt(clickedPoint, m_ui->graphicsView->transform()) == m_currentImage;
 
-        auto isFirstPolClicked = [&](const QPointF& p) {
-            if (!m_currentPolygon.empty()) {
-                qreal firstX = m_currentPolygon.first().x() + 10;
-                qreal firstY = m_currentPolygon.first().y() + 10;
-                
-                QRectF rect(m_currentPolygon.first(), QPointF(firstX, firstY));
-
-                return rect.contains(p);
+        auto savedPolClicked = std::find_if(
+            m_savedPolygons.begin(), m_savedPolygons.end(),
+            [&](const Polygon& pol) {
+                return pol.containsPoint(clickedPoint, Qt::OddEvenFill);
             }
-            return false;
-        };
+        );
+        bool isSavedPolClicked = savedPolClicked != m_savedPolygons.end();
+        if (isSavedPolClicked) {
+            m_currentPolygon = *savedPolClicked;
+            m_savedPolygons.erase(savedPolClicked);
+            m_currentPolygon.pop_back();
+        }
 
-        if (isFirstPolClicked(clickedPoint) ||
-                m_ui->graphicsView->scene()->itemAt(clickedPoint, m_ui->graphicsView->transform()) == m_currentImage) {
+        bool isPolFirstPtClicked = false;
+        if (!m_currentPolygon.empty()) {
+            QPointF cPolFirstPt = m_currentPolygon.first();
+            QRectF cPolFirstPtRect(cPolFirstPt, QPointF(cPolFirstPt.x() + 10, cPolFirstPt.y() + 10));
+            isPolFirstPtClicked = cPolFirstPtRect.contains(clickedPoint);
+            if (isPolFirstPtClicked)
+                clickedPoint = QPointF(cPolFirstPt);
+        }
 
-            // check if any other polygon has been clicked
-            auto it = std::find_if(
-                m_savedPolygons.begin(), m_savedPolygons.end(),
-                [&](const Polygon& pol) {
-                    qreal x = pol.first().x() + 10;
-                    qreal y = pol.first().y() + 10;
-                    QRectF rect(pol.first(), QPointF(x, y));
-
-                    return rect.contains(clickedPoint);
-                }
-            );
-
-            if (it != m_savedPolygons.end()) {
-                m_currentPolygon = *it;
-                m_savedPolygons.erase(it);
-            }
-
-            if (isFirstPolClicked(clickedPoint))
-                clickedPoint = QPointF(m_currentPolygon.first());
-
+        if (isSavedPolClicked || isPolFirstPtClicked || isImageClicked) {
             m_currentPolygon << clickedPoint;
 
             if (m_currentPolygon.size() > 1 && m_currentPolygon.isClosed()) {
@@ -133,7 +123,7 @@ void AnnotatorWidget::paintPolygon(const Polygon& polygon)
             if (it == polygon.begin()) {
                 QBrush brush(polygon.polygonClass()->color());
 
-                item = scene->addRect((*it).x(), (*it).y(), 10, 10, QPen(brush, 2), brush);
+                item = scene->addRect((*it).x(), (*it).y(), 10, 10, QPen(brush, 3), brush);
             }
             else
                 item = scene->addLine(QLineF(*(it - 1), *it), QPen(QBrush(polygon.polygonClass()->color()), 2));
@@ -166,10 +156,10 @@ void AnnotatorWidget::changeImage(QString imagePath)
 
     QPixmap image(imagePath);
 
-    if (image.height() >= 960)
-        image = image.scaledToHeight(int(960 * 0.6));
-    if (image.width() >= 720)
-        image = image.scaledToWidth(int(720 * 0.6));
+    if (image.height() >= 1280)
+        image = image.scaledToHeight(int(1280 * 0.8));
+    if (image.width() >= 960)
+        image = image.scaledToWidth(int(960 * 0.8));
 
     QGraphicsPixmapItem *pixmapItem = scene->addPixmap(image);
 
