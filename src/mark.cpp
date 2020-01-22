@@ -34,6 +34,8 @@
 #include <QColorDialog>
 #include <QFontMetrics>
 
+#include <QDebug>
+
 marK::marK(QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::marK),
@@ -218,23 +220,14 @@ void marK::savePolygons(OutputType type)
 
         fileOut.close();
     }
+
+    qDebug() << m_ui->annotatorWidget->savedPolygons().size();
 }
 
 QString marK::handleFilename(OutputType type)
 {
-    QString outputFilename;
-    if (type == XML)
-    {
-        outputFilename = m_filepath;
-        outputFilename.replace(QRegularExpression(".jpg|.png|.xpm"), ".xml");
-    }
-
-    else if (type == JSON)
-    {
-        outputFilename = m_filepath;
-        outputFilename.replace(QRegularExpression(".jpg|.png|.xpm"), ".json");
-    }
-
+    QString outputFilename = m_filepath;
+    outputFilename.replace(QRegularExpression(".jpg|.png|.xpm"), (type == XML ? ".xml" : ".json"));
     return outputFilename;
 }
 
