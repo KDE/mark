@@ -17,6 +17,7 @@
 
 #include "mark.h"
 #include "ui_mark.h"
+#include "serializer.h"
 
 #include <QAction>
 #include <QDir>
@@ -48,8 +49,12 @@ marK::marK(QWidget *parent) :
     connect(openDirAction, &QAction::triggered, this, &marK::changeDirectory);
 
     QMenu *exportMenu = fileMenu->addMenu("Export");
-    exportMenu->addAction("XML");
-    exportMenu->addAction("JSON");
+
+    QAction *toXML = exportMenu->addAction("XML");
+    connect(toXML, &QAction::triggered, this, &marK::saveToXml);
+
+    QAction *toJson = exportMenu->addAction("JSON");
+    connect(toJson, &QAction::triggered, this, &marK::saveToJson);
 
     QMenu *editMenu = m_ui->menuBar->addMenu("Edit");
 
@@ -133,6 +138,7 @@ void marK::changeImage(QListWidgetItem *current, QListWidgetItem *previous)
 {
     if (current != nullptr) {
         QString imagePath = QDir(m_currentDirectory).filePath(current->text());
+        m_filepath = imagePath;
         m_ui->annotatorWidget->changeImage(imagePath);
     }
 }
@@ -187,6 +193,49 @@ void marK::selectClassColor()
     }
 
     m_ui->annotatorWidget->repaint();
+}
+
+void marK::savePolygons(OutputType type)
+{
+    QString document;
+
+    if (type == XML)
+        document = Serializer::toXML(m_ui->annotatorWidget->savedPolygons());
+
+    else if (type == JSON)
+        document = Serializer::toJSON(m_ui->annotatorWidget->savedPolygons());
+
+    if (document != nullptr)
+    {
+        QString outputFile = handleFilename(type);
+
+        QFile fileOut(outputFile);
+
+        if (!fileOut.open(QIODevice::WriteOnly | QIODevice::Text))
+            return;
+
+        fileOut.write(document.toUtf8());
+
+        fileOut.close();
+    }
+}
+
+QString marK::handleFilename(OutputType type)
+{
+    QString outputFilename;
+    if (type == XML)
+    {
+        outputFilename = m_filepath;
+        outputFilename.replace(QRegularExpression(".jpg|.png|.xpm"), ".xml");
+    }
+
+    else if (type == JSON)
+    {
+        outputFilename = m_filepath;
+        outputFilename.replace(QRegularExpression(".jpg|.png|.xpm"), ".json");
+    }
+
+    return outputFilename;
 }
 
 marK::~marK() = default;

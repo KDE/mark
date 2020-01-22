@@ -36,22 +36,32 @@ class marK : public QMainWindow
 public:
     explicit marK(QWidget *parent = nullptr);
     ~marK() override;
+public:
+    enum OutputType{
+        XML,
+        JSON
+    };
 
 public:
     void changeDirectory();
     void changeImage(int currentRow);
     void updateFiles();
+    void savePolygons(OutputType type);
+    QString handleFilename(OutputType type);
 
 public slots:
     void changeImage(QListWidgetItem *current, QListWidgetItem *previous);
     void updateFiles(const QString &path);
     void addNewClass();
     void selectClassColor();
+    void saveToJson() { savePolygons(JSON); };
+    void saveToXml() { savePolygons(XML); };
 
 private:
     QScopedPointer<Ui::marK> m_ui;
     QFileSystemWatcher *m_watcher;
     QString m_currentDirectory;
+    QString m_filepath;
     QVector<PolygonClass*> m_polygonClasses;
 };
 

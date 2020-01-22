@@ -17,6 +17,7 @@ set(mark_SRC
   src/mark.cpp
   src/polygon.cpp
   src/polygonclass.cpp
+  src/serializer.cpp
 )
 
 # Tell CMake to create the helloworld executable
