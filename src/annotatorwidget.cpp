@@ -134,7 +134,7 @@ void AnnotatorWidget::paintPolygon(const Polygon& polygon)
             if (it == polygon.begin()) {
                 QBrush brush(polygon.polygonClass()->color());
 
-                item = scene->addRect((*it).x(), (*it).y(), 10, 10, QPen(brush, 3), brush);
+                item = scene->addEllipse((*it).x(), (*it).y(), 10, 10, QPen(brush, 2), brush);
             }
             else
                 item = scene->addLine(QLineF(*(it - 1), *it), QPen(QBrush(polygon.polygonClass()->color()), 2));
