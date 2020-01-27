@@ -18,6 +18,7 @@
 #ifndef ANNOTATORWIDGET_H
 #define ANNOTATORWIDGET_H
 
+#include "mark.h"
 #include "polygon.h"
 
 #include <QVector>
@@ -32,29 +33,22 @@ class QGraphicsPixmapItem;
 class AnnotatorWidget : public QWidget
 {
 public:
-    enum class Shape {
-        Polygon,
-        Rectangle,
-        Circle,
-        Triangle,
-    };
-
-public:
     explicit AnnotatorWidget(QWidget* parent = nullptr);
     ~AnnotatorWidget() override;
 
 public:
     QVector<Polygon> savedPolygons() const;
 
-    bool eventFilter(QObject* watched, QEvent* event) override;
+    void mousePressEvent(QMouseEvent* event) override;
+
     void changeImage(QString imagePath);
     void clear();
     void repaint();
-    void paintPolygon(const Polygon& polygon);
+    void paintPolygon(Polygon& polygon);
 
     // FIXME
     void setCurrentPolygonClass(PolygonClass* polygonClass) { m_currentPolygon.setPolygonClass(polygonClass); repaint(); }
-    void setShape(Shape shape) { m_shape = shape; }
+    void setShape(marK::Shape shape) { m_shape = shape; m_currentPolygon.clear(); repaint(); }
 
     // TODO: scale a point
     QPointF scaledPoint(const QPointF& point) const { return QPointF(point.x(), point.y()); }
@@ -68,7 +62,7 @@ private:
     QVector<Polygon> m_savedPolygons;
     QVector<QGraphicsItem*> m_items;
     QGraphicsPixmapItem* m_currentImage;
-    Shape m_shape;
+    marK::Shape m_shape;
 
     qreal m_scaleW;
     qreal m_scaleH;

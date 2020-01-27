@@ -92,6 +92,12 @@ marK::marK(QWidget *parent) :
     );
 
     connect(m_ui->selectClassColorButton, &QPushButton::clicked, this, &marK::selectClassColor);
+
+    connect(m_ui->polygonButton, &QPushButton::clicked,
+            [&](bool checked) { changeShape(marK::Shape::Polygon); });
+
+    connect(m_ui->rectButton, &QPushButton::clicked,
+            [&](bool checked) { changeShape(marK::Shape::Rectangle); });
 }
 
 void marK::updateFiles()
@@ -146,6 +152,11 @@ void marK::changeImage(QListWidgetItem *current, QListWidgetItem *previous)
             m_ui->annotatorWidget->changeImage(imagePath);
         }
     }
+}
+
+void marK::changeShape(marK::Shape shape)
+{
+    m_ui->annotatorWidget->setShape(shape);
 }
 
 void marK::changeDirectory()

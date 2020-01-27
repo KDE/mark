@@ -28,7 +28,7 @@ AnnotatorWidget::AnnotatorWidget(QWidget* parent):
     QWidget(parent),
     m_ui(new Ui::AnnotatorWidget),
     m_currentImage(nullptr),
-    m_shape(AnnotatorWidget::Shape::Polygon),
+    m_shape(marK::Shape::Polygon),
     m_scaleW(0.0),
     m_scaleH(0.0)
 {
@@ -40,6 +40,8 @@ AnnotatorWidget::AnnotatorWidget(QWidget* parent):
     m_ui->graphicsView->setMinimumSize(860, 600);
 
     m_ui->graphicsView->installEventFilter(this);
+
+    setMouseTracking(true);
 }
 
 AnnotatorWidget::~AnnotatorWidget()
@@ -51,59 +53,74 @@ QVector<Polygon> AnnotatorWidget::savedPolygons() const
 {
     QVector<Polygon> copyPolygons(m_savedPolygons);
 
-    for (Polygon& polygon : copyPolygons)
+    for (Polygon& polygon : copyPolygons) {
         for (QPointF& point : polygon) {
             point -= m_currentImage->pos();
             point = scaledPoint(point);
         }
+    }
 
     return copyPolygons;
 }
 
-bool AnnotatorWidget::eventFilter(QObject* watched, QEvent* event)
+void AnnotatorWidget::mousePressEvent(QMouseEvent* event)
 {
-    QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>(event);
-
-    if (m_currentImage != nullptr && mouseEvent != nullptr) {
-        QPoint point = mouseEvent->pos();
+    if (m_currentImage != nullptr) {
+        QPoint point = event->pos();
         QPointF clickedPoint = m_ui->graphicsView->mapToScene(point);
         bool isImageClicked = m_ui->graphicsView->scene()->itemAt(clickedPoint, m_ui->graphicsView->transform()) == m_currentImage;
 
-        auto savedPolClicked = std::find_if(
-            m_savedPolygons.begin(), m_savedPolygons.end(),
-            [&](const Polygon& pol) {
-                return pol.containsPoint(clickedPoint, Qt::OddEvenFill);
-            }
-        );
-        bool isSavedPolClicked = savedPolClicked != m_savedPolygons.end();
-        if (isSavedPolClicked) {
-            m_currentPolygon = *savedPolClicked;
-            m_savedPolygons.erase(savedPolClicked);
-            m_currentPolygon.pop_back();
-        }
-
-        bool isPolFirstPtClicked = false;
-        if (!m_currentPolygon.empty()) {
-            QPointF cPolFirstPt = m_currentPolygon.first();
-            QRectF cPolFirstPtRect(cPolFirstPt, QPointF(cPolFirstPt.x() + 10, cPolFirstPt.y() + 10));
-            isPolFirstPtClicked = cPolFirstPtRect.contains(clickedPoint);
-            if (isPolFirstPtClicked)
-                clickedPoint = QPointF(cPolFirstPt);
-        }
-
-        if (isSavedPolClicked || isPolFirstPtClicked || isImageClicked) {
-            m_currentPolygon << clickedPoint;
-
-            if (m_currentPolygon.size() > 1 && m_currentPolygon.isClosed()) {
-                m_savedPolygons << m_currentPolygon;
-                m_currentPolygon.clear();
+        if (m_shape == marK::Shape::Polygon) {
+            auto savedPolClicked = std::find_if(
+                m_savedPolygons.begin(), m_savedPolygons.end(),
+                [&](const Polygon& pol) {
+                    return pol.containsPoint(clickedPoint, Qt::OddEvenFill);
+                }
+            );
+            bool isSavedPolClicked = savedPolClicked != m_savedPolygons.end();
+            if (isSavedPolClicked) {
+                m_currentPolygon = *savedPolClicked;
+                m_savedPolygons.erase(savedPolClicked);
+                m_currentPolygon.pop_back();
             }
 
-            repaint();
+            bool isPolFirstPtClicked = false;
+            if (!m_currentPolygon.empty()) {
+                QPointF cPolFirstPt = m_currentPolygon.first();
+                QRectF cPolFirstPtRect(cPolFirstPt, QPointF(cPolFirstPt.x() + 10, cPolFirstPt.y() + 10));
+                isPolFirstPtClicked = cPolFirstPtRect.contains(clickedPoint);
+                if (isPolFirstPtClicked)
+                    clickedPoint = QPointF(cPolFirstPt);
+            }
+
+            if (isSavedPolClicked || isPolFirstPtClicked || isImageClicked) {
+                m_currentPolygon << clickedPoint;
+
+                if (m_currentPolygon.size() > 1 && m_currentPolygon.isClosed()) {
+                    m_savedPolygons << m_currentPolygon;
+                    m_currentPolygon.clear();
+                }
+
+                repaint();
+            }
+        }
+        else if (m_shape == marK::Shape::Rectangle) {
+            if (isImageClicked) {
+                if (m_currentPolygon.empty())
+                    m_currentPolygon << clickedPoint;
+                else {
+                    QPointF firstPt = m_currentPolygon.first();
+                    m_currentPolygon << QPointF(clickedPoint.x(), firstPt.y()) << clickedPoint << QPointF(firstPt.x(), clickedPoint.y()) << firstPt;
+                    m_savedPolygons << m_currentPolygon;
+                    m_currentPolygon.clear();
+                }
+
+                repaint();
+            }
         }
     }
 
-    return QWidget::eventFilter(watched, event);
+    QWidget::mousePressEvent(event);
 }
 
 void AnnotatorWidget::repaint()
@@ -113,13 +130,13 @@ void AnnotatorWidget::repaint()
 
     m_items.clear();
 
-    for (const Polygon& polygon : m_savedPolygons)
+    for (Polygon& polygon : m_savedPolygons)
         paintPolygon(polygon);
 
     paintPolygon(m_currentPolygon);
 }
 
-void AnnotatorWidget::paintPolygon(const Polygon& polygon)
+void AnnotatorWidget::paintPolygon(Polygon& polygon)
 {
     QGraphicsScene *scene = m_ui->graphicsView->scene();
 
@@ -138,7 +155,7 @@ void AnnotatorWidget::paintPolygon(const Polygon& polygon)
             if (it == polygon.begin()) {
                 QBrush brush(polygon.polygonClass()->color());
 
-                item = scene->addEllipse((*it).x(), (*it).y(), 10, 10, QPen(brush, 2), brush);
+                item = scene->addRect((*it).x(), (*it).y(), 10, 10, QPen(brush, 2), brush);
             }
             else
                 item = scene->addLine(QLineF(*(it - 1), *it), QPen(QBrush(polygon.polygonClass()->color()), 2));

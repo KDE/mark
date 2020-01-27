@@ -39,6 +39,11 @@ public:
         JSON
     };
 
+    enum class Shape {
+        Polygon,
+        Rectangle
+    };
+
 public:
     explicit marK(QWidget *parent = nullptr);
     ~marK() override;
@@ -46,6 +51,7 @@ public:
 public:
     void changeDirectory();
     void changeImage(int currentRow);
+    void changeShape(marK::Shape shape);
     void updateFiles();
     void savePolygons(OutputType type);
 
