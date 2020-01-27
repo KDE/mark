@@ -70,7 +70,7 @@ marK::marK(QWidget *parent) :
     addNewClass();
 
     connect(m_ui->listWidget, &QListWidget::currentItemChanged, this,
-            static_cast<void (marK::*)(QListWidgetItem *, QListWidgetItem *)>(&marK::changeImage));
+            static_cast<void (marK::*)(QListWidgetItem *, QListWidgetItem *)>(&marK::changeItem));
 
     connect(m_watcher, &QFileSystemWatcher::directoryChanged, this,
             static_cast<void (marK::*)(const QString &)>(&marK::updateFiles));
@@ -116,7 +116,7 @@ void marK::updateFiles(const QString &path)
 
     QDir resDirectory(path);
     QStringList images = resDirectory.entryList(QStringList() << "*.jpg" << "*.jpeg" << "*.JPG" <<
-                                                "*.JPEG" << "*.png" << "*.PNG", QDir::Files);
+                                                "*.JPEG" << "*.png" << "*.PNG" << "*.txt" << "*.TXT", QDir::Files);
 
     for (const QString &image : images) {
         QPixmap item_pix(QDir(path).filePath(image));
@@ -128,7 +128,7 @@ void marK::updateFiles(const QString &path)
         if (previousText != "" and previousText == image) {
             int currentIndex = m_ui->listWidget->count() - 1;
             m_ui->listWidget->setCurrentRow(currentIndex);
-            changeImage(currentIndex);
+            changeItem(currentIndex);
         }
     }
 
@@ -136,13 +136,13 @@ void marK::updateFiles(const QString &path)
         m_ui->annotatorWidget->clear();
 }
 
-void marK::changeImage(int currentRow)
+void marK::changeItem(int currentRow)
 {
     QListWidgetItem *currentItem = m_ui->listWidget->item(currentRow);
-    changeImage(currentItem, nullptr);
+    changeItem(currentItem, nullptr);
 }
 
-void marK::changeImage(QListWidgetItem *current, QListWidgetItem *previous)
+void marK::changeItem(QListWidgetItem *current, QListWidgetItem *previous)
 {
     if (current != nullptr) {
         QString imagePath = QDir(m_currentDirectory).filePath(current->text());

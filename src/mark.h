@@ -50,13 +50,13 @@ public:
 
 public:
     void changeDirectory();
-    void changeImage(int currentRow);
+    void changeItem(int currentRow);
     void changeShape(marK::Shape shape);
     void updateFiles();
     void savePolygons(OutputType type);
 
 public slots:
-    void changeImage(QListWidgetItem *current, QListWidgetItem *previous);
+    void changeItem(QListWidgetItem *current, QListWidgetItem *previous);
     void updateFiles(const QString &path);
     void addNewClass();
     void selectClassColor();
