@@ -17,7 +17,6 @@
 
 #include "mark.h"
 #include "ui_mark.h"
-#include "textannotatorwidget.h"
 #include "serializer.h"
 
 #include <QAction>
@@ -122,7 +121,13 @@ void marK::updateFiles(const QString &path)
                                                 "*.JPEG" << "*.png" << "*.PNG" << "*.txt" << "*.TXT", QDir::Files);
 
     for (const QString &item : items) {
-        QPixmap item_pix(QDir(path).filePath(item));
+        QPixmap item_pix;
+
+        if (item.endsWith(".txt") || item.endsWith(".TXT"))
+            item_pix = QIcon::fromTheme("document-edit-sign").pixmap(20, 20);
+        else
+            item_pix = QPixmap(resDirectory.filePath(item));
+
         item_pix = item_pix.scaledToWidth(20);
 
         QListWidgetItem *itemW = new QListWidgetItem(item_pix, item);

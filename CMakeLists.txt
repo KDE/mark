@@ -14,8 +14,8 @@ find_package(Qt5Widgets CONFIG REQUIRED)
 set(mark_SRC
   src/main.cpp
   src/annotatorwidget.cpp
-  src/imageannotatorwidget.cpp
-  src/textannotatorwidget.cpp
+  #src/imageannotatorwidget.cpp
+  #src/textcontainer.cpp
   src/mark.cpp
   src/polygon.cpp
   src/markedclass.cpp
