@@ -92,10 +92,6 @@
             <property name="text">
              <string/>
             </property>
-            <property name="icon">
-             <iconset>
-              <normaloff>../icons/polygon_icon.png</normaloff>../icons/polygon_icon.png</iconset>
-            </property>
            </widget>
           </item>
            <!---<item row="0" column="3">
@@ -131,10 +127,6 @@
             </property>
             <property name="text">
              <string/>
-            </property>
-            <property name="icon">
-             <iconset>
-              <normaloff>../icons/rect_icon.png</normaloff>../icons/rect_icon.png</iconset>
             </property>
            </widget>
           </item>

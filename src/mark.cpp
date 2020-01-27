@@ -93,9 +93,11 @@ marK::marK(QWidget *parent) :
 
     connect(m_ui->selectClassColorButton, &QPushButton::clicked, this, &marK::selectClassColor);
 
+    m_ui->polygonButton->setIcon(QIcon::fromTheme("tool_polyline"));
     connect(m_ui->polygonButton, &QPushButton::clicked,
             [&](bool checked) { changeShape(marK::Shape::Polygon); });
 
+    m_ui->rectButton->setIcon(QIcon::fromTheme("tool_rectangle"));
     connect(m_ui->rectButton, &QPushButton::clicked,
             [&](bool checked) { changeShape(marK::Shape::Rectangle); });
 }
@@ -115,11 +117,11 @@ void marK::updateFiles(const QString &path)
     m_ui->listWidget->clear();
 
     QDir resDirectory(path);
-    QStringList images = resDirectory.entryList(QStringList() << "*.jpg" << "*.jpeg" << "*.JPG" <<
+    QStringList items = resDirectory.entryList(QStringList() << "*.jpg" << "*.jpeg" << "*.JPG" <<
                                                 "*.JPEG" << "*.png" << "*.PNG" << "*.txt" << "*.TXT", QDir::Files);
 
-    for (const QString &image : images) {
-        QPixmap item_pix(QDir(path).filePath(image));
+    for (const QString &item : items) {
+        QPixmap item_pix(QDir(path).filePath(item));
         item_pix = item_pix.scaledToWidth(20);
 
         QListWidgetItem *item = new QListWidgetItem(item_pix, image);
@@ -144,12 +146,13 @@ void marK::changeItem(int currentRow)
 
 void marK::changeItem(QListWidgetItem *current, QListWidgetItem *previous)
 {
+    // TODO: verify file extension and change annotatorwidget according to that
     if (current != nullptr) {
-        QString imagePath = QDir(m_currentDirectory).filePath(current->text());
+        QString itemPath = QDir(m_currentDirectory).filePath(current->text());
 
-        if (imagePath != m_filepath) {
-            m_filepath = imagePath;
-            m_ui->annotatorWidget->changeImage(imagePath);
+        if (itemPath != m_filepath) {
+            m_filepath = itemPath;
+            m_ui->annotatorWidget->changeItem(itemPath);
         }
     }
 }
