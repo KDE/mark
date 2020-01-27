@@ -26,6 +26,7 @@ int main(int argc, char *argv[])
     marK w;
     w.setFixedSize(qApp->primaryScreen()->availableSize());
     w.setWindowState(Qt::WindowMaximized);
+    w.setWindowIcon(QIcon::fromTheme("document-edit"));
     w.show();
 
     return app.exec();
