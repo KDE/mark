@@ -25,7 +25,7 @@
 #include <QGraphicsRectItem>
 #include <QPen>
 
-Polygon::Polygon(PolygonClass* polygonClass) :
+Polygon::Polygon(MarkedClass* polygonClass) :
     m_polygonClass(polygonClass)
 {
 }

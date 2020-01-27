@@ -18,22 +18,23 @@
 #ifndef POLYGON_H
 #define POLYGON_H
 
-#include "polygonclass.h"
+#include "markedobject.h"
+#include "markedclass.h"
 
 #include <QPolygonF>
 
 class QGraphicsItem;
 
-class Polygon : public QPolygonF
+class Polygon : public MarkedObject, public QPolygonF
 {
 public:
-    Polygon(PolygonClass* polygonClass = nullptr);
+    Polygon(MarkedClass* polygonClass = nullptr);
     
-    PolygonClass* polygonClass() const { return m_polygonClass; }
+    MarkedClass* polygonClass() const { return m_polygonClass; }
     void setPolygonClass(PolygonClass* polygonClass) { m_polygonClass = polygonClass; }
     
 private:
-    PolygonClass* m_polygonClass;
+    MarkedObjectClass* m_polygonClass;
 };
 
 #endif // POLYGON_H

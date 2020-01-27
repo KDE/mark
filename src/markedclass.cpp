@@ -15,28 +15,21 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.*
  *************************************************************************/
 
-#ifndef POLYGONCLASS_H
-#define POLYGONCLASS_H
+#include "markedclass.h"
 
-#include <QColor>
-#include <QString>
+#include <QTime>
+#include <QtGlobal>
 
-class PolygonClass
+MarkedClass::MarkedClass(QString name) :
+    m_name(name)
 {
-public:
-    explicit PolygonClass(QString name);
-    explicit PolygonClass(QString name, QColor color);
-    
-public:
-    QString name() const { return m_name; }
-    QColor color() const { return m_color; }
-    
-    void setName(const QString& name) { m_name = name; }
-    void setColor(const QColor& color) { m_color = color; }
+    qsrand((uint)QTime::currentTime().msec());
 
-private:
-    QString m_name;
-    QColor m_color;
-};
+    m_color = QColor(qrand() % 256, qrand() % 256, qrand() % 256);
+}
 
-#endif // POLYGONCLASS_H
+MarkedClass::MarkedClass(QString name, QColor color) :
+    m_name(name),
+    m_color(color)
+{
+}
