@@ -30,6 +30,7 @@ class AnnotatorWidget;
 
 class QGraphicsPixmapItem;
 
+// TODO: create a imagecontainer and textcontainer
 class AnnotatorWidget : public QWidget
 {
 public:

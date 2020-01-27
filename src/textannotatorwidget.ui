@@ -13,11 +13,16 @@
   <property name="windowTitle">
    <string>TextAnnotatorWidget</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QTextEdit" name="textEdit"/>
-   </item>
-  </layout>
+  <widget class="QTextEdit" name="textEdit">
+   <property name="geometry">
+    <rect>
+     <x>6</x>
+     <y>6</y>
+     <width>391</width>
+     <height>291</height>
+    </rect>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

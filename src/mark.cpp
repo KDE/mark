@@ -17,6 +17,7 @@
 
 #include "mark.h"
 #include "ui_mark.h"
+#include "textannotatorwidget.h"
 #include "serializer.h"
 
 #include <QAction>

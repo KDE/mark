@@ -7,6 +7,7 @@ namespace Ui {
 class TextAnnotatorWidget;
 }
 
+// TODO: annotatorwidget needs to contain a text component
 class TextAnnotatorWidget : public AnnotatorWidget
 {
 public:
