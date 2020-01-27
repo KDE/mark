@@ -18,7 +18,7 @@
 #ifndef MARK_H
 #define MARK_H
 
-#include "polygonclass.h"
+#include "markedclass.h"
 
 #include <QMainWindow>
 #include <QScopedPointer>
@@ -68,7 +68,7 @@ private:
     QFileSystemWatcher *m_watcher;
     QString m_currentDirectory;
     QString m_filepath;
-    QVector<PolygonClass*> m_polygonClasses;
+    QVector<MarkedClass*> m_polygonClasses;
 };
 
 #endif // MARK_H

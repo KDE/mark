@@ -18,7 +18,7 @@ set(mark_SRC
   src/textannotatorwidget.cpp
   src/mark.cpp
   src/polygon.cpp
-  src/polygonclass.cpp
+  src/markedclass.cpp
   src/serializer.cpp
 )
 

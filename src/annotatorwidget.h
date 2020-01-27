@@ -41,13 +41,13 @@ public:
 
     void mousePressEvent(QMouseEvent* event) override;
 
-    void changeImage(QString imagePath);
+    void changeItem(QString itemPath);
     void clear();
     void repaint();
     void paintPolygon(Polygon& polygon);
 
     // FIXME
-    void setCurrentPolygonClass(PolygonClass* polygonClass) { m_currentPolygon.setPolygonClass(polygonClass); repaint(); }
+    void setCurrentPolygonClass(MarkedClass* polygonClass) { m_currentPolygon.setPolygonClass(polygonClass); repaint(); }
     void setShape(marK::Shape shape) { m_shape = shape; m_currentPolygon.clear(); repaint(); }
 
     // TODO: scale a point

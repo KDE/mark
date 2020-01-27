@@ -31,10 +31,10 @@ public:
     Polygon(MarkedClass* polygonClass = nullptr);
     
     MarkedClass* polygonClass() const { return m_polygonClass; }
-    void setPolygonClass(PolygonClass* polygonClass) { m_polygonClass = polygonClass; }
+    void setPolygonClass(MarkedClass* polygonClass) { m_polygonClass = polygonClass; }
     
 private:
-    MarkedObjectClass* m_polygonClass;
+    MarkedClass* m_polygonClass;
 };
 
 #endif // POLYGON_H

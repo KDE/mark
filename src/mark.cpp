@@ -124,10 +124,10 @@ void marK::updateFiles(const QString &path)
         QPixmap item_pix(QDir(path).filePath(item));
         item_pix = item_pix.scaledToWidth(20);
 
-        QListWidgetItem *item = new QListWidgetItem(item_pix, image);
-        m_ui->listWidget->addItem(item);
+        QListWidgetItem *itemW = new QListWidgetItem(item_pix, item);
+        m_ui->listWidget->addItem(itemW);
 
-        if (previousText != "" and previousText == image) {
+        if (previousText != "" and previousText == item) {
             int currentIndex = m_ui->listWidget->count() - 1;
             m_ui->listWidget->setCurrentRow(currentIndex);
             changeItem(currentIndex);
@@ -186,7 +186,7 @@ void marK::addNewClass()
 {
     int classQt = m_polygonClasses.size();
 
-    PolygonClass* newClass = new PolygonClass(QString::number(classQt));
+    MarkedClass* newClass = new MarkedClass(QString::number(classQt));
     m_polygonClasses << newClass;
     
     QPixmap colorPix(70, 45);

@@ -174,7 +174,7 @@ void AnnotatorWidget::undo()
     }
 }
 
-void AnnotatorWidget::changeImage(QString imagePath)
+void AnnotatorWidget::changeItem(QString itemPath)
 {
     // TODO: create a temp file where the polygons from this image will be temporary stored, so they can be loaded again when
     // the image is reopened
@@ -186,7 +186,7 @@ void AnnotatorWidget::changeImage(QString imagePath)
     scene->setSceneRect(0, 0, 850, 640);
     clear();
 
-    QPixmap image(imagePath);
+    QPixmap image(itemPath);
     QPixmap scaledImage;
 
     if (image.height() >= 1280)
