@@ -78,6 +78,7 @@ marK::marK(QWidget *parent) :
     connect(m_ui->newClassButton, &QPushButton::clicked, this, &marK::addNewClass);
 
     connect(m_ui->undoButton, &QPushButton::clicked, m_ui->annotatorWidget, &AnnotatorWidget::undo);
+    connect(m_ui->resetButton, &QPushButton::clicked, m_ui->annotatorWidget, &AnnotatorWidget::reset);
 
     connect(m_ui->comboBox, &QComboBox::editTextChanged, 
         [&](const QString & text) {
@@ -141,7 +142,7 @@ void marK::updateFiles(const QString &path)
     }
 
     if (previousText == "")
-        m_ui->annotatorWidget->clear();
+        m_ui->annotatorWidget->clearScene();
 }
 
 void marK::changeItem(int currentRow)

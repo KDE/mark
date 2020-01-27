@@ -174,6 +174,13 @@ void AnnotatorWidget::undo()
     }
 }
 
+void AnnotatorWidget::reset()
+{
+    m_savedPolygons.clear();
+    m_currentPolygon.clear();
+    repaint();
+}
+
 void AnnotatorWidget::changeItem(QString itemPath)
 {
     // TODO: create a temp file where the polygons from this image will be temporary stored, so they can be loaded again when
@@ -184,7 +191,7 @@ void AnnotatorWidget::changeItem(QString itemPath)
 
     QGraphicsScene *scene = m_ui->graphicsView->scene();
     scene->setSceneRect(0, 0, 850, 640);
-    clear();
+    clearScene();
 
     QPixmap image(itemPath);
     QPixmap scaledImage;
@@ -213,7 +220,7 @@ void AnnotatorWidget::changeItem(QString itemPath)
     m_currentImage = pixmapItem;
 }
 
-void AnnotatorWidget::clear()
+void AnnotatorWidget::clearScene()
 {
     m_ui->graphicsView->scene()->clear();
 }

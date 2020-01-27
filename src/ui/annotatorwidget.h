@@ -43,7 +43,7 @@ public:
     void mousePressEvent(QMouseEvent* event) override;
 
     void changeItem(QString itemPath);
-    void clear();
+    void clearScene();
     void repaint();
     void paintPolygon(Polygon& polygon);
 
@@ -56,6 +56,7 @@ public:
 
 public slots:
     void undo();
+    void reset();
     
 private:
     Ui::AnnotatorWidget* m_ui;

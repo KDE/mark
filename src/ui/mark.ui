@@ -226,7 +226,7 @@
          </property>
          <layout class="QGridLayout" name="gridLayout">
           <item row="0" column="0">
-           <widget class="QPushButton" name="pushButton_8">
+           <widget class="QPushButton" name="resetButton">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
               <horstretch>0</horstretch>
@@ -243,7 +243,7 @@
              <enum>Qt::NoFocus</enum>
             </property>
             <property name="text">
-             <string>Erase Object</string>
+             <string>Reset</string>
             </property>
            </widget>
           </item>
