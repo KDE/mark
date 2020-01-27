@@ -11,22 +11,6 @@ set(CMAKE_AUTOUIC ON)
 # Find the QtWidgets library
 find_package(Qt5Widgets CONFIG REQUIRED)
 
-set(mark_SRC
-  src/main.cpp
-  src/annotatorwidget.cpp
-  #src/imageannotatorwidget.cpp
-  #src/textcontainer.cpp
-  src/mark.cpp
-  src/polygon.cpp
-  src/markedclass.cpp
-  src/serializer.cpp
-)
+include_directories(src/)
 
-# Tell CMake to create the helloworld executable
-add_executable(mark ${mark_SRC})
-
-# Use the Widgets module from Qt 5.
-target_link_libraries(mark Qt5::Widgets)
-
-# Install the executable
-install(TARGETS mark DESTINATION bin)
+add_subdirectory(src)

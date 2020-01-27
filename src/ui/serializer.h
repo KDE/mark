@@ -18,7 +18,7 @@
 #ifndef SERIALIZER_H
 #define SERIALIZER_H
 
-#include "polygon.h"
+#include "image/polygon.h"
 
 #include <QVector>
 #include <QString>

@@ -431,7 +431,7 @@
   <customwidget>
    <class>AnnotatorWidget</class>
    <extends>QWidget</extends>
-   <header>src/annotatorwidget.h</header>
+   <header>ui/annotatorwidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

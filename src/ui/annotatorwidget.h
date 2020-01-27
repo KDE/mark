@@ -18,8 +18,8 @@
 #ifndef ANNOTATORWIDGET_H
 #define ANNOTATORWIDGET_H
 
-#include "mark.h"
-#include "polygon.h"
+#include "ui/mark.h"
+#include "image/polygon.h"
 
 #include <QVector>
 #include <QWidget>
