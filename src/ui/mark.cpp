@@ -83,6 +83,7 @@ marK::marK(QWidget *parent) :
     connect(m_ui->comboBox, &QComboBox::editTextChanged, 
         [&](const QString & text) {
             m_ui->comboBox->setItemText(m_ui->comboBox->currentIndex(), text);
+            m_polygonClasses[m_ui->comboBox->currentIndex()]->setName(text);
         }
     );
 

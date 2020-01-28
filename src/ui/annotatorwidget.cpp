@@ -204,7 +204,6 @@ void AnnotatorWidget::changeItem(QString itemPath)
     if (!scaledImage.isNull()) {
         m_scaleW = qreal(scaledImage.width()) / qreal(image.width());
         m_scaleH = qreal(scaledImage.height()) / qreal(image.height());
-        qDebug() << m_scaleW << m_scaleH;
         image = scaledImage;
     }
 
