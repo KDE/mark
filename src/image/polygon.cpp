@@ -17,14 +17,6 @@
 
 #include "polygon.h"
 
-#include <QBrush>
-#include <QColor>
-#include <QGraphicsItem>
-#include <QGraphicsLineItem>
-#include <QGraphicsPolygonItem>
-#include <QGraphicsRectItem>
-#include <QPen>
-
 Polygon::Polygon(MarkedClass* polygonClass) :
     m_polygonClass(polygonClass)
 {
