@@ -12,26 +12,25 @@ public:
     ~ImageContainer() override;
 
 public:
-    QVector<MarkedObject> savedObjects() const;
+    QVector<MarkedObject> savedObjects() const override;
 
     void mousePressEvent(QMouseEvent* event) override;
+
+    void changeItem(const QString& itemPath) override;
 
     void clearScene();
     void repaint();
     void paintObject(MarkedObject& object);
 
-    void setCurrentClass(MarkedClass* objClass) { m_currentObject.setClass(objClass); repaint(); }
     void setShape(marK::Shape shape) { m_shape = shape; m_currentObject.clear(); repaint(); }
 
     QPointF scaledPoint(const QPointF& point) const { return QPointF(point.x(), point.y()); }
 
 public slots:
-    void undo();
-    void reset();
+    void undo() override;
+    void reset() override;
 
 private:
-    MarkedObject m_currentObject; // TODO: move to container
-    QVector<MarkedObject> m_savedObjects; // TODO: move to container
     QVector<QGraphicsItem*> m_items;
     QGraphicsPixmapItem* m_currImage;
     marK::Shape m_shape;
