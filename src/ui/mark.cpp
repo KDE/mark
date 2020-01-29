@@ -48,6 +48,10 @@ marK::marK(QWidget *parent) :
     openDirAction->setShortcut(QKeySequence(Qt::Modifier::CTRL + Qt::Key::Key_O));
     connect(openDirAction, &QAction::triggered, this, &marK::changeDirectory);
 
+    QAction *importData = fileMenu->addAction("Import");
+    importData->setShortcut(QKeySequence(Qt::Modifier::CTRL + Qt::Key::Key_I));
+    connect(importData, &QAction::triggered, this, &marK::importData);
+
     QMenu *exportMenu = fileMenu->addMenu("Export");
 
     QAction *toXML = exportMenu->addAction("XML");
@@ -55,10 +59,6 @@ marK::marK(QWidget *parent) :
 
     QAction *toJson = exportMenu->addAction("JSON");
     connect(toJson, &QAction::triggered, this, &marK::saveToJson);
-
-    QAction *importData = fileMenu->addAction("Import");
-    importData->setShortcut(QKeySequence(Qt::Modifier::CTRL + Qt::Key::Key_I));
-    connect(importData, &QAction::triggered, this, &marK::importData);
 
     QMenu *editMenu = m_ui->menuBar->addMenu("Edit");
 
@@ -254,6 +254,7 @@ void marK::importData()
     QString filepath = QFileDialog::getOpenFileName(this, "Select File", QDir::homePath(),
                                                      "JSON files (*.json)");// add later "XML files (*.xml)"
 
+    // TODO: fix crash when there is no image loaded
     QByteArray data = Serializer::getData(filepath);
 
     if (filepath.endsWith(".json"))
@@ -261,10 +262,10 @@ void marK::importData()
 
     //else if (filepath.endsWith(".xml"))
         //m_ui->annotatorWidget->readPolygonsFromXml(data);
-
+/* TODO: addClass to each of polygons
     for (const auto& polygon : m_ui->annotatorWidget->savedPolygons())
         addClass(polygon.polygonClass());
-
+*/
     // TODO: warning if failed
 }
 
