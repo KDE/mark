@@ -34,8 +34,6 @@
 #include <QColorDialog>
 #include <QFontMetrics>
 
-#include <QDebug>
-
 marK::marK(QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::marK),
@@ -57,6 +55,10 @@ marK::marK(QWidget *parent) :
 
     QAction *toJson = exportMenu->addAction("JSON");
     connect(toJson, &QAction::triggered, this, &marK::saveToJson);
+
+    QAction *importData = fileMenu->addAction("Import");
+    importData->setShortcut(QKeySequence(Qt::Modifier::CTRL + Qt::Key::Key_I));
+    connect(importData, &QAction::triggered, this, &marK::importData);
 
     QMenu *editMenu = m_ui->menuBar->addMenu("Edit");
 
@@ -245,6 +247,39 @@ void marK::savePolygons(OutputType type)
 
         fileOut.close();
     }
+}
+
+void marK::importData()
+{
+    QString filepath = QFileDialog::getOpenFileName(this, "Select File", QDir::homePath(),
+                                                     "JSON files (*.json)");// add later "XML files (*.xml)"
+
+    QByteArray data = Serializer::getData(filepath);
+
+    if (filepath.endsWith(".json"))
+        m_ui->annotatorWidget->readPolygonsFromJson(data);
+
+    //else if (filepath.endsWith(".xml"))
+        //m_ui->annotatorWidget->readPolygonsFromXml(data);
+
+    for (const auto& polygon : m_ui->annotatorWidget->savedPolygons())
+        addClass(polygon.polygonClass());
+
+    // TODO: warning if failed
+}
+
+void marK::addClass(MarkedClass* markedClass)
+{
+    int classQt = m_polygonClasses.size();
+    m_polygonClasses << markedClass;
+    
+    QPixmap colorPix(70, 45);
+    colorPix.fill(markedClass->color());
+
+    m_ui->comboBox->addItem(QIcon(colorPix), markedClass->name());
+    m_ui->comboBox->setCurrentIndex(classQt);
+
+    m_ui->annotatorWidget->setCurrentPolygonClass(markedClass);
 }
 
 marK::~marK() = default;

@@ -223,3 +223,15 @@ void AnnotatorWidget::clearScene()
 {
     m_ui->graphicsView->scene()->clear();
 }
+/*
+void AnnotatorWidget::readPolygonsFromXml(const QByteArray& data)
+{
+    m_savedPolygons = Serializer::readXML(data, m_currentImage->pos());
+    repaint();
+}
+*/
+void AnnotatorWidget::readPolygonsFromJson(const QByteArray& data)
+{
+    m_savedPolygons = Serializer::readJSON(data, m_currentImage->pos());
+    repaint();
+}

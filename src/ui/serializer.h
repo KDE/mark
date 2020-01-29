@@ -22,11 +22,15 @@
 
 #include <QVector>
 #include <QString>
+#include <QPointF>
 
 class Serializer
 {
 public:
     static QString toJSON(const QVector<Polygon>& annotatedPolygons);
     static QString toXML(const QVector<Polygon>& annotatedPolygons);
+    static QVector<Polygon> readJSON(const QByteArray& data, const QPointF& offset);
+    //static QVector<Polygon> readXML(const QByteArray& data, const QPointF& offset);
+    static QByteArray getData(const QString& filepath);
 };
 #endif // SERIALIZER_H

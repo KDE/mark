@@ -16,13 +16,15 @@
  *************************************************************************/
 
 #include "serializer.h"
+#include "markedclass.h"
 
 #include <QDebug>
-#include <QPointF>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QXmlStreamWriter>
+#include <QFile>
+#include <QRegularExpression>
 
 QString Serializer::toXML(const QVector<Polygon>& annotatedPolygons)
 {
@@ -108,4 +110,58 @@ QString Serializer::toJSON(const QVector<Polygon>& annotatedPolygons)
     QJsonDocument doc(classesArray);
 
     return doc.toJson();
+}
+
+QVector<Polygon> Serializer::readJSON(const QByteArray& data, const QPointF& offset)
+{
+    QJsonParseError errorptr;
+    QJsonDocument doc = QJsonDocument::fromJson(data, &errorptr);
+    if (doc.isNull()) {
+        qDebug() << errorptr.errorString();
+    }
+
+    QJsonArray polygonArray = doc.array();
+    QVector<Polygon> savedPolygons;
+
+    for (const auto& classObj : polygonArray)
+    {
+        Polygon polygon;
+        MarkedClass polygonClass(classObj.toObject().value("Class").toString());
+
+        polygon.setPolygonClass(&polygonClass);
+        QJsonArray polygonArray = classObj.toObject().value("Polygon").toArray();
+
+        for (const auto& polygonObj : polygonArray)
+        {
+            auto ptObj = polygonObj.toObject().value("pt").toObject();
+
+            double x = ptObj.value("x").toString().toDouble();
+            double y = ptObj.value("y").toString().toDouble();
+
+            polygon.append(QPointF(x,y) + offset);
+        }
+
+        savedPolygons.append(polygon);
+    }
+
+    return savedPolygons;
+}
+/*
+QVector<Polygon> Serializer::readXML(const QByteArray& data, const QPointF& offset)
+{
+    QVector<Polygon> savedPolygons;
+    return savedPolygons;
+}
+*/
+QByteArray Serializer::getData(const QString& filepath)
+{
+    QString filename(filepath);
+    filename.replace(QRegularExpression(".jpg|.png|.xpm"), ".json");
+
+    QFile file(filename);
+    file.open(QIODevice::ReadOnly|QIODevice::Text);
+    QByteArray data = file.readAll();
+    file.close();
+
+    return data;
 }

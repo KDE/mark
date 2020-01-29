@@ -54,6 +54,7 @@ public:
     void changeShape(marK::Shape shape);
     void updateFiles();
     void savePolygons(OutputType type);
+    void addClass(MarkedClass* markedClass);
 
 public slots:
     void changeItem(QListWidgetItem *current, QListWidgetItem *previous);
@@ -62,6 +63,7 @@ public slots:
     void selectClassColor();
     void saveToJson() { savePolygons(OutputType::JSON); };
     void saveToXml() { savePolygons(OutputType::XML); };
+    void importData();
 
 private:
     QScopedPointer<Ui::marK> m_ui;
