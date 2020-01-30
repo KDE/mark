@@ -1,10 +1,9 @@
 #ifndef MARKEDOBJECT_H
 #define MARKEDOBJECT_H
 
-#include "markedclass.h"
-
 #include <memory>
 
+class MarkedClass;
 class MarkedObjectPrivate;
 
 class MarkedObject

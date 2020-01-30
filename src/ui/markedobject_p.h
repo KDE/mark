@@ -1,6 +1,8 @@
 #ifndef MARKEDOBJECT_P_H
 #define MARKEDOBJECT_P_H
 
+class MarkedClass;
+
 class MarkedObjectPrivate
 {
 public:
