@@ -17,7 +17,7 @@
 
 #include "polygon.h"
 
-Polygon::Polygon(MarkedClass* polygonClass) :
-    m_polygonClass(polygonClass)
+Polygon::Polygon(std::shared_ptr<MarkedObjectPrivate> d_ptr, MarkedClass* objClass) :
+    MarkedObject(d_ptr, objClass)
 {
 }

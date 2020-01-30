@@ -63,6 +63,11 @@ void ImageContainer::mousePressEvent(QMouseEvent* event)
                 m_savedObjects.erase(savedPolygClicked);
                 m_currentObject.pop_back();
             }
+
+            bool isPolygFirstPtClicked = false;
+            if (!m_currentObject.empty()) {
+                QPointF cPolygFirstPt = m_current
+            }
         }
     
     }

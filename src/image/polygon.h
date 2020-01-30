@@ -23,18 +23,10 @@
 
 #include <QPolygonF>
 
-class QGraphicsItem;
-
 class Polygon : public MarkedObject, public QPolygonF
 {
 public:
-    Polygon(MarkedClass* polygonClass = nullptr);
-    
-    MarkedClass* polygonClass() const { return m_polygonClass; }
-    void setPolygonClass(MarkedClass* polygonClass) { m_polygonClass = polygonClass; }
-    
-private:
-    MarkedClass* m_polygonClass;
+    explicit Polygon(std::shared_ptr<MarkedObjectPrivate> d_ptr, MarkedClass* objClass);
 };
 
 #endif // POLYGON_H
