@@ -27,6 +27,8 @@ class Polygon : public MarkedObject, public QPolygonF
 {
 public:
     explicit Polygon(std::shared_ptr<MarkedObjectPrivate> d_ptr, MarkedClass* objClass);
+
+    void clear() override;
 };
 
 #endif // POLYGON_H

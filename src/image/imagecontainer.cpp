@@ -2,7 +2,7 @@
 
 ImageContainer::ImageContainer(QWidget* parent) :
     QGraphicsView(parent),
-    m_currImage(nullptr),
+    m_currentImage(nullptr),
     m_shape(marK::Shape::Polygon),
     m_scaleW(0.0),
     m_scaleH(0.0)
@@ -27,11 +27,10 @@ QVector<MarkedObject> ImageContainer::savedObjects() const
     QVector<MarkedObject> copyObjects(m_savedObjects);
 
     for (MarkedObject& obj : copyObjects) {
-        for (int i = 0; i < obj.size(); i++) {
-            QPointF point = obj.item(i).toPointF();
+        Polygon& pol = static_cast<Polygon&>(obj);
+        for (QPointF& point : pol) {
             point -= m_currentImage->pos();
             point = scaledPoint(point);
-            obj.setItem(i, point);
         }
     }
 
@@ -50,10 +49,7 @@ void ImageContainer::mousePressEvent(QMouseEvent* event)
             auto savedPolygClicked = std::find_if(
                 m_savedObjects.begin(), m_savedObjects.end(),
                 [&](const MarkedObject& obj) {
-                    QPolygonF polygon;
-                    // TODO: remove this loop
-                    for (int i = 0; i < obj.size(); i++)
-                        polygon << obj.item(i).toPointF();
+                    const Polygon& polygon = static_cast<const Polygon&>(obj);
                     return polygon.containsPoint(clickedPoint, Qt::OddEvenFill);
                 }
             );
@@ -61,22 +57,56 @@ void ImageContainer::mousePressEvent(QMouseEvent* event)
             if (isSavedPolygClicked) {
                 m_currentObject = *savedPolygClicked;
                 m_savedObjects.erase(savedPolygClicked);
-                m_currentObject.pop_back();
+                (static_cast<Polygon*>(&m_currentObject)).pop_back();
             }
 
             bool isPolygFirstPtClicked = false;
             if (!m_currentObject.empty()) {
-                QPointF cPolygFirstPt = m_current
+                Polygon* currentPolygon = static_cast<Polygon*>(&m_currentObject);
+                QPointF cPolygFirstPt = currentPolygon->first();
+                QRectF cPolygFirstPtRect(cPolygFirstPt, QPointF(cPolygFirstPt.x() + 10, cPolygFirstPt.y() + 10));
+                isPolygFirstPtClicked = cPolygFirstPtRect.contains(clickedPoint);
+                if (isPolygFirstPtClicked)
+                    clickedPoint = cPolygFirstPt;
+            }
+
+            if (isSavedPolygClicked || isPolygFirstPtClicked || isImageClicked) {
+                Polygon* currentPolygon = static_cast<Polygon*>(&m_currentObject);
+
+                if (currentPolygon->size() > 1 && !currentPolygon->isClosed()) {
+                    m_savedObjects << m_currentObject;
+                    m_currentObject.clear();
+                }
+
+                repaint();
             }
         }
-    
+        else if (m_shape == marK::Shape::Rectangle) {
+            if (isImageClicked) {
+                Polygon* currentPolygon = static_cast<Polygon*>(&m_currentObject);
+
+                if (currentPolygon->empty())
+                    currentPolygon << clickedPoint;
+                else {
+                    QPointF firstPt = currentPolygon->first();
+                    currentPolygon << QPointF(clickedPoint.x(), firstPt.y()) << clickedPoint << QPointF(firstPt.x(), clickedPoint.y()) << firstPt;
+                    m_savedObjects << m_currentObject;
+                    m_currentObject.clear();
+                }
+
+                repaint();
+            }
+        }
     }
+
+    QWidget::mousePressEvent(event);
 }
 
 void ImageContainer::changeItem(const QString& path)
 {
     m_savedObjects.clear();
-    // TODO
+    m_items.clear();
+    m_currentObject.clear();
 }
 
 void ImageContainer::clearScene()

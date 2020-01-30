@@ -32,7 +32,7 @@ public slots:
 
 private:
     QVector<QGraphicsItem*> m_items;
-    QGraphicsPixmapItem* m_currImage;
+    QGraphicsPixmapItem* m_currentImage;
     marK::Shape m_shape;
 
     qreal m_scaleW;

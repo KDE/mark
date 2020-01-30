@@ -8,6 +8,8 @@ class Sentence : public MarkedObject
 {
 public:
     Sentence(std::shared_ptr<SentencePrivate> d_ptr, MarkedClass *objClass, quint64 begin, quint64 end);
+
+    void clear() override;
 };
 
 #endif // SENTENCE_H

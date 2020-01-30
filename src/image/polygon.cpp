@@ -21,3 +21,8 @@ Polygon::Polygon(std::shared_ptr<MarkedObjectPrivate> d_ptr, MarkedClass* objCla
     MarkedObject(d_ptr, objClass)
 {
 }
+
+void Polygon::clear()
+{
+    QPolygonF::clear();
+}
