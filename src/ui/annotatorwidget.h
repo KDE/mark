@@ -40,8 +40,7 @@ public:
 
 public:
     QVector<Polygon> savedPolygons() const;
-    void readPolygonsFromJson(const QByteArray& data);
-    //void readPolygonsFromXml(const QByteArray& data);
+    void setPolygons(QVector<Polygon> polygons);
 
     void mousePressEvent(QMouseEvent* event) override;
 

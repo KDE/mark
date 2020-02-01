@@ -25,10 +25,43 @@
 #include <QXmlStreamWriter>
 #include <QFile>
 #include <QRegularExpression>
-
-QString Serializer::toXML(const QVector<Polygon>& annotatedPolygons)
+Serializer::Serializer(const QString& filepath) :
+    m_filepath(filepath)
 {
-    if (annotatedPolygons.isEmpty())
+}
+
+Serializer::Serializer(const QVector<Polygon> items) :
+    m_items(items)
+{
+}
+
+QVector<Polygon> Serializer::read(marK::OutputType output_type)
+{
+    QVector<Polygon> objects;
+
+    if(output_type == marK::OutputType::XML)
+        objects = this->readXML();
+
+    else if (output_type == marK::OutputType::JSON)
+        objects = this->readJSON();
+
+    return objects;
+}
+
+QString Serializer::serialize(marK::OutputType output_type)
+{
+    if (output_type == marK::OutputType::XML)
+        return this->toXML();
+
+    else if (output_type == marK::OutputType::JSON)
+        return this->toJSON();
+
+    return nullptr;
+}
+
+QString Serializer::toXML()
+{
+    if (m_items.isEmpty())
         return nullptr;
 
     QString xmldoc;
@@ -38,7 +71,7 @@ QString Serializer::toXML(const QVector<Polygon>& annotatedPolygons)
 
     xmlWriter.writeStartElement("annotation");
 
-    for (const Polygon& item : annotatedPolygons) {
+    for (const Polygon& item : m_items) {
         xmlWriter.writeStartElement("object");
 
         xmlWriter.writeStartElement("class");
@@ -77,14 +110,14 @@ QString Serializer::toXML(const QVector<Polygon>& annotatedPolygons)
     return xmldoc;
 }
 
-QString Serializer::toJSON(const QVector<Polygon>& annotatedPolygons)
+QString Serializer::toJSON()
 {
-    if(annotatedPolygons.isEmpty())
+    if(m_items.isEmpty())
         return nullptr;
 
     QJsonArray classesArray;
 
-    for (const Polygon& item : annotatedPolygons) {
+    for (const Polygon& item : m_items) {
         QJsonObject recordObject;
 
         recordObject.insert("Class", item.polygonClass()->name());
@@ -112,8 +145,10 @@ QString Serializer::toJSON(const QVector<Polygon>& annotatedPolygons)
     return doc.toJson();
 }
 
-QVector<Polygon> Serializer::readJSON(const QByteArray& data, const QPointF& offset)
+QVector<Polygon> Serializer::readJSON()
 {
+    QByteArray data = getData();
+
     QJsonParseError errorptr;
     QJsonDocument doc = QJsonDocument::fromJson(data, &errorptr);
     if (doc.isNull()) {
@@ -123,7 +158,7 @@ QVector<Polygon> Serializer::readJSON(const QByteArray& data, const QPointF& off
     QJsonArray polygonArray = doc.array();
     QVector<Polygon> savedPolygons;
 
-    for (const auto& classObj : polygonArray)
+    for (const QJsonValue& classObj : polygonArray)
     {
         Polygon polygon;
         MarkedClass polygonClass(classObj.toObject().value("Class").toString());
@@ -131,14 +166,14 @@ QVector<Polygon> Serializer::readJSON(const QByteArray& data, const QPointF& off
         polygon.setPolygonClass(&polygonClass);
         QJsonArray polygonArray = classObj.toObject().value("Polygon").toArray();
 
-        for (const auto& polygonObj : polygonArray)
+        for (const QJsonValue& polygonObj : polygonArray)
         {
             auto ptObj = polygonObj.toObject().value("pt").toObject();
 
             double x = ptObj.value("x").toString().toDouble();
             double y = ptObj.value("y").toString().toDouble();
 
-            polygon.append(QPointF(x,y) + offset);
+            polygon.append(QPointF(x,y));
         }
 
         savedPolygons.append(polygon);
@@ -146,19 +181,18 @@ QVector<Polygon> Serializer::readJSON(const QByteArray& data, const QPointF& off
 
     return savedPolygons;
 }
-/*
-QVector<Polygon> Serializer::readXML(const QByteArray& data, const QPointF& offset)
+
+QVector<Polygon> Serializer::readXML()
 {
     QVector<Polygon> savedPolygons;
     return savedPolygons;
 }
-*/
-QByteArray Serializer::getData(const QString& filepath)
-{
-    QString filename(filepath);
-    filename.replace(QRegularExpression(".jpg|.png|.xpm"), ".json");
 
-    QFile file(filename);
+QByteArray Serializer::getData()
+{
+    m_filepath.replace(QRegularExpression(".jpg|.png|.xpm"), ".json");
+
+    QFile file(m_filepath);
     file.open(QIODevice::ReadOnly|QIODevice::Text);
     QByteArray data = file.readAll();
     file.close();

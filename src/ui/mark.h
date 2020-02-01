@@ -54,7 +54,7 @@ public:
     void changeShape(marK::Shape shape);
     void updateFiles();
     void savePolygons(OutputType type);
-    void addClass(MarkedClass* markedClass);
+    void addNewClass(MarkedClass* markedClass);
 
 public slots:
     void changeItem(QListWidgetItem *current, QListWidgetItem *previous);

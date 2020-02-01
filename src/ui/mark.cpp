@@ -77,7 +77,7 @@ marK::marK(QWidget *parent) :
     connect(m_watcher, &QFileSystemWatcher::directoryChanged, this,
             static_cast<void (marK::*)(const QString &)>(&marK::updateFiles));
 
-    connect(m_ui->newClassButton, &QPushButton::clicked, this, &marK::addNewClass);
+    connect(m_ui->newClassButton, &QPushButton::clicked, this, qOverload<>(&marK::addNewClass));
 
     connect(m_ui->undoButton, &QPushButton::clicked, m_ui->annotatorWidget, &AnnotatorWidget::undo);
     connect(m_ui->resetButton, &QPushButton::clicked, m_ui->annotatorWidget, &AnnotatorWidget::reset);
@@ -227,11 +227,12 @@ void marK::selectClassColor()
 void marK::savePolygons(OutputType type)
 {
     QString document;
+    Serializer serialize(m_ui->annotatorWidget->savedPolygons());
 
     if (type == OutputType::XML)
-        document = Serializer::toXML(m_ui->annotatorWidget->savedPolygons());
+        document = serialize.serialize(OutputType::XML);
     else if (type == OutputType::JSON)
-        document = Serializer::toJSON(m_ui->annotatorWidget->savedPolygons());
+        document = serialize.serialize(OutputType::JSON);
 
     if (!document.isEmpty())
     {
@@ -255,21 +256,21 @@ void marK::importData()
                                                      "JSON files (*.json)");// add later "XML files (*.xml)"
 
     // TODO: fix crash when there is no image loaded
-    QByteArray data = Serializer::getData(filepath);
+    Serializer serializer(filepath);
 
     if (filepath.endsWith(".json"))
-        m_ui->annotatorWidget->readPolygonsFromJson(data);
+        m_ui->annotatorWidget->setPolygons(serializer.read(OutputType::JSON));
 
     //else if (filepath.endsWith(".xml"))
         //m_ui->annotatorWidget->readPolygonsFromXml(data);
-/* TODO: addClass to each of polygons
+/*
     for (const auto& polygon : m_ui->annotatorWidget->savedPolygons())
-        addClass(polygon.polygonClass());
+        addNewClass(polygon.polygonClass());
 */
     // TODO: warning if failed
 }
 
-void marK::addClass(MarkedClass* markedClass)
+void marK::addNewClass(MarkedClass* markedClass)
 {
     int classQt = m_polygonClasses.size();
     m_polygonClasses << markedClass;
