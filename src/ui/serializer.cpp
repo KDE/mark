@@ -184,8 +184,56 @@ QVector<Polygon> Serializer::readJSON()
 
 QVector<Polygon> Serializer::readXML()
 {
-    QVector<Polygon> savedPolygons;
-    return savedPolygons;
+    QVector<Polygon> savedObjects;
+    QByteArray data = getData();
+
+    QXmlStreamReader xmlReader(data);
+    xmlReader.readNextStartElement(); // going to first element
+
+    while (!xmlReader.atEnd())
+    {
+        QXmlStreamReader::TokenType token = xmlReader.readNext();
+        if (token == QXmlStreamReader::StartElement)
+        {
+            Polygon object;
+            xmlReader.readNextStartElement();
+
+            if (xmlReader.name() == "class")
+            {
+                MarkedClass markedClass(xmlReader.readElementText());
+                object.setPolygonClass(&markedClass);
+            }
+
+            xmlReader.readNextStartElement(); // closing "class" and going to "polygon"
+            if (xmlReader.name() == "polygon")
+            {
+                xmlReader.readNextStartElement(); // going to "pt"
+
+                while (xmlReader.name() == "pt")
+                {
+                    xmlReader.readNextStartElement(); // going to "x" value
+
+                    double x = xmlReader.readElementText().toDouble();
+
+                    xmlReader.readNextStartElement(); // closing "x" value and going to "y" value
+
+                    double y = xmlReader.readElementText().toDouble();
+
+                    object.append(QPointF(x, y));
+
+                    xmlReader.readNextStartElement(); // closing "y" value
+
+                    xmlReader.readNextStartElement(); // closing "pt" value
+                }
+            }
+            savedObjects.append(object);
+        }
+    }
+
+    if(xmlReader.hasError())
+        qDebug() << xmlReader.error();
+
+    return savedObjects;
 }
 
 QByteArray Serializer::getData()

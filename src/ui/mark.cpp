@@ -253,7 +253,7 @@ void marK::savePolygons(OutputType type)
 void marK::importData()
 {
     QString filepath = QFileDialog::getOpenFileName(this, "Select File", QDir::homePath(),
-                                                     "JSON files (*.json)");// add later "XML files (*.xml)"
+                                                     "JSON and XML files (*.json *.xml)");// add later ""
 
     // TODO: fix crash when there is no image loaded
     Serializer serializer(filepath);
@@ -261,8 +261,8 @@ void marK::importData()
     if (filepath.endsWith(".json"))
         m_ui->annotatorWidget->setPolygons(serializer.read(OutputType::JSON));
 
-    //else if (filepath.endsWith(".xml"))
-        //m_ui->annotatorWidget->readPolygonsFromXml(data);
+    else if (filepath.endsWith(".xml"))
+        m_ui->annotatorWidget->setPolygons(serializer.read(OutputType::XML));
 /*
     for (const auto& polygon : m_ui->annotatorWidget->savedPolygons())
         addNewClass(polygon.polygonClass());
