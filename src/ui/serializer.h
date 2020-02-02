@@ -44,5 +44,6 @@ private:
     // put it to work with MarkedObject
     QVector<Polygon> m_items;
     QString m_filepath;
+    marK::OutputType m_output_type;
 };
 #endif // SERIALIZER_H

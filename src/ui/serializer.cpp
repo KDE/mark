@@ -25,6 +25,7 @@
 #include <QXmlStreamWriter>
 #include <QFile>
 #include <QRegularExpression>
+
 Serializer::Serializer(const QString& filepath) :
     m_filepath(filepath)
 {
@@ -38,6 +39,7 @@ Serializer::Serializer(const QVector<Polygon> items) :
 QVector<Polygon> Serializer::read(marK::OutputType output_type)
 {
     QVector<Polygon> objects;
+    m_output_type = output_type;
 
     if(output_type == marK::OutputType::XML)
         objects = this->readXML();
@@ -161,14 +163,14 @@ QVector<Polygon> Serializer::readJSON()
     for (const QJsonValue& classObj : polygonArray)
     {
         Polygon polygon;
-        MarkedClass polygonClass(classObj.toObject().value("Class").toString());
+        auto polygonClass = new MarkedClass(classObj["Class"].toString());
 
-        polygon.setPolygonClass(&polygonClass);
-        QJsonArray polygonArray = classObj.toObject().value("Polygon").toArray();
+        polygon.setPolygonClass(polygonClass);
+        QJsonArray polygonArray = classObj["Polygon"].toArray();
 
         for (const QJsonValue& polygonObj : polygonArray)
         {
-            auto ptObj = polygonObj.toObject().value("pt").toObject();
+            QJsonObject ptObj = polygonObj["pt"].toObject();
 
             double x = ptObj.value("x").toString().toDouble();
             double y = ptObj.value("y").toString().toDouble();
@@ -200,8 +202,8 @@ QVector<Polygon> Serializer::readXML()
 
             if (xmlReader.name() == "class")
             {
-                MarkedClass markedClass(xmlReader.readElementText());
-                object.setPolygonClass(&markedClass);
+                auto markedClass = new MarkedClass(xmlReader.readElementText());
+                object.setPolygonClass(markedClass);
             }
 
             xmlReader.readNextStartElement(); // closing "class" and going to "polygon"
@@ -238,7 +240,7 @@ QVector<Polygon> Serializer::readXML()
 
 QByteArray Serializer::getData()
 {
-    m_filepath.replace(QRegularExpression(".jpg|.png|.xpm"), ".json");
+    m_filepath.replace(QRegularExpression(".jpg|.png|.xpm"), (m_output_type == marK::OutputType::XML ? ".xml" : ".json"));
 
     QFile file(m_filepath);
     file.open(QIODevice::ReadOnly|QIODevice::Text);
