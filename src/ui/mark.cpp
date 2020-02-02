@@ -161,8 +161,10 @@ void marK::changeItem(QListWidgetItem *current, QListWidgetItem *previous)
         QString itemPath = QDir(m_currentDirectory).filePath(current->text());
 
         if (itemPath != m_filepath) {
+            makeTempFile();
             m_filepath = itemPath;
             m_ui->annotatorWidget->changeItem(itemPath);
+            retrieveTempFile(itemPath);
         }
     }
 }
@@ -257,16 +259,20 @@ void marK::importData()
 
     // TODO: fix crash when there is no image loaded
     Serializer serializer(filepath);
+    QVector<Polygon> objects;
 
     if (filepath.endsWith(".json"))
-        m_ui->annotatorWidget->setPolygons(serializer.read(OutputType::JSON));
+        objects = serializer.read(OutputType::JSON);
 
     else if (filepath.endsWith(".xml"))
-        m_ui->annotatorWidget->setPolygons(serializer.read(OutputType::XML));
-/*
-    for (const auto& polygon : m_ui->annotatorWidget->savedPolygons())
-        addNewClass(polygon.polygonClass());
-*/
+        objects = serializer.read(OutputType::XML);
+
+    m_ui->annotatorWidget->setPolygons(objects);
+
+    // add new classes to comboBox
+    for (const auto& object : objects)
+        addNewClass(object.polygonClass());
+
     // TODO: warning if failed
 }
 
@@ -284,4 +290,58 @@ void marK::addNewClass(MarkedClass* markedClass)
     m_ui->annotatorWidget->setCurrentPolygonClass(markedClass);
 }
 
-marK::~marK() = default;
+void marK::makeTempFile()
+{
+    QDir tempDir(QDir::tempPath());
+
+    QString tempFilename(m_filepath);
+    tempFilename.replace("/", "_");
+    tempFilename.replace(QRegularExpression(".jpg|.png|.xpm"), ".json");
+    tempFilename.prepend(QDir::tempPath() + "/mark");
+
+    QVector<Polygon> objects = m_ui->annotatorWidget->savedPolygons();
+    if (!objects.isEmpty())
+    {
+        QFile tempFile(tempFilename);
+        tempFile.open(QIODevice::WriteOnly|QIODevice::Text);
+
+        Serializer serializer(m_ui->annotatorWidget->savedPolygons());
+        QString document = serializer.serialize(OutputType::JSON); // writing in JSON
+        tempFile.write(document.toUtf8());
+        tempFile.close();
+
+        m_tempFiles.append(tempFilename);
+    }
+}
+
+void marK::retrieveTempFile(const QString& itempath)
+{
+    QDir tempDir(QDir::tempPath());
+
+    QString savedTempFile(itempath);
+    savedTempFile.replace("/", "_");
+    savedTempFile.replace(QRegularExpression(".jpg|.png|.xpm"), ".json");
+    savedTempFile.prepend(QDir::tempPath() + "/mark");
+
+    if (tempDir.exists(savedTempFile))
+    {
+        Serializer serializer(savedTempFile);
+
+        QVector<Polygon> objects = serializer.read(OutputType::JSON); // reading in JSON
+        m_ui->annotatorWidget->setPolygons(objects);
+
+        //adding the new classes to comboBox
+        for (const auto& object : objects)
+            addNewClass(object.polygonClass());
+    }
+}
+
+marK::~marK()
+{
+    // cleaning temp files
+    for (const QString& filename : m_tempFiles)
+    {
+        QFile tempfile(filename);
+        tempfile.remove();
+    }
+}

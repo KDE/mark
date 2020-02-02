@@ -55,6 +55,8 @@ public:
     void updateFiles();
     void savePolygons(OutputType type);
     void addNewClass(MarkedClass* markedClass);
+    void makeTempFile();
+    void retrieveTempFile(const QString& itempath);
 
 public slots:
     void changeItem(QListWidgetItem *current, QListWidgetItem *previous);
@@ -71,6 +73,7 @@ private:
     QString m_currentDirectory;
     QString m_filepath;
     QVector<MarkedClass*> m_polygonClasses;
+    QVector<QString> m_tempFiles;
 };
 
 #endif // MARK_H
