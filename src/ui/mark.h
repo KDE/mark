@@ -54,6 +54,9 @@ public:
     void changeShape(marK::Shape shape);
     void updateFiles();
     void savePolygons(OutputType type);
+    void addNewClass(MarkedClass* markedClass);
+    void makeTempFile();
+    void retrieveTempFile(const QString& itempath);
 
 public slots:
     void changeItem(QListWidgetItem *current, QListWidgetItem *previous);
@@ -62,6 +65,7 @@ public slots:
     void selectClassColor();
     void saveToJson() { savePolygons(OutputType::JSON); };
     void saveToXml() { savePolygons(OutputType::XML); };
+    void importData();
 
 private:
     QScopedPointer<Ui::marK> m_ui;
@@ -69,6 +73,7 @@ private:
     QString m_currentDirectory;
     QString m_filepath;
     QVector<MarkedClass*> m_polygonClasses;
+    QVector<QString> m_tempFiles;
 };
 
 #endif // MARK_H

@@ -20,6 +20,7 @@
 
 #include "ui/mark.h"
 #include "image/polygon.h"
+#include "ui/serializer.h"
 
 #include <QVector>
 #include <QWidget>
@@ -39,6 +40,7 @@ public:
 
 public:
     QVector<Polygon> savedPolygons() const;
+    void setPolygons(QVector<Polygon> polygons);
 
     void mousePressEvent(QMouseEvent* event) override;
 

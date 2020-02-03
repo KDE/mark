@@ -34,8 +34,6 @@
 #include <QColorDialog>
 #include <QFontMetrics>
 
-#include <QDebug>
-
 marK::marK(QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::marK),
@@ -49,6 +47,10 @@ marK::marK(QWidget *parent) :
     QAction *openDirAction = fileMenu->addAction("Open Directory");
     openDirAction->setShortcut(QKeySequence(Qt::Modifier::CTRL + Qt::Key::Key_O));
     connect(openDirAction, &QAction::triggered, this, &marK::changeDirectory);
+
+    QAction *importData = fileMenu->addAction("Import");
+    importData->setShortcut(QKeySequence(Qt::Modifier::CTRL + Qt::Key::Key_I));
+    connect(importData, &QAction::triggered, this, &marK::importData);
 
     QMenu *exportMenu = fileMenu->addMenu("Export");
 
@@ -75,7 +77,7 @@ marK::marK(QWidget *parent) :
     connect(m_watcher, &QFileSystemWatcher::directoryChanged, this,
             static_cast<void (marK::*)(const QString &)>(&marK::updateFiles));
 
-    connect(m_ui->newClassButton, &QPushButton::clicked, this, &marK::addNewClass);
+    connect(m_ui->newClassButton, &QPushButton::clicked, this, qOverload<>(&marK::addNewClass));
 
     connect(m_ui->undoButton, &QPushButton::clicked, m_ui->annotatorWidget, &AnnotatorWidget::undo);
     connect(m_ui->resetButton, &QPushButton::clicked, m_ui->annotatorWidget, &AnnotatorWidget::reset);
@@ -159,8 +161,10 @@ void marK::changeItem(QListWidgetItem *current, QListWidgetItem *previous)
         QString itemPath = QDir(m_currentDirectory).filePath(current->text());
 
         if (itemPath != m_filepath) {
+            makeTempFile();
             m_filepath = itemPath;
             m_ui->annotatorWidget->changeItem(itemPath);
+            retrieveTempFile(itemPath);
         }
     }
 }
@@ -225,11 +229,12 @@ void marK::selectClassColor()
 void marK::savePolygons(OutputType type)
 {
     QString document;
+    Serializer serialize(m_ui->annotatorWidget->savedPolygons());
 
     if (type == OutputType::XML)
-        document = Serializer::toXML(m_ui->annotatorWidget->savedPolygons());
+        document = serialize.serialize(OutputType::XML);
     else if (type == OutputType::JSON)
-        document = Serializer::toJSON(m_ui->annotatorWidget->savedPolygons());
+        document = serialize.serialize(OutputType::JSON);
 
     if (!document.isEmpty())
     {
@@ -247,4 +252,96 @@ void marK::savePolygons(OutputType type)
     }
 }
 
-marK::~marK() = default;
+void marK::importData()
+{
+    QString filepath = QFileDialog::getOpenFileName(this, "Select File", QDir::homePath(),
+                                                     "JSON and XML files (*.json *.xml)");// add later ""
+
+    // TODO: fix crash when there is no image loaded
+    Serializer serializer(filepath);
+    QVector<Polygon> objects;
+
+    if (filepath.endsWith(".json"))
+        objects = serializer.read(OutputType::JSON);
+
+    else if (filepath.endsWith(".xml"))
+        objects = serializer.read(OutputType::XML);
+
+    m_ui->annotatorWidget->setPolygons(objects);
+
+    // add new classes to comboBox
+    for (const auto& object : objects)
+        addNewClass(object.polygonClass());
+
+    // TODO: warning if failed
+}
+
+void marK::addNewClass(MarkedClass* markedClass)
+{
+    int classQt = m_polygonClasses.size();
+    m_polygonClasses << markedClass;
+    
+    QPixmap colorPix(70, 45);
+    colorPix.fill(markedClass->color());
+
+    m_ui->comboBox->addItem(QIcon(colorPix), markedClass->name());
+    m_ui->comboBox->setCurrentIndex(classQt);
+
+    m_ui->annotatorWidget->setCurrentPolygonClass(markedClass);
+}
+
+void marK::makeTempFile()
+{
+    QDir tempDir(QDir::tempPath());
+
+    QString tempFilename(m_filepath);
+    tempFilename.replace("/", "_");
+    tempFilename.replace(QRegularExpression(".jpg|.png|.xpm"), ".json");
+    tempFilename.prepend(QDir::tempPath() + "/mark");
+
+    QVector<Polygon> objects = m_ui->annotatorWidget->savedPolygons();
+    if (!objects.isEmpty())
+    {
+        QFile tempFile(tempFilename);
+        tempFile.open(QIODevice::WriteOnly|QIODevice::Text);
+
+        Serializer serializer(m_ui->annotatorWidget->savedPolygons());
+        QString document = serializer.serialize(OutputType::JSON); // writing in JSON
+        tempFile.write(document.toUtf8());
+        tempFile.close();
+
+        m_tempFiles.append(tempFilename);
+    }
+}
+
+void marK::retrieveTempFile(const QString& itempath)
+{
+    QDir tempDir(QDir::tempPath());
+
+    QString savedTempFile(itempath);
+    savedTempFile.replace("/", "_");
+    savedTempFile.replace(QRegularExpression(".jpg|.png|.xpm"), ".json");
+    savedTempFile.prepend(QDir::tempPath() + "/mark");
+
+    if (tempDir.exists(savedTempFile))
+    {
+        Serializer serializer(savedTempFile);
+
+        QVector<Polygon> objects = serializer.read(OutputType::JSON); // reading in JSON
+        m_ui->annotatorWidget->setPolygons(objects);
+
+        //adding the new classes to comboBox
+        for (const auto& object : objects)
+            addNewClass(object.polygonClass());
+    }
+}
+
+marK::~marK()
+{
+    // cleaning temp files
+    for (const QString& filename : m_tempFiles)
+    {
+        QFile tempfile(filename);
+        tempfile.remove();
+    }
+}

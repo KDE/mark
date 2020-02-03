@@ -183,11 +183,8 @@ void AnnotatorWidget::reset()
 
 void AnnotatorWidget::changeItem(QString itemPath)
 {
-    // TODO: create a temp file where the polygons from this image will be temporary stored, so they can be loaded again when
-    // the image is reopened
-    m_savedPolygons.clear();
     m_items.clear();
-    m_currentPolygon.clear();
+    reset();
 
     QGraphicsScene *scene = m_ui->graphicsView->scene();
     scene->setSceneRect(0, 0, 850, 640);
@@ -222,4 +219,15 @@ void AnnotatorWidget::changeItem(QString itemPath)
 void AnnotatorWidget::clearScene()
 {
     m_ui->graphicsView->scene()->clear();
+}
+
+void AnnotatorWidget::setPolygons(QVector<Polygon> polygons)
+{
+    QPointF offset = m_currentImage->pos();
+    for (Polygon& polygon : polygons)
+        for (QPointF& point : polygon)
+            point += offset;
+
+    m_savedPolygons = polygons;
+    repaint();
 }
