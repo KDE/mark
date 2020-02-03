@@ -33,6 +33,7 @@
 #include <QtGlobal>
 #include <QColorDialog>
 #include <QFontMetrics>
+#include <QMessageBox>
 
 marK::marK(QWidget *parent) :
     QMainWindow(parent),
@@ -255,7 +256,7 @@ void marK::savePolygons(OutputType type)
 void marK::importData()
 {
     QString filepath = QFileDialog::getOpenFileName(this, "Select File", QDir::homePath(),
-                                                     "JSON and XML files (*.json *.xml)");// add later ""
+                                                     "JSON and XML files (*.json *.xml)");
 
     // TODO: fix crash when there is no image loaded
     Serializer serializer(filepath);
@@ -267,13 +268,21 @@ void marK::importData()
     else if (filepath.endsWith(".xml"))
         objects = serializer.read(OutputType::XML);
 
+    if (objects.empty())
+    {
+        QMessageBox msgBox;
+        msgBox.setText("failed to load annotation");
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.exec();
+        return;
+    }
+
     m_ui->annotatorWidget->setPolygons(objects);
 
     // add new classes to comboBox
     for (const auto& object : objects)
         addNewClass(object.polygonClass());
 
-    // TODO: warning if failed
 }
 
 void marK::addNewClass(MarkedClass* markedClass)
