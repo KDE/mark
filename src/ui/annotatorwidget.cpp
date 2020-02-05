@@ -53,8 +53,8 @@ QVector<Polygon> AnnotatorWidget::savedPolygons() const
 {
     QVector<Polygon> copyPolygons(m_savedPolygons);
 
-    for (Polygon& polygon : copyPolygons) {
-        for (QPointF& point : polygon) {
+    for (Polygon &polygon : copyPolygons) {
+        for (QPointF &point : polygon) {
             point -= m_currentImage->pos();
             point = scaledPoint(point);
         }
@@ -73,7 +73,7 @@ void AnnotatorWidget::mousePressEvent(QMouseEvent* event)
         if (m_shape == marK::Shape::Polygon) {
             auto savedPolClicked = std::find_if(
                 m_savedPolygons.begin(), m_savedPolygons.end(),
-                [&](const Polygon& pol) {
+                [&](const Polygon &pol) {
                     return pol.containsPoint(clickedPoint, Qt::OddEvenFill);
                 }
             );
@@ -89,8 +89,9 @@ void AnnotatorWidget::mousePressEvent(QMouseEvent* event)
                 QPointF cPolFirstPt = m_currentPolygon.first();
                 QRectF cPolFirstPtRect(cPolFirstPt, QPointF(cPolFirstPt.x() + 10, cPolFirstPt.y() + 10));
                 isPolFirstPtClicked = cPolFirstPtRect.contains(clickedPoint);
-                if (isPolFirstPtClicked)
+                if (isPolFirstPtClicked) {
                     clickedPoint = QPointF(cPolFirstPt);
+                }
             }
 
             if (isSavedPolClicked || isPolFirstPtClicked || isImageClicked) {
@@ -106,8 +107,9 @@ void AnnotatorWidget::mousePressEvent(QMouseEvent* event)
         }
         else if (m_shape == marK::Shape::Rectangle) {
             if (isImageClicked) {
-                if (m_currentPolygon.empty())
+                if (m_currentPolygon.empty()) {
                     m_currentPolygon << clickedPoint;
+                }
                 else {
                     QPointF firstPt = m_currentPolygon.first();
                     m_currentPolygon << QPointF(clickedPoint.x(), firstPt.y()) << clickedPoint << QPointF(firstPt.x(), clickedPoint.y()) << firstPt;
@@ -125,18 +127,20 @@ void AnnotatorWidget::mousePressEvent(QMouseEvent* event)
 
 void AnnotatorWidget::repaint()
 {
-    for (QGraphicsItem* item : m_items)
+    for (QGraphicsItem* item : m_items) {
         m_ui->graphicsView->scene()->removeItem(item);
+    }
 
     m_items.clear();
 
-    for (Polygon& polygon : m_savedPolygons)
+    for (Polygon &polygon : m_savedPolygons) {
         paintPolygon(polygon);
+    }
 
     paintPolygon(m_currentPolygon);
 }
 
-void AnnotatorWidget::paintPolygon(Polygon& polygon)
+void AnnotatorWidget::paintPolygon(Polygon &polygon)
 {
     QGraphicsScene *scene = m_ui->graphicsView->scene();
 
@@ -157,8 +161,9 @@ void AnnotatorWidget::paintPolygon(Polygon& polygon)
 
                 item = scene->addRect((*it).x(), (*it).y(), 10, 10, QPen(brush, 2), brush);
             }
-            else
+            else {
                 item = scene->addLine(QLineF(*(it - 1), *it), QPen(QBrush(polygon.polygonClass()->color()), 2));
+            }
 
             m_items << item;
         }
@@ -193,19 +198,20 @@ void AnnotatorWidget::changeItem(QString itemPath)
     QPixmap image(itemPath);
     QPixmap scaledImage;
 
-    if (image.height() >= 1280)
+    if (image.height() >= 1280) {
         scaledImage = image.scaledToHeight(int(1280 * 0.8));
+    }
 
-    if (image.width() >= 960)
+    if (image.width() >= 960) {
         scaledImage = image.scaledToWidth(int(960 * 0.8));
+    }
 
     if (!scaledImage.isNull()) {
         m_scaleW = qreal(scaledImage.width()) / qreal(image.width());
         m_scaleH = qreal(scaledImage.height()) / qreal(image.height());
         image = scaledImage;
     }
-    else
-    {
+    else {
         m_scaleW = 1.0;
         m_scaleH = 1.0;
     }
@@ -230,10 +236,8 @@ void AnnotatorWidget::clearScene()
 void AnnotatorWidget::setPolygons(QVector<Polygon> polygons)
 {
     QPointF offset = m_currentImage->pos();
-    for (Polygon& polygon : polygons)
-    {
-        for (QPointF& point : polygon)
-        {
+    for (Polygon &polygon : polygons) {
+        for (QPointF &point : polygon) {
             point = QPointF(point.x() * m_scaleW, point.y() * m_scaleH);
             point += offset;
         }
@@ -243,7 +247,7 @@ void AnnotatorWidget::setPolygons(QVector<Polygon> polygons)
     repaint();
 }
 
-QPointF AnnotatorWidget::scaledPoint(const QPointF& point) const
+QPointF AnnotatorWidget::scaledPoint(const QPointF &point) const
 {
     qreal scaledX = point.x() / m_scaleW;
     qreal scaledY = point.y() / m_scaleH;

@@ -26,7 +26,7 @@
 #include <QFile>
 #include <QRegularExpression>
 
-Serializer::Serializer(const QString& filepath) :
+Serializer::Serializer(const QString &filepath) :
     m_filepath(filepath)
 {
 }
@@ -41,30 +41,33 @@ QVector<Polygon> Serializer::read(marK::OutputType output_type)
     QVector<Polygon> objects;
     m_output_type = output_type;
 
-    if(output_type == marK::OutputType::XML)
+    if (output_type == marK::OutputType::XML) {
         objects = this->readXML();
-
-    else if (output_type == marK::OutputType::JSON)
+    }
+    else if (output_type == marK::OutputType::JSON) {
         objects = this->readJSON();
+    }
 
     return objects;
 }
 
 QString Serializer::serialize(marK::OutputType output_type)
 {
-    if (output_type == marK::OutputType::XML)
+    if (output_type == marK::OutputType::XML) {
         return this->toXML();
-
-    else if (output_type == marK::OutputType::JSON)
+    }
+    else if (output_type == marK::OutputType::JSON) {
         return this->toJSON();
+    }
 
     return nullptr;
 }
 
 QString Serializer::toXML()
 {
-    if (m_items.isEmpty())
+    if (m_items.isEmpty()) {
         return nullptr;
+    }
 
     QString xmldoc;
     QXmlStreamWriter xmlWriter(&xmldoc);
@@ -73,7 +76,7 @@ QString Serializer::toXML()
 
     xmlWriter.writeStartElement("annotation");
 
-    for (const Polygon& item : m_items) {
+    for (const Polygon &item : m_items) {
         xmlWriter.writeStartElement("object");
 
         xmlWriter.writeStartElement("class");
@@ -82,7 +85,7 @@ QString Serializer::toXML()
 
         xmlWriter.writeStartElement("polygon");
 
-        for (const QPointF& point : item) {
+        for (const QPointF &point : item) {
             xmlWriter.writeStartElement("pt");
 
             xmlWriter.writeStartElement("x");
@@ -114,12 +117,13 @@ QString Serializer::toXML()
 
 QString Serializer::toJSON()
 {
-    if(m_items.isEmpty())
+    if (m_items.isEmpty()) {
         return nullptr;
+    }
 
     QJsonArray classesArray;
 
-    for (const Polygon& item : m_items) {
+    for (const Polygon &item : m_items) {
         QJsonObject recordObject;
 
         recordObject.insert("Class", item.polygonClass()->name());
@@ -160,16 +164,14 @@ QVector<Polygon> Serializer::readJSON()
     QJsonArray polygonArray = doc.array();
     QVector<Polygon> savedPolygons;
 
-    for (const QJsonValue& classObj : polygonArray)
-    {
+    for (const QJsonValue &classObj : polygonArray) {
         Polygon polygon;
         auto polygonClass = new MarkedClass(classObj["Class"].toString());
 
         polygon.setPolygonClass(polygonClass);
         QJsonArray polygonArray = classObj["Polygon"].toArray();
 
-        for (const QJsonValue& polygonObj : polygonArray)
-        {
+        for (const QJsonValue &polygonObj : polygonArray) {
             QJsonObject ptObj = polygonObj["pt"].toObject();
 
             double x = ptObj.value("x").toString().toDouble();
@@ -192,27 +194,22 @@ QVector<Polygon> Serializer::readXML()
     QXmlStreamReader xmlReader(data);
     xmlReader.readNextStartElement(); // going to first element
 
-    while (!xmlReader.atEnd())
-    {
+    while (!xmlReader.atEnd()) {
         QXmlStreamReader::TokenType token = xmlReader.readNext();
-        if (token == QXmlStreamReader::StartElement)
-        {
+        if (token == QXmlStreamReader::StartElement) {
             Polygon object;
             xmlReader.readNextStartElement();
 
-            if (xmlReader.name() == "class")
-            {
+            if (xmlReader.name() == "class") {
                 auto markedClass = new MarkedClass(xmlReader.readElementText());
                 object.setPolygonClass(markedClass);
             }
 
             xmlReader.readNextStartElement(); // closing "class" and going to "polygon"
-            if (xmlReader.name() == "polygon")
-            {
+            if (xmlReader.name() == "polygon") {
                 xmlReader.readNextStartElement(); // going to "pt"
 
-                while (xmlReader.name() == "pt")
-                {
+                while (xmlReader.name() == "pt") {
                     xmlReader.readNextStartElement(); // going to "x" value
 
                     double x = xmlReader.readElementText().toDouble();
@@ -232,8 +229,9 @@ QVector<Polygon> Serializer::readXML()
         }
     }
 
-    if(xmlReader.hasError())
+    if (xmlReader.hasError()) {
         qDebug() << xmlReader.error();
+    }
 
     return savedObjects;
 }
