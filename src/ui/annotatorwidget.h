@@ -53,8 +53,7 @@ public:
     void setCurrentPolygonClass(MarkedClass* polygonClass) { m_currentPolygon.setPolygonClass(polygonClass); repaint(); }
     void setShape(marK::Shape shape) { m_shape = shape; m_currentPolygon.clear(); repaint(); }
 
-    // TODO: scale a point
-    QPointF scaledPoint(const QPointF& point) const { return QPointF(point.x(), point.y()); }
+    QPointF scaledPoint(const QPointF& point) const;
 
 public slots:
     void undo();
