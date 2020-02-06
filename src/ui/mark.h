@@ -56,7 +56,7 @@ public:
     void savePolygons(OutputType type);
     void addNewClass(MarkedClass* markedClass);
     void makeTempFile();
-    void retrieveTempFile(const QString& itempath);
+    void retrieveTempFile();
 
 public slots:
     void changeItem(QListWidgetItem *current, QListWidgetItem *previous);

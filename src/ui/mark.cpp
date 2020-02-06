@@ -169,7 +169,7 @@ void marK::changeItem(QListWidgetItem *current, QListWidgetItem *previous)
             makeTempFile();
             m_filepath = itemPath;
             m_ui->annotatorWidget->changeItem(itemPath);
-            retrieveTempFile(itemPath);
+            retrieveTempFile();
         }
     }
 }
@@ -288,6 +288,7 @@ void marK::importData()
     m_ui->annotatorWidget->setPolygons(objects);
 
     // add new classes to comboBox
+    // TODO: verify class name, if equal do not add
     for (const auto &object : objects) {
         addNewClass(object.polygonClass());
     }
@@ -309,46 +310,27 @@ void marK::addNewClass(MarkedClass* markedClass)
 
 void marK::makeTempFile()
 {
-    QDir tempDir(QDir::tempPath());
-
-    QString tempFilename(m_filepath);
-    tempFilename.replace("/", "_");
-    tempFilename.replace(QRegularExpression(".jpg|.png|.xpm"), ".json");
-    tempFilename.prepend(QDir::tempPath() + "/mark");
-
     QVector<Polygon> objects = m_ui->annotatorWidget->savedPolygons();
-    if (!objects.isEmpty()) {
-        QFile tempFile(tempFilename);
-        tempFile.open(QIODevice::WriteOnly|QIODevice::Text);
 
-        Serializer serializer(m_ui->annotatorWidget->savedPolygons());
-        QString document = serializer.serialize(OutputType::JSON); // writing in JSON
-        tempFile.write(document.toUtf8());
-        tempFile.close();
+    Serializer serializer(objects);
 
-        m_tempFiles.append(tempFilename);
+    QString tempFileName = serializer.writeTempFile(m_filepath);
+    if (!tempFileName.isEmpty()) {
+        m_tempFiles.append(tempFileName);
     }
 }
 
-void marK::retrieveTempFile(const QString &itempath)
+void marK::retrieveTempFile()
 {
-    QDir tempDir(QDir::tempPath());
+    Serializer serializer(m_filepath);
 
-    QString savedTempFile(itempath);
-    savedTempFile.replace("/", "_");
-    savedTempFile.replace(QRegularExpression(".jpg|.png|.xpm"), ".json");
-    savedTempFile.prepend(QDir::tempPath() + "/mark");
+    QVector<Polygon> objects = serializer.readTempFile(); // reading in JSON
 
-    if (tempDir.exists(savedTempFile)) {
-        Serializer serializer(savedTempFile);
+    m_ui->annotatorWidget->setPolygons(objects);
 
-        QVector<Polygon> objects = serializer.read(OutputType::JSON); // reading in JSON
-        m_ui->annotatorWidget->setPolygons(objects);
-
-        //adding the new classes to comboBox
-        for (const auto &object : objects) {
-            addNewClass(object.polygonClass());
-        }
+    //adding the new classes to comboBox
+    for (const auto &object : objects) {
+        addNewClass(object.polygonClass());
     }
 }
 

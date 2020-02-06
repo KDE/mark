@@ -24,6 +24,7 @@
 #include <QJsonArray>
 #include <QXmlStreamWriter>
 #include <QFile>
+#include <QDir>
 #include <QRegularExpression>
 
 Serializer::Serializer(const QString &filepath) :
@@ -246,4 +247,65 @@ QByteArray Serializer::getData()
     file.close();
 
     return data;
+}
+
+bool Serializer::write(const QString &filepath, marK::OutputType output_type)
+{
+    if (!m_items.isEmpty()) {
+        QFile file(filepath);
+
+        QString document = serialize(output_type);
+
+        if (!document.isEmpty()) {
+            file.open(QIODevice::WriteOnly|QIODevice::Text);
+
+            file.write(document.toUtf8());
+            file.close();
+
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    return false;
+}
+
+QString Serializer::writeTempFile(const QString &originalFileName)
+{
+    QDir tempDir(QDir::tempPath());
+
+    QString tempFileName = getTempFileName(originalFileName);
+
+    bool success = write(tempFileName, marK::OutputType::JSON);
+    if (!success) {
+        return nullptr;
+    }
+
+    return tempFileName;
+}
+
+QVector<Polygon> Serializer::readTempFile()
+{
+    m_filepath = getTempFileName(m_filepath);
+    QVector<Polygon> objects;
+
+    QDir tempDir = QDir::tempPath();
+
+    if (tempDir.exists(m_filepath)) {
+        objects = read(marK::OutputType::JSON); // reading in JSON
+    }
+
+    return objects;
+}
+
+QString Serializer::getTempFileName(const QString &filepath)
+{
+    QString tempFileName = filepath;
+    tempFileName.replace("/", "_");
+    tempFileName.replace(QRegularExpression(".jpg|.jpeg|.png|.xpm"), ".json");
+    tempFileName.prepend(QDir::tempPath() + "/mark");
+
+    return tempFileName;
 }

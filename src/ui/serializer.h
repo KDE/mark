@@ -30,15 +30,24 @@ class Serializer
 public:
     explicit Serializer(const QString& filepath);
     explicit Serializer(const QVector<Polygon> items);
+
+    bool write(const QString &filepath, marK::OutputType output_type);
+    QString writeTempFile(const QString &originalFileName);
+
     QString serialize(marK::OutputType output_type);
+
     QVector<Polygon> read(marK::OutputType output_type);
+    QVector<Polygon> readTempFile();
 
 private:
     QByteArray getData();
     QString toJSON();
     QString toXML();
+
     QVector<Polygon> readJSON();
     QVector<Polygon> readXML();
+
+    QString getTempFileName(const QString &filepath);
 
 private:
     // put it to work with MarkedObject
