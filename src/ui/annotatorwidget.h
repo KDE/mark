@@ -39,8 +39,8 @@ public:
     ~AnnotatorWidget() override;
 
 public:
-    QVector<Polygon> savedPolygons() const;
-    void setPolygons(QVector<Polygon> polygons);
+    bool importObjects(const QString &filepath, marK::OutputType output_type);
+    bool saveObjects(const QString &filepath, marK::OutputType output_type);
 
     void mousePressEvent(QMouseEvent* event) override;
 
@@ -62,7 +62,7 @@ public slots:
 private:
     Ui::AnnotatorWidget* m_ui;
     Polygon m_currentPolygon;
-    QVector<Polygon> m_savedPolygons;
+    QVector<Polygon> m_savedObjects;
     QVector<QGraphicsItem*> m_items;
     QGraphicsPixmapItem* m_currentImage;
     marK::Shape m_shape;

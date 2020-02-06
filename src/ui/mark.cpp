@@ -234,29 +234,14 @@ void marK::selectClassColor()
 
 void marK::savePolygons(OutputType type)
 {
-    QString document;
-    Serializer serialize(m_ui->annotatorWidget->savedPolygons());
+    bool success = m_ui->annotatorWidget->saveObjects(m_filepath, type);
 
-    if (type == OutputType::XML) {
-        document = serialize.serialize(OutputType::XML);
-    }
-    else if (type == OutputType::JSON) {
-        document = serialize.serialize(OutputType::JSON);
-    }
-
-    if (!document.isEmpty()) {
-        QString outputFile(m_filepath);
-        outputFile.replace(QRegularExpression(".jpg|.png|.xpm"), (type == OutputType::XML ? ".xml" : ".json"));
-
-        QFile fileOut(outputFile);
-
-        if (!fileOut.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            return;
-        }
-
-        fileOut.write(document.toUtf8());
-
-        fileOut.close();
+    if (!success)
+    {
+        QMessageBox msgBox;
+        msgBox.setText("failed to save annotation");
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.exec();
     }
 }
 
@@ -268,24 +253,23 @@ void marK::importData()
     // TODO: fix crash when there is no image loaded
     Serializer serializer(filepath);
     QVector<Polygon> objects;
+    bool success;
 
     if (filepath.endsWith(".json")) {
-        objects = serializer.read(OutputType::JSON);
+        success = m_ui->annotatorWidget->importObjects(filepath, OutputType::JSON);
     }
 
     else if (filepath.endsWith(".xml")) {
-        objects = serializer.read(OutputType::XML);
+        success = m_ui->annotatorWidget->importObjects(filepath, OutputType::XML);
     }
 
-    if (objects.empty()) {
+    if (!success) {
         QMessageBox msgBox;
         msgBox.setText("failed to load annotation");
         msgBox.setIcon(QMessageBox::Warning);
         msgBox.exec();
         return;
     }
-
-    m_ui->annotatorWidget->setPolygons(objects);
 
     // add new classes to comboBox
     // TODO: verify class name, if equal do not add
@@ -310,6 +294,9 @@ void marK::addNewClass(MarkedClass* markedClass)
 
 void marK::makeTempFile()
 {
+    // FIXME, not writing tempFiles yet
+    // reason: savedPolygons doesnt exists
+    /*
     QVector<Polygon> objects = m_ui->annotatorWidget->savedPolygons();
 
     Serializer serializer(objects);
@@ -318,10 +305,14 @@ void marK::makeTempFile()
     if (!tempFileName.isEmpty()) {
         m_tempFiles.append(tempFileName);
     }
+    */
 }
 
 void marK::retrieveTempFile()
 {
+    // FIXME, not reading yet temp files
+    // reason: setPolygons doesnt exists
+    /*
     Serializer serializer(m_filepath);
 
     QVector<Polygon> objects = serializer.readTempFile(); // reading in JSON
@@ -332,6 +323,7 @@ void marK::retrieveTempFile()
     for (const auto &object : objects) {
         addNewClass(object.polygonClass());
     }
+    */
 }
 
 marK::~marK()

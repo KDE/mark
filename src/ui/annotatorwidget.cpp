@@ -22,8 +22,6 @@
 #include <QGraphicsScene>
 #include <QMouseEvent>
 
-#include <QDebug>
-
 AnnotatorWidget::AnnotatorWidget(QWidget* parent):
     QWidget(parent),
     m_ui(new Ui::AnnotatorWidget),
@@ -48,21 +46,6 @@ AnnotatorWidget::~AnnotatorWidget()
 {
 }
 
-// TODO: improve me and remove this loop
-QVector<Polygon> AnnotatorWidget::savedPolygons() const
-{
-    QVector<Polygon> copyPolygons(m_savedPolygons);
-
-    for (Polygon &polygon : copyPolygons) {
-        for (QPointF &point : polygon) {
-            point -= m_currentImage->pos();
-            point = scaledPoint(point);
-        }
-    }
-
-    return copyPolygons;
-}
-
 void AnnotatorWidget::mousePressEvent(QMouseEvent* event)
 {
     if (m_currentImage != nullptr) {
@@ -72,15 +55,15 @@ void AnnotatorWidget::mousePressEvent(QMouseEvent* event)
 
         if (m_shape == marK::Shape::Polygon) {
             auto savedPolClicked = std::find_if(
-                m_savedPolygons.begin(), m_savedPolygons.end(),
+                m_savedObjects.begin(), m_savedObjects.end(),
                 [&](const Polygon &pol) {
                     return pol.containsPoint(clickedPoint, Qt::OddEvenFill);
                 }
             );
-            bool isSavedPolClicked = savedPolClicked != m_savedPolygons.end();
+            bool isSavedPolClicked = savedPolClicked != m_savedObjects.end();
             if (isSavedPolClicked) {
                 m_currentPolygon = *savedPolClicked;
-                m_savedPolygons.erase(savedPolClicked);
+                m_savedObjects.erase(savedPolClicked);
                 m_currentPolygon.pop_back();
             }
 
@@ -98,7 +81,7 @@ void AnnotatorWidget::mousePressEvent(QMouseEvent* event)
                 m_currentPolygon << clickedPoint;
 
                 if (m_currentPolygon.size() > 1 && m_currentPolygon.isClosed()) {
-                    m_savedPolygons << m_currentPolygon;
+                    m_savedObjects << m_currentPolygon;
                     m_currentPolygon.clear();
                 }
 
@@ -113,7 +96,7 @@ void AnnotatorWidget::mousePressEvent(QMouseEvent* event)
                 else {
                     QPointF firstPt = m_currentPolygon.first();
                     m_currentPolygon << QPointF(clickedPoint.x(), firstPt.y()) << clickedPoint << QPointF(firstPt.x(), clickedPoint.y()) << firstPt;
-                    m_savedPolygons << m_currentPolygon;
+                    m_savedObjects << m_currentPolygon;
                     m_currentPolygon.clear();
                 }
 
@@ -133,7 +116,7 @@ void AnnotatorWidget::repaint()
 
     m_items.clear();
 
-    for (Polygon &polygon : m_savedPolygons) {
+    for (Polygon &polygon : m_savedObjects) {
         paintPolygon(polygon);
     }
 
@@ -181,7 +164,7 @@ void AnnotatorWidget::undo()
 
 void AnnotatorWidget::reset()
 {
-    m_savedPolygons.clear();
+    m_savedObjects.clear();
     m_currentPolygon.clear();
     repaint();
 }
@@ -233,23 +216,49 @@ void AnnotatorWidget::clearScene()
     m_ui->graphicsView->scene()->clear();
 }
 
-void AnnotatorWidget::setPolygons(QVector<Polygon> polygons)
-{
-    QPointF offset = m_currentImage->pos();
-    for (Polygon &polygon : polygons) {
-        for (QPointF &point : polygon) {
-            point = QPointF(point.x() * m_scaleW, point.y() * m_scaleH);
-            point += offset;
-        }
-    }
-
-    m_savedPolygons = polygons;
-    repaint();
-}
-
 QPointF AnnotatorWidget::scaledPoint(const QPointF &point) const
 {
     qreal scaledX = point.x() / m_scaleW;
     qreal scaledY = point.y() / m_scaleH;
     return QPointF(scaledX, scaledY);
+}
+
+bool AnnotatorWidget::saveObjects(const QString &filepath, marK::OutputType type)
+{
+    QVector<Polygon> scaledObjects(m_savedObjects);
+
+    // TODO: improve me and remove this loop
+    for (Polygon &object : scaledObjects) {
+        for (QPointF &point : object) {
+            point -= m_currentImage->pos();
+            point = scaledPoint(point);
+        }
+    }
+
+    Serializer serializer(scaledObjects);
+
+    return serializer.write(filepath, type);
+}
+
+bool AnnotatorWidget::importObjects(const QString &filepath, marK::OutputType output_type)
+{
+    Serializer serializer(filepath);
+
+    QVector<Polygon> objects = serializer.read(output_type);
+
+    if (!objects.isEmpty()) {
+        QPointF offset = m_currentImage->pos();
+
+        for (Polygon &object : objects) {
+            for (QPointF &point : object) {
+                point = QPointF(point.x() * m_scaleW, point.y() * m_scaleH);
+                point += offset;
+            }
+        }
+
+        m_savedObjects = objects;
+        repaint();
+        return true;
+    }
+    return false;
 }

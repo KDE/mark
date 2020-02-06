@@ -239,7 +239,7 @@ QVector<Polygon> Serializer::readXML()
 
 QByteArray Serializer::getData()
 {
-    m_filepath.replace(QRegularExpression(".jpg|.png|.xpm"), (m_output_type == marK::OutputType::XML ? ".xml" : ".json"));
+    m_filepath = handleFileNameExtension(m_filepath);
 
     QFile file(m_filepath);
     file.open(QIODevice::ReadOnly|QIODevice::Text);
@@ -252,12 +252,16 @@ QByteArray Serializer::getData()
 bool Serializer::write(const QString &filepath, marK::OutputType output_type)
 {
     if (!m_items.isEmpty()) {
-        QFile file(filepath);
+        QString filename = handleFileNameExtension(filepath);
+        QFile file(filename);
 
         QString document = serialize(output_type);
 
         if (!document.isEmpty()) {
-            file.open(QIODevice::WriteOnly|QIODevice::Text);
+            bool fileOpened = file.open(QIODevice::WriteOnly|QIODevice::Text);
+            if (!fileOpened) {
+                return false;
+            }
 
             file.write(document.toUtf8());
             file.close();
@@ -278,7 +282,9 @@ QString Serializer::writeTempFile(const QString &originalFileName)
 
     QString tempFileName = getTempFileName(originalFileName);
 
-    bool success = write(tempFileName, marK::OutputType::JSON);
+    m_output_type = marK::OutputType::JSON;
+
+    bool success = write(tempFileName, m_output_type);
     if (!success) {
         return nullptr;
     }
@@ -303,9 +309,19 @@ QVector<Polygon> Serializer::readTempFile()
 QString Serializer::getTempFileName(const QString &filepath)
 {
     QString tempFileName = filepath;
+
+    tempFileName = handleFileNameExtension(tempFileName);
+
     tempFileName.replace("/", "_");
-    tempFileName.replace(QRegularExpression(".jpg|.jpeg|.png|.xpm"), ".json");
     tempFileName.prepend(QDir::tempPath() + "/mark");
 
     return tempFileName;
+}
+
+QString Serializer::handleFileNameExtension(const QString &str)
+{
+    QString filename(str);
+    filename.replace(QRegularExpression(".jpg|.jpeg|.png|.xpm"), (m_output_type == marK::OutputType::XML ? ".xml" : ".json"));
+
+    return filename;
 }
