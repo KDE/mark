@@ -39,7 +39,7 @@ public:
     ~AnnotatorWidget() override;
 
 public:
-    bool importObjects(const QString &filepath, marK::OutputType output_type);
+    QVector<MarkedClass*> importObjects(const QString &filepath, marK::OutputType output_type);
     bool saveObjects(const QString &filepath, marK::OutputType output_type);
 
     void mousePressEvent(QMouseEvent* event) override;
@@ -52,8 +52,6 @@ public:
     // FIXME
     void setCurrentPolygonClass(MarkedClass* polygonClass) { m_currentPolygon.setPolygonClass(polygonClass); repaint(); }
     void setShape(marK::Shape shape) { m_shape = shape; m_currentPolygon.clear(); repaint(); }
-
-    QPointF scaledPoint(const QPointF& point) const;
 
 public slots:
     void undo();

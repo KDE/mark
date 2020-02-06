@@ -216,13 +216,6 @@ void AnnotatorWidget::clearScene()
     m_ui->graphicsView->scene()->clear();
 }
 
-QPointF AnnotatorWidget::scaledPoint(const QPointF &point) const
-{
-    qreal scaledX = point.x() / m_scaleW;
-    qreal scaledY = point.y() / m_scaleH;
-    return QPointF(scaledX, scaledY);
-}
-
 bool AnnotatorWidget::saveObjects(const QString &filepath, marK::OutputType type)
 {
     QVector<Polygon> scaledObjects(m_savedObjects);
@@ -231,7 +224,7 @@ bool AnnotatorWidget::saveObjects(const QString &filepath, marK::OutputType type
     for (Polygon &object : scaledObjects) {
         for (QPointF &point : object) {
             point -= m_currentImage->pos();
-            point = scaledPoint(point);
+            point = QPointF(point.x() / m_scaleW, point.y() / m_scaleH);
         }
     }
 
@@ -240,11 +233,12 @@ bool AnnotatorWidget::saveObjects(const QString &filepath, marK::OutputType type
     return serializer.write(filepath, type);
 }
 
-bool AnnotatorWidget::importObjects(const QString &filepath, marK::OutputType output_type)
+QVector<MarkedClass*> AnnotatorWidget::importObjects(const QString &filepath, marK::OutputType output_type)
 {
     Serializer serializer(filepath);
 
     QVector<Polygon> objects = serializer.read(output_type);
+    QVector<MarkedClass*> markedClasses;
 
     if (!objects.isEmpty()) {
         QPointF offset = m_currentImage->pos();
@@ -254,11 +248,12 @@ bool AnnotatorWidget::importObjects(const QString &filepath, marK::OutputType ou
                 point = QPointF(point.x() * m_scaleW, point.y() * m_scaleH);
                 point += offset;
             }
+            markedClasses.append(object.polygonClass());
         }
 
         m_savedObjects = objects;
         repaint();
-        return true;
     }
-    return false;
+
+    return markedClasses;
 }

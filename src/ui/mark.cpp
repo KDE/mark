@@ -236,8 +236,7 @@ void marK::savePolygons(OutputType type)
 {
     bool success = m_ui->annotatorWidget->saveObjects(m_filepath, type);
 
-    if (!success)
-    {
+    if (!success) {
         QMessageBox msgBox;
         msgBox.setText("failed to save annotation");
         msgBox.setIcon(QMessageBox::Warning);
@@ -251,19 +250,18 @@ void marK::importData()
                                                      "JSON and XML files (*.json *.xml)");
 
     // TODO: fix crash when there is no image loaded
-    Serializer serializer(filepath);
-    QVector<Polygon> objects;
-    bool success;
+    QVector<MarkedClass*> markedClasses;
 
+    // TODO: remove these if and else
     if (filepath.endsWith(".json")) {
-        success = m_ui->annotatorWidget->importObjects(filepath, OutputType::JSON);
+        markedClasses = m_ui->annotatorWidget->importObjects(filepath, OutputType::JSON);
     }
 
     else if (filepath.endsWith(".xml")) {
-        success = m_ui->annotatorWidget->importObjects(filepath, OutputType::XML);
+        markedClasses = m_ui->annotatorWidget->importObjects(filepath, OutputType::XML);
     }
 
-    if (!success) {
+    if (markedClasses.isEmpty()) {
         QMessageBox msgBox;
         msgBox.setText("failed to load annotation");
         msgBox.setIcon(QMessageBox::Warning);
@@ -273,8 +271,8 @@ void marK::importData()
 
     // add new classes to comboBox
     // TODO: verify class name, if equal do not add
-    for (const auto &object : objects) {
-        addNewClass(object.polygonClass());
+    for (MarkedClass *markedClass : markedClasses) {
+        addNewClass(markedClass);
     }
 }
 
@@ -294,36 +292,25 @@ void marK::addNewClass(MarkedClass* markedClass)
 
 void marK::makeTempFile()
 {
-    // FIXME, not writing tempFiles yet
-    // reason: savedPolygons doesnt exists
-    /*
-    QVector<Polygon> objects = m_ui->annotatorWidget->savedPolygons();
+    QString tempFilePath = Serializer::getTempFileName(m_filepath);
 
-    Serializer serializer(objects);
+    bool success = m_ui->annotatorWidget->saveObjects(tempFilePath, OutputType::JSON);
 
-    QString tempFileName = serializer.writeTempFile(m_filepath);
-    if (!tempFileName.isEmpty()) {
-        m_tempFiles.append(tempFileName);
+    if (success) {
+        m_tempFiles.append(tempFilePath);
     }
-    */
 }
 
 void marK::retrieveTempFile()
 {
-    // FIXME, not reading yet temp files
-    // reason: setPolygons doesnt exists
-    /*
-    Serializer serializer(m_filepath);
+    QString tempFilePath = Serializer::getTempFileName(m_filepath);
+    QVector<MarkedClass*> markedClasses;
 
-    QVector<Polygon> objects = serializer.readTempFile(); // reading in JSON
+    markedClasses = m_ui->annotatorWidget->importObjects(tempFilePath, OutputType::JSON);
 
-    m_ui->annotatorWidget->setPolygons(objects);
-
-    //adding the new classes to comboBox
-    for (const auto &object : objects) {
-        addNewClass(object.polygonClass());
+    for (MarkedClass *markedClass : markedClasses) {
+        addNewClass(markedClass);
     }
-    */
 }
 
 marK::~marK()

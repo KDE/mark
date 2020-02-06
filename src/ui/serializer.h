@@ -32,10 +32,11 @@ public:
     explicit Serializer(const QVector<Polygon> items);
 
     bool write(const QString &filepath, marK::OutputType output_type);
-    QString writeTempFile(const QString &originalFileName);
 
     QVector<Polygon> read(marK::OutputType output_type);
-    QVector<Polygon> readTempFile();
+
+    static QString getTempFileName(const QString &filepath);
+    static QString handleFileNameExtension(const QString &str, marK::OutputType output_type = marK::OutputType::JSON);
 
 private:
     QByteArray getData();
@@ -46,8 +47,6 @@ private:
     QVector<Polygon> readXML();
 
     QString serialize(marK::OutputType output_type);
-    QString getTempFileName(const QString &filepath);
-    QString handleFileNameExtension(const QString &str);
 
 private:
     // put it to work with MarkedObject

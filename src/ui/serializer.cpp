@@ -42,11 +42,14 @@ QVector<Polygon> Serializer::read(marK::OutputType output_type)
     QVector<Polygon> objects;
     m_output_type = output_type;
 
-    if (output_type == marK::OutputType::XML) {
-        objects = this->readXML();
-    }
-    else if (output_type == marK::OutputType::JSON) {
-        objects = this->readJSON();
+    bool fileExists = QFile::exists(m_filepath);
+    if (fileExists) {
+        if (output_type == marK::OutputType::XML) {
+            objects = this->readXML();
+        }
+        else if (output_type == marK::OutputType::JSON) {
+            objects = this->readJSON();
+        }
     }
 
     return objects;
@@ -276,36 +279,6 @@ bool Serializer::write(const QString &filepath, marK::OutputType output_type)
     return false;
 }
 
-QString Serializer::writeTempFile(const QString &originalFileName)
-{
-    QDir tempDir(QDir::tempPath());
-
-    QString tempFileName = getTempFileName(originalFileName);
-
-    m_output_type = marK::OutputType::JSON;
-
-    bool success = write(tempFileName, m_output_type);
-    if (!success) {
-        return nullptr;
-    }
-
-    return tempFileName;
-}
-
-QVector<Polygon> Serializer::readTempFile()
-{
-    m_filepath = getTempFileName(m_filepath);
-    QVector<Polygon> objects;
-
-    QDir tempDir = QDir::tempPath();
-
-    if (tempDir.exists(m_filepath)) {
-        objects = read(marK::OutputType::JSON); // reading in JSON
-    }
-
-    return objects;
-}
-
 QString Serializer::getTempFileName(const QString &filepath)
 {
     QString tempFileName = filepath;
@@ -318,10 +291,10 @@ QString Serializer::getTempFileName(const QString &filepath)
     return tempFileName;
 }
 
-QString Serializer::handleFileNameExtension(const QString &str)
+QString Serializer::handleFileNameExtension(const QString &str, marK::OutputType output_type)
 {
     QString filename(str);
-    filename.replace(QRegularExpression(".jpg|.jpeg|.png|.xpm"), (m_output_type == marK::OutputType::XML ? ".xml" : ".json"));
+    filename.replace(QRegularExpression(".jpg|.jpeg|.png|.xpm"), (output_type == marK::OutputType::XML ? ".xml" : ".json"));
 
     return filename;
 }
