@@ -28,7 +28,9 @@ AnnotatorWidget::AnnotatorWidget(QWidget* parent):
     m_currentImage(nullptr),
     m_shape(marK::Shape::Polygon),
     m_scaleW(0.0),
-    m_scaleH(0.0)
+    m_scaleH(0.0),
+    m_autoSaveJsonFilePath(""),
+    m_autoSaveXmlFilePath("")
 {
     m_ui->setupUi(this);
 
@@ -134,6 +136,14 @@ void AnnotatorWidget::paintPolygon(Polygon &polygon)
         QGraphicsPolygonItem *pol = scene->addPolygon(polygon, QPen(polygon.polygonClass()->color(), 2), QBrush(color));
 
         m_items << pol;
+
+        if (!m_autoSaveJsonFilePath.isEmpty()) {
+            saveObjects(m_autoSaveJsonFilePath, marK::OutputType::JSON);
+        }
+        if (!m_autoSaveXmlFilePath.isEmpty()) {
+            saveObjects(m_autoSaveXmlFilePath, marK::OutputType::XML);
+        }
+
     }
     else {
         for (auto it = polygon.begin(); it != polygon.end(); ++it) {
@@ -227,7 +237,6 @@ bool AnnotatorWidget::saveObjects(const QString &filepath, marK::OutputType type
             point = QPointF(point.x() / m_scaleW, point.y() / m_scaleH);
         }
     }
-
     Serializer serializer(scaledObjects);
 
     return serializer.write(filepath, type);

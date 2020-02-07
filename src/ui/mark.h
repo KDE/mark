@@ -57,6 +57,7 @@ public:
     void addNewClass(MarkedClass* markedClass);
     void makeTempFile();
     void retrieveTempFile();
+    void toggleAutoSave(OutputType output_type);
 
 public slots:
     void changeItem(QListWidgetItem *current, QListWidgetItem *previous);
@@ -74,6 +75,8 @@ private:
     QString m_filepath;
     QVector<MarkedClass*> m_polygonClasses;
     QVector<QString> m_tempFiles;
+    bool m_autoSaveJsonIsChecked;
+    bool m_autoSaveXmlIsChecked;
 };
 
 #endif // MARK_H
