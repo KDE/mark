@@ -255,7 +255,7 @@ QByteArray Serializer::getData()
 bool Serializer::write(const QString &filepath, marK::OutputType output_type)
 {
     if (!m_items.isEmpty()) {
-        QString filename = handleFileNameExtension(filepath);
+        QString filename = handleFileNameExtension(filepath, output_type);
         QFile file(filename);
 
         QString document = serialize(output_type);
