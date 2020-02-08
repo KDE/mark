@@ -75,8 +75,8 @@ private:
     QString m_filepath;
     QVector<MarkedClass*> m_polygonClasses;
     QVector<QString> m_tempFiles;
-    bool m_autoSaveJsonIsChecked;
-    bool m_autoSaveXmlIsChecked;
+    bool m_autoSaveJsonIsEnabled;
+    bool m_autoSaveXmlIsEnabled;
 };
 
 #endif // MARK_H

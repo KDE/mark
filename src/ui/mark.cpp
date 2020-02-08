@@ -38,7 +38,9 @@ marK::marK(QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::marK),
     m_watcher(new QFileSystemWatcher(this)),
-    m_currentDirectory("")
+    m_currentDirectory(""),
+    m_autoSaveJsonIsEnabled(false),
+    m_autoSaveXmlIsEnabled(false)
 {
     m_ui->setupUi(this);
 
@@ -71,12 +73,10 @@ marK::marK(QWidget *parent) :
     QAction *enableAutoSaveJson = autoSaveMenu->addAction("JSON");
     enableAutoSaveJson->setCheckable(true);
     connect(enableAutoSaveJson, &QAction::toggled, this, [=](){ toggleAutoSave(OutputType::JSON); });
-    //connect(enableAutoSaveJson, &QAction::toggled, this, qOverload<OutputType::JSON>(&marK::toggleAutoSave));
 
     QAction *enableAutoSaveXml = autoSaveMenu->addAction("XML");
     enableAutoSaveXml->setCheckable(true);
     connect(enableAutoSaveXml, &QAction::toggled, this, [=](){ toggleAutoSave(OutputType::XML); });
-    //connect(enableAutoSaveXml, &QAction::toggled, this, qOverload<OutputType::XML>(&marK::toggleAutoSave));
 
     m_ui->annotatorWidget->setMinimumSize(860, 650);
 
@@ -182,11 +182,8 @@ void marK::changeItem(QListWidgetItem *current, QListWidgetItem *previous)
             m_ui->annotatorWidget->changeItem(itemPath);
             retrieveTempFile();
 
-            if (m_autoSaveJsonIsChecked) {
-                m_ui->annotatorWidget->setAutoSaveJsonFilePath(itemPath);
-            }
-            if (m_autoSaveXmlIsChecked) {
-                m_ui->annotatorWidget->setAutoSaveXmlFilePath(itemPath);
+            if (m_autoSaveJsonIsEnabled || m_autoSaveXmlIsEnabled) {
+                m_ui->annotatorWidget->setAutoSaveFilePath(itemPath);
             }
         }
     }
@@ -334,23 +331,15 @@ void marK::retrieveTempFile()
 void marK::toggleAutoSave(OutputType output_type)
 {
     if (output_type == marK::OutputType::JSON) {
-        if (m_autoSaveJsonIsChecked) {
-            m_ui->annotatorWidget->setAutoSaveJsonFilePath("");
-            m_autoSaveJsonIsChecked = false;
-            return;
-        }
-        m_ui->annotatorWidget->setAutoSaveJsonFilePath(m_filepath);
-        m_autoSaveJsonIsChecked = true;
+        m_ui->annotatorWidget->setAutoSaveFilePath(m_filepath);
+        m_ui->annotatorWidget->toggleAutoSaveJson();
+        m_autoSaveJsonIsEnabled = !m_autoSaveJsonIsEnabled;
     }
 
     else if (output_type == marK::OutputType::XML) {
-        if (m_autoSaveXmlIsChecked) {
-            m_ui->annotatorWidget->setAutoSaveXmlFilePath("");
-            m_autoSaveXmlIsChecked = false;
-            return;
-        }
-        m_ui->annotatorWidget->setAutoSaveXmlFilePath(m_filepath);
-        m_autoSaveXmlIsChecked = true;
+        m_ui->annotatorWidget->setAutoSaveFilePath(m_filepath);
+        m_ui->annotatorWidget->toggleAutoSaveXml();
+        m_autoSaveXmlIsEnabled = !m_autoSaveXmlIsEnabled;
     }
 }
 

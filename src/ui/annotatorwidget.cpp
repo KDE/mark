@@ -29,8 +29,9 @@ AnnotatorWidget::AnnotatorWidget(QWidget* parent):
     m_shape(marK::Shape::Polygon),
     m_scaleW(0.0),
     m_scaleH(0.0),
-    m_autoSaveJsonFilePath(""),
-    m_autoSaveXmlFilePath("")
+    m_autoSaveFilePath(""),
+    m_autoSaveJsonIsEnabled(false),
+    m_autoSaveXmlIsEnabled(false)
 {
     m_ui->setupUi(this);
 
@@ -137,13 +138,12 @@ void AnnotatorWidget::paintPolygon(Polygon &polygon)
 
         m_items << pol;
 
-        if (!m_autoSaveJsonFilePath.isEmpty()) {
-            saveObjects(m_autoSaveJsonFilePath, marK::OutputType::JSON);
+        if (m_autoSaveJsonIsEnabled) {
+            saveObjects(m_autoSaveFilePath, marK::OutputType::JSON);
         }
-        if (!m_autoSaveXmlFilePath.isEmpty()) {
-            saveObjects(m_autoSaveXmlFilePath, marK::OutputType::XML);
+        if (m_autoSaveXmlIsEnabled) {
+            saveObjects(m_autoSaveFilePath, marK::OutputType::XML);
         }
-
     }
     else {
         for (auto it = polygon.begin(); it != polygon.end(); ++it) {
@@ -265,4 +265,9 @@ QVector<MarkedClass*> AnnotatorWidget::importObjects(const QString &filepath, ma
     }
 
     return markedClasses;
+}
+
+void AnnotatorWidget::setAutoSaveFilePath(const QString &str)
+{
+    m_autoSaveFilePath = str;
 }
