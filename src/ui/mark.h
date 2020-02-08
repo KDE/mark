@@ -57,7 +57,6 @@ public:
     void addNewClass(MarkedClass* markedClass);
     void makeTempFile();
     void retrieveTempFile();
-    void toggleAutoSave(OutputType output_type);
 
 public slots:
     void changeItem(QListWidgetItem *current, QListWidgetItem *previous);
@@ -69,6 +68,8 @@ public slots:
     void importData();
     void goToNextItem();
     void goToPreviousItem();
+    void toggleAutoSaveJson();
+    void toggleAutoSaveXml();
 
 private:
     QScopedPointer<Ui::marK> m_ui;

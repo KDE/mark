@@ -74,11 +74,11 @@ marK::marK(QWidget *parent) :
 
     QAction *enableAutoSaveJson = autoSaveMenu->addAction("JSON");
     enableAutoSaveJson->setCheckable(true);
-    connect(enableAutoSaveJson, &QAction::toggled, this, [=](){ toggleAutoSave(OutputType::JSON); });
+    connect(enableAutoSaveJson, &QAction::toggled, this, &marK::toggleAutoSaveJson);
 
     QAction *enableAutoSaveXml = autoSaveMenu->addAction("XML");
     enableAutoSaveXml->setCheckable(true);
-    connect(enableAutoSaveXml, &QAction::toggled, this, [=](){ toggleAutoSave(OutputType::XML); });
+    connect(enableAutoSaveXml, &QAction::toggled, this, &marK::toggleAutoSaveXml);
 
     QShortcut *nextItemShortcut = new QShortcut(this);
     nextItemShortcut->setKey(Qt::Key_Down);
@@ -361,19 +361,18 @@ void marK::retrieveTempFile()
     }
 }
 
-void marK::toggleAutoSave(OutputType output_type)
+void marK::toggleAutoSaveJson()
 {
-    if (output_type == marK::OutputType::JSON) {
-        m_ui->annotatorWidget->setAutoSaveFilePath(m_filepath);
-        m_ui->annotatorWidget->toggleAutoSaveJson();
-        m_autoSaveJsonIsEnabled = !m_autoSaveJsonIsEnabled;
-    }
+    m_ui->annotatorWidget->setAutoSaveFilePath(m_filepath);
+    m_ui->annotatorWidget->toggleAutoSaveJson();
+    m_autoSaveJsonIsEnabled = !m_autoSaveJsonIsEnabled;
+}
 
-    else if (output_type == marK::OutputType::XML) {
-        m_ui->annotatorWidget->setAutoSaveFilePath(m_filepath);
-        m_ui->annotatorWidget->toggleAutoSaveXml();
-        m_autoSaveXmlIsEnabled = !m_autoSaveXmlIsEnabled;
-    }
+void marK::toggleAutoSaveXml()
+{
+    m_ui->annotatorWidget->setAutoSaveFilePath(m_filepath);
+    m_ui->annotatorWidget->toggleAutoSaveXml();
+    m_autoSaveXmlIsEnabled = !m_autoSaveXmlIsEnabled;
 }
 
 marK::~marK()
