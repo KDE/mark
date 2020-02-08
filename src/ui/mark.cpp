@@ -33,12 +33,14 @@
 #include <QColorDialog>
 #include <QFontMetrics>
 #include <QMessageBox>
+#include <QShortcut>
 
 marK::marK(QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::marK),
     m_watcher(new QFileSystemWatcher(this)),
     m_currentDirectory(""),
+    m_currentIndex(-1),
     m_autoSaveJsonIsEnabled(false),
     m_autoSaveXmlIsEnabled(false)
 {
@@ -77,6 +79,14 @@ marK::marK(QWidget *parent) :
     QAction *enableAutoSaveXml = autoSaveMenu->addAction("XML");
     enableAutoSaveXml->setCheckable(true);
     connect(enableAutoSaveXml, &QAction::toggled, this, [=](){ toggleAutoSave(OutputType::XML); });
+
+    QShortcut *nextItemShortcut = new QShortcut(this);
+    nextItemShortcut->setKey(Qt::Key_Down);
+    connect(nextItemShortcut, &QShortcut::activated, this, &marK::goToNextItem);
+
+    QShortcut *previousItemShortcut = new QShortcut(this);
+    previousItemShortcut->setKey(Qt::Key_Up);
+    connect(previousItemShortcut, &QShortcut::activated, this, &marK::goToPreviousItem);
 
     m_ui->annotatorWidget->setMinimumSize(860, 650);
 
@@ -152,21 +162,42 @@ void marK::updateFiles(const QString &path)
         QListWidgetItem *itemW = new QListWidgetItem(item_pix, item);
         m_ui->listWidget->addItem(itemW);
 
-        if (previousText != "" and previousText == item) {
+        if (!previousText.isEmpty() && previousText == item) {
             int currentIndex = m_ui->listWidget->count() - 1;
-            m_ui->listWidget->setCurrentRow(currentIndex);
-            changeItem(currentIndex);
+            m_currentIndex = currentIndex;
+            changeItem();
         }
     }
 
-    if (previousText == "") {
+    if (previousText.isEmpty()) {
         m_ui->annotatorWidget->clearScene();
     }
 }
 
-void marK::changeItem(int currentRow)
+void marK::goToNextItem()
 {
-    QListWidgetItem *currentItem = m_ui->listWidget->item(currentRow);
+    m_currentIndex += 1;
+    if (m_currentIndex >= m_ui->listWidget->count()) {
+        m_currentIndex = 0;
+    }
+
+    changeItem();
+}
+
+void marK::goToPreviousItem()
+{
+    m_currentIndex -= 1;
+    if (m_currentIndex < 0) {
+        m_currentIndex = m_ui->listWidget->count() - 1;
+    }
+
+    changeItem();
+}
+
+void marK::changeItem()
+{
+    m_ui->listWidget->setCurrentRow(m_currentIndex);
+    QListWidgetItem *currentItem = m_ui->listWidget->item(m_currentIndex);
     changeItem(currentItem, nullptr);
 }
 
@@ -205,6 +236,8 @@ void marK::changeDirectory()
         }
         m_currentDirectory = path;
         m_watcher->addPath(m_currentDirectory);
+        m_ui->listWidget->clear();
+        m_currentIndex = -1;
         updateFiles();
 
         QFontMetrics metrics(m_ui->listLabel->font());
