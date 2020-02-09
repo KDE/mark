@@ -19,6 +19,7 @@
 #include "markedclass.h"
 
 #include <QDebug>
+#include <QtGlobal>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -80,7 +81,7 @@ QString Serializer::toXML()
 
     xmlWriter.writeStartElement("annotation");
 
-    for (const Polygon &item : m_items) {
+    for (const Polygon &item : qAsConst(m_items)) {
         xmlWriter.writeStartElement("object");
 
         xmlWriter.writeStartElement("class");
@@ -127,7 +128,7 @@ QString Serializer::toJSON()
 
     QJsonArray classesArray;
 
-    for (const Polygon &item : m_items) {
+    for (const Polygon &item : qAsConst(m_items)) {
         QJsonObject recordObject;
 
         recordObject.insert("Class", item.polygonClass()->name());
@@ -168,14 +169,14 @@ QVector<Polygon> Serializer::readJSON()
     QJsonArray polygonArray = doc.array();
     QVector<Polygon> savedPolygons;
 
-    for (const QJsonValue &classObj : polygonArray) {
+    for (const QJsonValue &classObj : qAsConst(polygonArray)) {
         Polygon polygon;
         auto polygonClass = new MarkedClass(classObj["Class"].toString());
 
         polygon.setPolygonClass(polygonClass);
         QJsonArray polygonArray = classObj["Polygon"].toArray();
 
-        for (const QJsonValue &polygonObj : polygonArray) {
+        for (const QJsonValue &polygonObj : qAsConst(polygonArray)) {
             QJsonObject ptObj = polygonObj["pt"].toObject();
 
             double x = ptObj.value("x").toString().toDouble();

@@ -104,14 +104,14 @@ marK::marK(QWidget *parent) :
     connect(m_ui->undoButton, &QPushButton::clicked, m_ui->annotatorWidget, &AnnotatorWidget::undo);
     connect(m_ui->resetButton, &QPushButton::clicked, m_ui->annotatorWidget, &AnnotatorWidget::reset);
 
-    connect(m_ui->comboBox, &QComboBox::editTextChanged, 
+    connect(m_ui->comboBox, &QComboBox::editTextChanged, this, 
         [&](const QString & text) {
             m_ui->comboBox->setItemText(m_ui->comboBox->currentIndex(), text);
             m_polygonClasses[m_ui->comboBox->currentIndex()]->setName(text);
         }
     );
 
-    connect(m_ui->comboBox, QOverload<int>::of(&QComboBox::activated), 
+    connect(m_ui->comboBox, QOverload<int>::of(&QComboBox::activated), this, 
         [&](int index) {
             m_ui->annotatorWidget->setCurrentPolygonClass(m_polygonClasses[index]);
         }
@@ -120,11 +120,11 @@ marK::marK(QWidget *parent) :
     connect(m_ui->selectClassColorButton, &QPushButton::clicked, this, &marK::selectClassColor);
 
     m_ui->polygonButton->setIcon(QIcon::fromTheme("tool_polyline"));
-    connect(m_ui->polygonButton, &QPushButton::clicked,
+    connect(m_ui->polygonButton, &QPushButton::clicked, this,
             [&](bool checked) { changeShape(marK::Shape::Polygon); });
 
     m_ui->rectButton->setIcon(QIcon::fromTheme("tool_rectangle"));
-    connect(m_ui->rectButton, &QPushButton::clicked,
+    connect(m_ui->rectButton, &QPushButton::clicked, this,
             [&](bool checked) { changeShape(marK::Shape::Rectangle); });
 }
 
@@ -147,7 +147,7 @@ void marK::updateFiles(const QString &path)
     QStringList items = resDirectory.entryList(QStringList() << "*.jpg" << "*.jpeg" << "*.JPG" <<
                                                 "*.JPEG" << "*.png" << "*.PNG" << "*.txt" << "*.TXT", QDir::Files);
 
-    for (const QString &item : items) {
+    for (const QString &item : qAsConst(items)) {
         QPixmap item_pix;
 
         if (item.endsWith(".txt") || item.endsWith(".TXT")) {
@@ -319,7 +319,7 @@ void marK::importData()
 
     // add new classes to comboBox
     // TODO: verify class name, if equal do not add
-    for (MarkedClass *markedClass : markedClasses) {
+    for (MarkedClass *markedClass : qAsConst(markedClasses)) {
         addNewClass(markedClass);
     }
 }
@@ -356,7 +356,7 @@ void marK::retrieveTempFile()
 
     markedClasses = m_ui->annotatorWidget->importObjects(tempFilePath, OutputType::JSON);
 
-    for (MarkedClass *markedClass : markedClasses) {
+    for (MarkedClass *markedClass : qAsConst(markedClasses)) {
         addNewClass(markedClass);
     }
 }
@@ -378,7 +378,7 @@ void marK::toggleAutoSaveXml()
 marK::~marK()
 {
     // cleaning temp files
-    for (const QString& filename : m_tempFiles) {
+    for (const QString &filename : qAsConst(m_tempFiles)) {
         QFile tempfile(filename);
         tempfile.remove();
     }

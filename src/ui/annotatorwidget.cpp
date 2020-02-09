@@ -113,7 +113,7 @@ void AnnotatorWidget::mousePressEvent(QMouseEvent* event)
 
 void AnnotatorWidget::repaint()
 {
-    for (QGraphicsItem* item : m_items) {
+    for (QGraphicsItem *item : qAsConst(m_items)) {
         m_ui->graphicsView->scene()->removeItem(item);
     }
 
