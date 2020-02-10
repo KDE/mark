@@ -322,10 +322,17 @@ void marK::importData()
     for (MarkedClass *markedClass : qAsConst(markedClasses)) {
         addNewClass(markedClass);
     }
+    m_ui->annotatorWidget->repaint();
 }
 
-void marK::addNewClass(MarkedClass* markedClass)
+void marK::addNewClass(MarkedClass *markedClass)
 {
+    for (MarkedClass *existingMarkedClass : m_polygonClasses) {
+        if (markedClass->name() == existingMarkedClass->name()) {
+            markedClass->setColor(existingMarkedClass->color());
+            return;
+        }
+    }
     int classQt = m_polygonClasses.size();
     m_polygonClasses << markedClass;
     
@@ -359,6 +366,7 @@ void marK::retrieveTempFile()
     for (MarkedClass *markedClass : qAsConst(markedClasses)) {
         addNewClass(markedClass);
     }
+    m_ui->annotatorWidget->repaint();
 }
 
 void marK::toggleAutoSaveJson()
