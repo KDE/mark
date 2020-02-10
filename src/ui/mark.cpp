@@ -239,6 +239,7 @@ void marK::changeDirectory()
         m_watcher->addPath(m_currentDirectory);
         m_ui->listWidget->clear();
         m_currentIndex = -1;
+        m_filepath.clear();
         updateFiles();
 
         QFontMetrics metrics(m_ui->listLabel->font());
@@ -295,10 +296,11 @@ void marK::savePolygons(OutputType type)
 
 void marK::importData()
 {
+    if (m_filepath.isEmpty()) return; //exiting because this is no image loaded
+
     QString filepath = QFileDialog::getOpenFileName(this, "Select File", QDir::homePath(),
                                                      "JSON and XML files (*.json *.xml)");
 
-    // TODO: fix crash when there is no image loaded
     QVector<MarkedClass*> markedClasses;
 
     markedClasses = m_ui->annotatorWidget->importObjects(filepath);
