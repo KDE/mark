@@ -208,6 +208,7 @@ void marK::changeItem(QListWidgetItem *current, QListWidgetItem *previous)
         QString itemPath = QDir(m_currentDirectory).filePath(current->text());
 
         if (itemPath != m_filepath) {
+            m_currentIndex = m_ui->listWidget->currentRow();
             makeTempFile();
             m_filepath = itemPath;
             m_ui->annotatorWidget->changeItem(itemPath);
@@ -327,7 +328,7 @@ void marK::importData()
 
 void marK::addNewClass(MarkedClass *markedClass)
 {
-    for (MarkedClass *existingMarkedClass : m_polygonClasses) {
+    for (MarkedClass *existingMarkedClass : qAsConst(m_polygonClasses)) {
         if (markedClass->name() == existingMarkedClass->name()) {
             markedClass->setColor(existingMarkedClass->color());
             return;
