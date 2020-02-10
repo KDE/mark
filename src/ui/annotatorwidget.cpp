@@ -242,11 +242,11 @@ bool AnnotatorWidget::saveObjects(const QString &filepath, marK::OutputType type
     return serializer.write(filepath, type);
 }
 
-QVector<MarkedClass*> AnnotatorWidget::importObjects(const QString &filepath, marK::OutputType output_type)
+QVector<MarkedClass*> AnnotatorWidget::importObjects(const QString &filepath)
 {
     Serializer serializer(filepath);
 
-    QVector<Polygon> objects = serializer.read(output_type);
+    QVector<Polygon> objects = serializer.read();
     QVector<MarkedClass*> markedClasses;
 
     if (!objects.isEmpty()) {

@@ -38,17 +38,16 @@ Serializer::Serializer(const QVector<Polygon> items) :
 {
 }
 
-QVector<Polygon> Serializer::read(marK::OutputType output_type)
+QVector<Polygon> Serializer::read()
 {
     QVector<Polygon> objects;
-    m_output_type = output_type;
 
     bool fileExists = QFile::exists(m_filepath);
     if (fileExists) {
-        if (output_type == marK::OutputType::XML) {
+        if (m_filepath.endsWith(".xml")) {
             objects = this->readXML();
         }
-        else if (output_type == marK::OutputType::JSON) {
+        else if (m_filepath.endsWith(".json")) {
             objects = this->readJSON();
         }
     }

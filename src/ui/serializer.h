@@ -33,7 +33,7 @@ public:
 
     bool write(const QString &filepath, marK::OutputType output_type);
 
-    QVector<Polygon> read(marK::OutputType output_type);
+    QVector<Polygon> read();
 
     static QString getTempFileName(const QString &filepath);
     static QString handleFileNameExtension(const QString &str, marK::OutputType output_type = marK::OutputType::JSON);
@@ -52,6 +52,5 @@ private:
     // put it to work with MarkedObject
     QVector<Polygon> m_items;
     QString m_filepath;
-    marK::OutputType m_output_type;
 };
 #endif // SERIALIZER_H

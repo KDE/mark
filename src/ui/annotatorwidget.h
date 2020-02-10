@@ -39,7 +39,7 @@ public:
     ~AnnotatorWidget() override;
 
 public:
-    QVector<MarkedClass*> importObjects(const QString &filepath, marK::OutputType output_type);
+    QVector<MarkedClass*> importObjects(const QString &filepath);
     bool saveObjects(const QString &filepath, marK::OutputType output_type);
 
     void setAutoSaveFilePath(const QString &str);

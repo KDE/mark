@@ -301,14 +301,7 @@ void marK::importData()
     // TODO: fix crash when there is no image loaded
     QVector<MarkedClass*> markedClasses;
 
-    // TODO: remove these if and else
-    if (filepath.endsWith(".json")) {
-        markedClasses = m_ui->annotatorWidget->importObjects(filepath, OutputType::JSON);
-    }
-
-    else if (filepath.endsWith(".xml")) {
-        markedClasses = m_ui->annotatorWidget->importObjects(filepath, OutputType::XML);
-    }
+    markedClasses = m_ui->annotatorWidget->importObjects(filepath);
 
     if (markedClasses.isEmpty()) {
         QMessageBox msgBox;
@@ -319,7 +312,6 @@ void marK::importData()
     }
 
     // add new classes to comboBox
-    // TODO: verify class name, if equal do not add
     for (MarkedClass *markedClass : qAsConst(markedClasses)) {
         addNewClass(markedClass);
     }
@@ -362,7 +354,7 @@ void marK::retrieveTempFile()
     QString tempFilePath = Serializer::getTempFileName(m_filepath);
     QVector<MarkedClass*> markedClasses;
 
-    markedClasses = m_ui->annotatorWidget->importObjects(tempFilePath, OutputType::JSON);
+    markedClasses = m_ui->annotatorWidget->importObjects(tempFilePath);
 
     for (MarkedClass *markedClass : qAsConst(markedClasses)) {
         addNewClass(markedClass);
