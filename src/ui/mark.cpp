@@ -93,10 +93,10 @@ marK::marK(QWidget *parent) :
     addNewClass();
 
     connect(m_ui->listWidget, &QListWidget::currentItemChanged, this,
-            static_cast<void (marK::*)(QListWidgetItem *, QListWidgetItem *)>(&marK::changeItem));
+            qOverload<QListWidgetItem*, QListWidgetItem*>(&marK::changeItem));
 
     connect(m_watcher, &QFileSystemWatcher::directoryChanged, this,
-            static_cast<void (marK::*)(const QString &)>(&marK::updateFiles));
+            qOverload<const QString &>(&marK::updateFiles));
 
     connect(m_ui->newClassButton, &QPushButton::clicked, this, qOverload<>(&marK::addNewClass));
 
