@@ -282,11 +282,12 @@ bool Serializer::write(const QString &filepath, marK::OutputType output_type)
 QString Serializer::getTempFileName(const QString &filepath)
 {
     QString tempFileName = filepath;
+    tempFileName.remove(0, 1);
 
     tempFileName = handleFileNameExtension(tempFileName);
 
     tempFileName.replace("/", "_");
-    tempFileName.prepend(QDir::tempPath() + "/mark");
+    tempFileName.prepend(QDir::tempPath() + "/mark/");
 
     return tempFileName;
 }

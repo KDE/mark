@@ -321,13 +321,13 @@ void marK::addNewClass(MarkedClass *markedClass)
 
 void marK::makeTempFile()
 {
+    QDir tempDir = QDir::tempPath();
+    if (!tempDir.exists("mark"))
+        tempDir.mkdir("mark");
+
     QString tempFilePath = Serializer::getTempFileName(m_filepath);
 
-    bool success = m_ui->annotatorWidget->saveObjects(tempFilePath, OutputType::JSON);
-
-    if (success) {
-        m_tempFiles.append(tempFilePath);
-    }
+    m_ui->annotatorWidget->saveObjects(tempFilePath, OutputType::JSON);
 }
 
 void marK::retrieveTempFile()
@@ -359,9 +359,7 @@ void marK::toggleAutoSaveXml()
 
 marK::~marK()
 {
-    // cleaning temp files
-    for (const QString &filename : qAsConst(m_tempFiles)) {
-        QFile tempfile(filename);
-        tempfile.remove();
-    }
+    QDir tempDir = QDir::tempPath();
+    if (tempDir.exists("mark"))
+        tempDir.removeRecursively();
 }

@@ -76,7 +76,6 @@ private:
     QString m_currentDirectory;
     QString m_filepath;
     QVector<MarkedClass*> m_polygonClasses;
-    QVector<QString> m_tempFiles;
     bool m_autoSaveJsonIsEnabled;
     bool m_autoSaveXmlIsEnabled;
 };
