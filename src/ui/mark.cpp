@@ -40,7 +40,6 @@ marK::marK(QWidget *parent) :
     m_ui(new Ui::marK),
     m_watcher(new QFileSystemWatcher(this)),
     m_currentDirectory(""),
-    m_currentIndex(-1),
     m_autoSaveJsonIsEnabled(false),
     m_autoSaveXmlIsEnabled(false)
 {
@@ -135,14 +134,6 @@ void marK::updateFiles()
 
 void marK::updateFiles(const QString &path)
 {
-    QListWidgetItem *previousSelectedItem = m_ui->listWidget->currentItem();
-    QString previousText;
-    if (previousSelectedItem != nullptr) {
-        previousText = previousSelectedItem->text();
-    }
-
-    m_ui->listWidget->clear();
-
     QDir resDirectory(path);
     QStringList items = resDirectory.entryList(QStringList() << "*.jpg" << "*.jpeg" << "*.JPG" <<
                                                 "*.JPEG" << "*.png" << "*.PNG" << "*.txt" << "*.TXT", QDir::Files);
@@ -161,43 +152,29 @@ void marK::updateFiles(const QString &path)
 
         QListWidgetItem *itemW = new QListWidgetItem(item_pix, item);
         m_ui->listWidget->addItem(itemW);
-
-        if (!previousText.isEmpty() && previousText == item) {
-            int currentIndex = m_ui->listWidget->count() - 1;
-            m_currentIndex = currentIndex;
-            changeItem();
-        }
-    }
-
-    if (previousText.isEmpty()) {
-        m_ui->annotatorWidget->clearScene();
     }
 }
 
 void marK::goToNextItem()
 {
-    m_currentIndex += 1;
-    if (m_currentIndex >= m_ui->listWidget->count()) {
-        m_currentIndex = 0;
+    int newIndex = m_ui->listWidget->currentRow() + 1;
+    if (newIndex >= m_ui->listWidget->count()) {
+        newIndex = 0;
     }
 
-    changeItem();
+    m_ui->listWidget->setCurrentRow(newIndex);
+    QListWidgetItem *currentItem = m_ui->listWidget->item(newIndex);
+    changeItem(currentItem, nullptr);
 }
 
 void marK::goToPreviousItem()
 {
-    m_currentIndex -= 1;
-    if (m_currentIndex < 0) {
-        m_currentIndex = m_ui->listWidget->count() - 1;
+    int newIndex = m_ui->listWidget->currentRow() - 1;
+    if (newIndex < 0) {
+        newIndex = m_ui->listWidget->count() - 1;
     }
-
-    changeItem();
-}
-
-void marK::changeItem()
-{
-    m_ui->listWidget->setCurrentRow(m_currentIndex);
-    QListWidgetItem *currentItem = m_ui->listWidget->item(m_currentIndex);
+    m_ui->listWidget->setCurrentRow(newIndex);
+    QListWidgetItem *currentItem = m_ui->listWidget->item(newIndex);
     changeItem(currentItem, nullptr);
 }
 
@@ -208,7 +185,6 @@ void marK::changeItem(QListWidgetItem *current, QListWidgetItem *previous)
         QString itemPath = QDir(m_currentDirectory).filePath(current->text());
 
         if (itemPath != m_filepath) {
-            m_currentIndex = m_ui->listWidget->currentRow();
             makeTempFile();
             m_filepath = itemPath;
             m_ui->annotatorWidget->changeItem(itemPath);
@@ -231,14 +207,17 @@ void marK::changeDirectory()
     QString path = QFileDialog::getExistingDirectory(this, "Select Directory", QDir::homePath(),
                                                      QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
+    if (m_currentDirectory == path)
+        return;
+
     if (!path.isEmpty()) {
         if (m_currentDirectory != "") {
             m_watcher->removePath(m_currentDirectory);
         }
         m_currentDirectory = path;
         m_watcher->addPath(m_currentDirectory);
+        m_ui->annotatorWidget->clearScene();
         m_ui->listWidget->clear();
-        m_currentIndex = -1;
         m_filepath.clear();
         updateFiles();
 

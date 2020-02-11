@@ -50,7 +50,6 @@ public:
 
 public:
     void changeDirectory();
-    void changeItem();
     void changeShape(marK::Shape shape);
     void updateFiles();
     void savePolygons(OutputType type);
@@ -78,7 +77,6 @@ private:
     QString m_filepath;
     QVector<MarkedClass*> m_polygonClasses;
     QVector<QString> m_tempFiles;
-    int m_currentIndex;
     bool m_autoSaveJsonIsEnabled;
     bool m_autoSaveXmlIsEnabled;
 };
