@@ -134,6 +134,8 @@ void marK::updateFiles()
 
 void marK::updateFiles(const QString &path)
 {
+    m_ui->listWidget->clear();
+
     QDir resDirectory(path);
     QStringList items = resDirectory.entryList(QStringList() << "*.jpg" << "*.jpeg" << "*.JPG" <<
                                                 "*.JPEG" << "*.png" << "*.PNG" << "*.txt" << "*.TXT", QDir::Files);
@@ -217,7 +219,6 @@ void marK::changeDirectory()
         m_currentDirectory = path;
         m_watcher->addPath(m_currentDirectory);
         m_ui->annotatorWidget->clearScene();
-        m_ui->listWidget->clear();
         m_filepath.clear();
         updateFiles();
 
