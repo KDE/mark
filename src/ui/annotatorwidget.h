@@ -42,9 +42,7 @@ public:
     QVector<MarkedClass*> importObjects(const QString &filepath);
     bool saveObjects(const QString &filepath, marK::OutputType output_type);
 
-    void setAutoSaveFilePath(const QString &str);
-    void toggleAutoSaveJson() { m_autoSaveJsonIsEnabled = !m_autoSaveJsonIsEnabled; };
-    void toggleAutoSaveXml() { m_autoSaveXmlIsEnabled = !m_autoSaveXmlIsEnabled; };
+    void setAutoSaveFile(const QString &str, marK::OutputType outputType);
 
     void mousePressEvent(QMouseEvent* event) override;
 
@@ -73,8 +71,7 @@ private:
     qreal m_scaleH;
 
     QString m_autoSaveFilePath;
-    bool m_autoSaveJsonIsEnabled;
-    bool m_autoSaveXmlIsEnabled;
+    marK::OutputType m_autoSaveType;
 };
 
 #endif // ANNOTATORWIDGET_H

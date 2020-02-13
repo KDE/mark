@@ -20,6 +20,7 @@
 #include "serializer.h"
 
 #include <QAction>
+#include <QActionGroup>
 #include <QDir>
 #include <QMenu>
 #include <QToolButton>
@@ -40,8 +41,7 @@ marK::marK(QWidget *parent) :
     m_ui(new Ui::marK),
     m_watcher(new QFileSystemWatcher(this)),
     m_currentDirectory(""),
-    m_autoSaveJsonIsEnabled(false),
-    m_autoSaveXmlIsEnabled(false)
+    m_autoSaveType(OutputType::None)
 {
     m_ui->setupUi(this);
 
@@ -71,13 +71,23 @@ marK::marK(QWidget *parent) :
 
     QMenu *autoSaveMenu = editMenu->addMenu("Auto Save");
 
-    QAction *enableAutoSaveJson = autoSaveMenu->addAction("JSON");
-    enableAutoSaveJson->setCheckable(true);
-    connect(enableAutoSaveJson, &QAction::toggled, this, &marK::toggleAutoSaveJson);
+    QActionGroup *autoSaveActionGroup = new QActionGroup(this);
 
-    QAction *enableAutoSaveXml = autoSaveMenu->addAction("XML");
-    enableAutoSaveXml->setCheckable(true);
-    connect(enableAutoSaveXml, &QAction::toggled, this, &marK::toggleAutoSaveXml);
+    QAction *autoSaveJsonButton = autoSaveMenu->addAction("JSON");
+    autoSaveJsonButton->setCheckable(true);
+    connect(autoSaveJsonButton, &QAction::triggered, this, &marK::toggleAutoSave);
+    autoSaveJsonButton->setActionGroup(autoSaveActionGroup);
+
+    QAction *autoSaveXmlButton = autoSaveMenu->addAction("XML");
+    autoSaveXmlButton->setCheckable(true);
+    connect(autoSaveXmlButton, &QAction::triggered, this, &marK::toggleAutoSave);
+    autoSaveXmlButton->setActionGroup(autoSaveActionGroup);
+
+    QAction *autoSaveDisableButton = autoSaveMenu->addAction("Disabled");
+    autoSaveDisableButton->setCheckable(true);
+    autoSaveDisableButton->setChecked(true);
+    connect(autoSaveDisableButton, &QAction::triggered, this, &marK::toggleAutoSave);
+    autoSaveDisableButton->setActionGroup(autoSaveActionGroup);
 
     QShortcut *nextItemShortcut = new QShortcut(this);
     nextItemShortcut->setKey(Qt::Key_Down);
@@ -192,8 +202,8 @@ void marK::changeItem(QListWidgetItem *current, QListWidgetItem *previous)
             m_ui->annotatorWidget->changeItem(itemPath);
             retrieveTempFile();
 
-            if (m_autoSaveJsonIsEnabled || m_autoSaveXmlIsEnabled) {
-                m_ui->annotatorWidget->setAutoSaveFilePath(itemPath);
+            if (m_autoSaveType != OutputType::None) {
+                m_ui->annotatorWidget->setAutoSaveFile(itemPath, m_autoSaveType);
             }
         }
     }
@@ -344,18 +354,24 @@ void marK::retrieveTempFile()
     m_ui->annotatorWidget->repaint();
 }
 
-void marK::toggleAutoSaveJson()
+void marK::toggleAutoSave()
 {
-    m_ui->annotatorWidget->setAutoSaveFilePath(m_filepath);
-    m_ui->annotatorWidget->toggleAutoSaveJson();
-    m_autoSaveJsonIsEnabled = !m_autoSaveJsonIsEnabled;
-}
+    QAction *button = qobject_cast<QAction*>(sender());
+    QString type = button->text();
+    if (type == "Disabled") {
+        m_ui->annotatorWidget->setAutoSaveFile("", OutputType::None);
+        m_autoSaveType = OutputType::None;
+    }
 
-void marK::toggleAutoSaveXml()
-{
-    m_ui->annotatorWidget->setAutoSaveFilePath(m_filepath);
-    m_ui->annotatorWidget->toggleAutoSaveXml();
-    m_autoSaveXmlIsEnabled = !m_autoSaveXmlIsEnabled;
+    else if (type == "XML") {
+        m_ui->annotatorWidget->setAutoSaveFile(m_filepath, OutputType::XML);
+        m_autoSaveType = OutputType::XML;
+    }
+
+    else if (type == "JSON") {
+        m_ui->annotatorWidget->setAutoSaveFile(m_filepath, OutputType::JSON);
+        m_autoSaveType = OutputType::JSON;
+    }
 }
 
 marK::~marK()

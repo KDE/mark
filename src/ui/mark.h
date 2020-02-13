@@ -35,6 +35,7 @@ class marK : public QMainWindow
 
 public:
     enum class OutputType {
+        None,
         XML,
         JSON
     };
@@ -67,8 +68,7 @@ public slots:
     void importData();
     void goToNextItem();
     void goToPreviousItem();
-    void toggleAutoSaveJson();
-    void toggleAutoSaveXml();
+    void toggleAutoSave();
 
 private:
     QScopedPointer<Ui::marK> m_ui;
@@ -76,8 +76,7 @@ private:
     QString m_currentDirectory;
     QString m_filepath;
     QVector<MarkedClass*> m_polygonClasses;
-    bool m_autoSaveJsonIsEnabled;
-    bool m_autoSaveXmlIsEnabled;
+    OutputType m_autoSaveType;
 };
 
 #endif // MARK_H
