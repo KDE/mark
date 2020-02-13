@@ -60,7 +60,7 @@ public:
 
 public slots:
     void changeItem(QListWidgetItem *current, QListWidgetItem *previous);
-    void updateFiles(const QString &path);
+    void updateFiles(const QString &path, const int index = -1);
     void addNewClass();
     void selectClassColor();
     void saveToJson() { savePolygons(OutputType::JSON); };
