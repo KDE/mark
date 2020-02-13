@@ -215,6 +215,9 @@ void AnnotatorWidget::changeItem(QString itemPath)
     pixmapItem->setPos(x_scene - x_image, y_scene - y_image);
 
     m_currentImage = pixmapItem;
+
+    // TODO: check if temp file exists and load it
+    // TODO: if temp file does not exist, create it
 }
 
 void AnnotatorWidget::clearScene()

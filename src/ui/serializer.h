@@ -35,8 +35,6 @@ public:
 
     QVector<Polygon> read();
 
-    static QString getTempFileName(const QString &filepath);
-
 private:
     QByteArray getData();
     QString toJSON();

@@ -92,28 +92,11 @@
             <property name="text">
              <string/>
             </property>
+            <property name="icon">
+             <iconset theme="tool_polyline"/>
+            </property>
            </widget>
           </item>
-           <!---<item row="0" column="3">
-           <widget class="QPushButton" name="pushButton_6">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="focusPolicy">
-             <enum>Qt::NoFocus</enum>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="icon">
-             <iconset>
-              <normaloff>../icons/triangle_icon.png</normaloff>../icons/triangle_icon.png</iconset>
-            </property>
-           </widget>
-           </item>-->
           <item row="0" column="1">
            <widget class="QPushButton" name="rectButton">
             <property name="sizePolicy">
@@ -128,34 +111,11 @@
             <property name="text">
              <string/>
             </property>
+            <property name="icon">
+             <iconset theme="tool_rectangle"/>
+            </property>
            </widget>
           </item>
-          <!---<item row="0" column="2">
-           <widget class="QPushButton" name="pushButton_3">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>16777000</width>
-              <height>16777000</height>
-             </size>
-            </property>
-            <property name="focusPolicy">
-             <enum>Qt::NoFocus</enum>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="icon">
-             <iconset>
-              <normaloff>../icons/circle_icon.png</normaloff>../icons/circle_icon.png</iconset>
-            </property>
-           </widget>
-          </item>-->
          </layout>
         </widget>
        </item>
@@ -292,7 +252,7 @@
      </widget>
     </item>
     <item>
-     <widget class="AnnotatorWidget" name="annotatorWidget">
+     <widget class="AnnotatorWidget" name="annotatorWidget" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -420,13 +380,12 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>22</height>
+     <height>30</height>
     </rect>
    </property>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
-
  <customwidgets>
   <customwidget>
    <class>AnnotatorWidget</class>

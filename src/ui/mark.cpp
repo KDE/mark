@@ -36,15 +36,31 @@
 #include <QMessageBox>
 #include <QShortcut>
 
+static const QDir markDirectory()
+{
+    return QDir::tempPath().filePath(".mark");
+}
+
 marK::marK(QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::marK),
     m_watcher(new QFileSystemWatcher(this)),
-    m_currentDirectory(""),
-    m_autoSaveType(OutputType::None)
+    m_currentDirectory("")
 {
     m_ui->setupUi(this);
 
+    setupActions();
+    setupConnections();
+
+    updateFiles();
+    addNewClass();
+
+    if (!markDirectory().exists())
+        markDirectory.mkpath(".");
+}
+
+void marK::setupActions()
+{
     QMenu *fileMenu = m_ui->menuBar->addMenu("File");
 
     QAction *openDirAction = fileMenu->addAction("Open Directory");
@@ -58,10 +74,10 @@ marK::marK(QWidget *parent) :
     QMenu *exportMenu = fileMenu->addMenu("Export");
 
     QAction *toXML = exportMenu->addAction("XML");
-    connect(toXML, &QAction::triggered, this, &marK::saveToXml);
+    connect(toXML, &QAction::triggered, [&](){ saveObjects(OutputType::XML); });
 
     QAction *toJson = exportMenu->addAction("JSON");
-    connect(toJson, &QAction::triggered, this, &marK::saveToJson);
+    connect(toJson, &QAction::triggered, [&](){ saveObjects(OutputType::JSON); });
 
     QMenu *editMenu = m_ui->menuBar->addMenu("Edit");
 
@@ -91,22 +107,19 @@ marK::marK(QWidget *parent) :
 
     QShortcut *nextItemShortcut = new QShortcut(this);
     nextItemShortcut->setKey(Qt::Key_Down);
-    connect(nextItemShortcut, &QShortcut::activated, this, &marK::goToNextItem);
+    connect(nextItemShortcut, &QShortcut::activated, [&](){ changeIndex(1); });
 
     QShortcut *previousItemShortcut = new QShortcut(this);
     previousItemShortcut->setKey(Qt::Key_Up);
-    connect(previousItemShortcut, &QShortcut::activated, this, &marK::goToPreviousItem);
+    connect(previousItemShortcut, &QShortcut::activated, [&]() { changeIndex(-1); });
+}
 
-    m_ui->annotatorWidget->setMinimumSize(860, 650);
-
-    updateFiles();
-    addNewClass();
-
+void marK::setupConnections()
+{
     connect(m_ui->listWidget, &QListWidget::currentItemChanged, this,
             qOverload<QListWidgetItem*, QListWidgetItem*>(&marK::changeItem));
 
-    connect(m_watcher, &QFileSystemWatcher::directoryChanged, this,
-            [=](){ marK::updateFiles(); });
+    connect(m_watcher, &QFileSystemWatcher::directoryChanged, this, [=](){ marK::updateFiles(); });
 
     connect(m_ui->newClassButton, &QPushButton::clicked, this, qOverload<>(&marK::addNewClass));
 
@@ -128,38 +141,32 @@ marK::marK(QWidget *parent) :
 
     connect(m_ui->selectClassColorButton, &QPushButton::clicked, this, &marK::selectClassColor);
 
-    m_ui->polygonButton->setIcon(QIcon::fromTheme("tool_polyline"));
     connect(m_ui->polygonButton, &QPushButton::clicked, this,
             [&](bool checked) { changeShape(marK::Shape::Polygon); });
 
-    m_ui->rectButton->setIcon(QIcon::fromTheme("tool_rectangle"));
     connect(m_ui->rectButton, &QPushButton::clicked, this,
             [&](bool checked) { changeShape(marK::Shape::Rectangle); });
 }
 
 void marK::updateFiles()
 {
-    int currentIndex = m_ui->listWidget->currentRow();
-    updateFiles(m_currentDirectory, currentIndex);
+    updateFiles(m_currentDirectory);
 }
 
-void marK::updateFiles(const QString &path, const int index)
+void marK::updateFiles(const QString &path)
 {
     m_ui->listWidget->clear();
 
     QDir resDirectory(path);
-    QStringList items = resDirectory.entryList(QStringList() << "*.jpg" << "*.jpeg" << "*.JPG" <<
-                                                "*.JPEG" << "*.png" << "*.PNG" << "*.txt" << "*.TXT", QDir::Files);
+    QStringList items = resDirectory.entryList(QStringList() << "*.jpg" << "*.JPG" 
+                                                             << "*.jpeg" << "*.JPEG"
+                                                             << "*.png" << "*.PNG"
+                                                             << "*.txt" << "*.TXT", QDir::Files);
 
     for (const QString &item : qAsConst(items)) {
-        QPixmap item_pix;
-
-        if (item.endsWith(".txt") || item.endsWith(".TXT")) {
-            item_pix = QIcon::fromTheme("document-edit-sign").pixmap(20, 20);
-        }
-        else {
-            item_pix = QPixmap(resDirectory.filePath(item));
-        }
+        QPixmap item_pix = (item.endsWith(".txt") || item.endsWith(".TXT")) ? 
+                            QIcon::fromTheme("document-edit-sign").pixmap(20, 20) :
+                            QPixmap(resDirectory.filePath(item));
 
         item_pix = item_pix.scaledToWidth(20);
 
@@ -167,28 +174,17 @@ void marK::updateFiles(const QString &path, const int index)
         m_ui->listWidget->addItem(itemW);
     }
 
-    if (index >= 0)
-        m_ui->listWidget->setCurrentRow(index);
+    m_ui->listWidget->setCurrentRow(0);
 }
 
-void marK::goToNextItem()
+void marK::changeIndex(const int count)
 {
-    int newIndex = m_ui->listWidget->currentRow() + 1;
-    if (newIndex >= m_ui->listWidget->count()) {
+    int newIndex = m_ui->listWidget->currentRow() + count;
+    if (newIndex >= m_ui->listWidget->count())
         newIndex = 0;
-    }
-
-    m_ui->listWidget->setCurrentRow(newIndex);
-    QListWidgetItem *currentItem = m_ui->listWidget->item(newIndex);
-    changeItem(currentItem, nullptr);
-}
-
-void marK::goToPreviousItem()
-{
-    int newIndex = m_ui->listWidget->currentRow() - 1;
-    if (newIndex < 0) {
+    else if (newIndex < 0)
         newIndex = m_ui->listWidget->count() - 1;
-    }
+
     m_ui->listWidget->setCurrentRow(newIndex);
     QListWidgetItem *currentItem = m_ui->listWidget->item(newIndex);
     changeItem(currentItem, nullptr);
@@ -201,14 +197,8 @@ void marK::changeItem(QListWidgetItem *current, QListWidgetItem *previous)
         QString itemPath = QDir(m_currentDirectory).filePath(current->text());
 
         if (itemPath != m_filepath) {
-            makeTempFile();
             m_filepath = itemPath;
             m_ui->annotatorWidget->changeItem(itemPath);
-            retrieveTempFile();
-
-            if (m_autoSaveType != OutputType::None) {
-                m_ui->annotatorWidget->setAutoSaveFile(itemPath, m_autoSaveType);
-            }
         }
     }
 }
@@ -248,7 +238,12 @@ void marK::addNewClass()
 {
     int classQt = m_polygonClasses.size();
 
-    MarkedClass* newClass = new MarkedClass(QString::number(classQt));
+    addNewClass(QString::number(classQt));
+}
+
+void marK::addNewClass(const QString& name)
+{
+    MarkedClass* newClass = new MarkedClass(name);
     m_polygonClasses << newClass;
     
     QPixmap colorPix(70, 45);
@@ -295,66 +290,33 @@ void marK::importData()
     QString filepath = QFileDialog::getOpenFileName(this, "Select File", QDir::homePath(),
                                                      "JSON and XML files (*.json *.xml)");
 
-    QVector<MarkedClass*> markedClasses;
+    QStringList classesNames = m_ui->annotatorWidget->importObjects(filepath);
 
-    markedClasses = m_ui->annotatorWidget->importObjects(filepath);
-
-    if (markedClasses.isEmpty()) {
+    if (classesNames.isEmpty()) {
         QMessageBox msgBox;
         msgBox.setText("failed to load annotation");
         msgBox.setIcon(QMessageBox::Warning);
         msgBox.exec();
-        return;
     }
+    else {
+        m_ui->comboBox->clear();
 
-    // add new classes to comboBox
-    for (MarkedClass *markedClass : qAsConst(markedClasses)) {
-        addNewClass(markedClass);
+        for (const QString& name : qAsConst(classesNames))
+            addNewClass(name);
+
+        m_ui->annotatorWidget->repaint();
     }
-    m_ui->annotatorWidget->repaint();
-}
-
-void marK::addNewClass(MarkedClass *markedClass)
-{
-    for (MarkedClass *existingMarkedClass : qAsConst(m_polygonClasses)) {
-        if (markedClass->name() == existingMarkedClass->name()) {
-            markedClass->setColor(existingMarkedClass->color());
-            return;
-        }
-    }
-    int classQt = m_polygonClasses.size();
-    m_polygonClasses << markedClass;
-    
-    QPixmap colorPix(70, 45);
-    colorPix.fill(markedClass->color());
-
-    m_ui->comboBox->addItem(QIcon(colorPix), markedClass->name());
-    m_ui->comboBox->setCurrentIndex(classQt);
-
-    m_ui->annotatorWidget->setCurrentPolygonClass(markedClass);
-}
-
-void marK::makeTempFile()
-{
-    QDir tempDir = QDir::tempPath();
-    if (!tempDir.exists("mark"))
-        tempDir.mkdir("mark");
-
-    QString tempFilePath = Serializer::getTempFileName(m_filepath);
-
-    m_ui->annotatorWidget->saveObjects(tempFilePath, OutputType::JSON);
 }
 
 void marK::retrieveTempFile()
 {
     QString tempFilePath = Serializer::getTempFileName(m_filepath);
-    QVector<MarkedClass*> markedClasses;
 
-    markedClasses = m_ui->annotatorWidget->importObjects(tempFilePath);
+    QStringList classesNames = m_ui->annotatorWidget->importObjects(tempFilePath);
 
-    for (MarkedClass *markedClass : qAsConst(markedClasses)) {
+    for (const QString& markedClass : qAsConst(markedClasses))
         addNewClass(markedClass);
-    }
+
     m_ui->annotatorWidget->repaint();
 }
 
@@ -380,7 +342,6 @@ void marK::toggleAutoSave()
 
 marK::~marK()
 {
-    QDir tempDir = QDir::tempPath();
-    if (tempDir.exists("mark"))
-        tempDir.removeRecursively();
+    if (markDirectory().exists())
+        markDirectory().removeRecursively();
 }
