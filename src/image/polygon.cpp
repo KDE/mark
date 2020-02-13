@@ -17,7 +17,7 @@
 
 #include "polygon.h"
 
-Polygon::Polygon(MarkedClass* polygonClass) :
+Polygon::Polygon(MarkedClass *polygonClass) :
     m_polygonClass(polygonClass)
 {
 }

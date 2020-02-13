@@ -20,10 +20,10 @@
 #include "serializer.h"
 
 #include <QAction>
+#include <QActionGroup>
 #include <QDir>
 #include <QMenu>
 #include <QToolButton>
-#include <QDebug>
 #include <QFileSystemWatcher>
 #include <QFileDialog>
 #include <QGraphicsPixmapItem>
@@ -33,8 +33,13 @@
 #include <QtGlobal>
 #include <QColorDialog>
 #include <QFontMetrics>
+#include <QMessageBox>
+#include <QShortcut>
 
-#include <QDebug>
+static const QDir markDirectory()
+{
+    return QDir::tempPath().filePath(".mark");
+}
 
 marK::marK(QWidget *parent) :
     QMainWindow(parent),
@@ -44,19 +49,35 @@ marK::marK(QWidget *parent) :
 {
     m_ui->setupUi(this);
 
+    setupActions();
+    setupConnections();
+
+    updateFiles();
+    addNewClass();
+
+    if (!markDirectory().exists())
+        markDirectory.mkpath(".");
+}
+
+void marK::setupActions()
+{
     QMenu *fileMenu = m_ui->menuBar->addMenu("File");
 
     QAction *openDirAction = fileMenu->addAction("Open Directory");
     openDirAction->setShortcut(QKeySequence(Qt::Modifier::CTRL + Qt::Key::Key_O));
     connect(openDirAction, &QAction::triggered, this, &marK::changeDirectory);
 
+    QAction *importData = fileMenu->addAction("Import");
+    importData->setShortcut(QKeySequence(Qt::Modifier::CTRL + Qt::Key::Key_I));
+    connect(importData, &QAction::triggered, this, &marK::importData);
+
     QMenu *exportMenu = fileMenu->addMenu("Export");
 
     QAction *toXML = exportMenu->addAction("XML");
-    connect(toXML, &QAction::triggered, this, &marK::saveToXml);
+    connect(toXML, &QAction::triggered, [&](){ saveObjects(OutputType::XML); });
 
     QAction *toJson = exportMenu->addAction("JSON");
-    connect(toJson, &QAction::triggered, this, &marK::saveToJson);
+    connect(toJson, &QAction::triggered, [&](){ saveObjects(OutputType::JSON); });
 
     QMenu *editMenu = m_ui->menuBar->addMenu("Edit");
 
@@ -64,30 +85,55 @@ marK::marK(QWidget *parent) :
     undoAction->setShortcut(QKeySequence(Qt::Modifier::CTRL + Qt::Key::Key_Z));
     connect(undoAction, &QAction::triggered, m_ui->annotatorWidget, &AnnotatorWidget::undo);
 
-    m_ui->annotatorWidget->setMinimumSize(860, 650);
+    QMenu *autoSaveMenu = editMenu->addMenu("Auto Save");
 
-    updateFiles();
-    addNewClass();
+    QActionGroup *autoSaveActionGroup = new QActionGroup(this);
 
+    QAction *autoSaveJsonButton = autoSaveMenu->addAction("JSON");
+    autoSaveJsonButton->setCheckable(true);
+    connect(autoSaveJsonButton, &QAction::triggered, this, &marK::toggleAutoSave);
+    autoSaveJsonButton->setActionGroup(autoSaveActionGroup);
+
+    QAction *autoSaveXmlButton = autoSaveMenu->addAction("XML");
+    autoSaveXmlButton->setCheckable(true);
+    connect(autoSaveXmlButton, &QAction::triggered, this, &marK::toggleAutoSave);
+    autoSaveXmlButton->setActionGroup(autoSaveActionGroup);
+
+    QAction *autoSaveDisableButton = autoSaveMenu->addAction("Disabled");
+    autoSaveDisableButton->setCheckable(true);
+    autoSaveDisableButton->setChecked(true);
+    connect(autoSaveDisableButton, &QAction::triggered, this, &marK::toggleAutoSave);
+    autoSaveDisableButton->setActionGroup(autoSaveActionGroup);
+
+    QShortcut *nextItemShortcut = new QShortcut(this);
+    nextItemShortcut->setKey(Qt::Key_Down);
+    connect(nextItemShortcut, &QShortcut::activated, [&](){ changeIndex(1); });
+
+    QShortcut *previousItemShortcut = new QShortcut(this);
+    previousItemShortcut->setKey(Qt::Key_Up);
+    connect(previousItemShortcut, &QShortcut::activated, [&]() { changeIndex(-1); });
+}
+
+void marK::setupConnections()
+{
     connect(m_ui->listWidget, &QListWidget::currentItemChanged, this,
-            static_cast<void (marK::*)(QListWidgetItem *, QListWidgetItem *)>(&marK::changeItem));
+            qOverload<QListWidgetItem*, QListWidgetItem*>(&marK::changeItem));
 
-    connect(m_watcher, &QFileSystemWatcher::directoryChanged, this,
-            static_cast<void (marK::*)(const QString &)>(&marK::updateFiles));
+    connect(m_watcher, &QFileSystemWatcher::directoryChanged, this, [=](){ marK::updateFiles(); });
 
-    connect(m_ui->newClassButton, &QPushButton::clicked, this, &marK::addNewClass);
+    connect(m_ui->newClassButton, &QPushButton::clicked, this, qOverload<>(&marK::addNewClass));
 
     connect(m_ui->undoButton, &QPushButton::clicked, m_ui->annotatorWidget, &AnnotatorWidget::undo);
     connect(m_ui->resetButton, &QPushButton::clicked, m_ui->annotatorWidget, &AnnotatorWidget::reset);
 
-    connect(m_ui->comboBox, &QComboBox::editTextChanged, 
+    connect(m_ui->comboBox, &QComboBox::editTextChanged, this, 
         [&](const QString & text) {
             m_ui->comboBox->setItemText(m_ui->comboBox->currentIndex(), text);
             m_polygonClasses[m_ui->comboBox->currentIndex()]->setName(text);
         }
     );
 
-    connect(m_ui->comboBox, QOverload<int>::of(&QComboBox::activated), 
+    connect(m_ui->comboBox, QOverload<int>::of(&QComboBox::activated), this, 
         [&](int index) {
             m_ui->annotatorWidget->setCurrentPolygonClass(m_polygonClasses[index]);
         }
@@ -95,12 +141,10 @@ marK::marK(QWidget *parent) :
 
     connect(m_ui->selectClassColorButton, &QPushButton::clicked, this, &marK::selectClassColor);
 
-    m_ui->polygonButton->setIcon(QIcon::fromTheme("tool_polyline"));
-    connect(m_ui->polygonButton, &QPushButton::clicked,
+    connect(m_ui->polygonButton, &QPushButton::clicked, this,
             [&](bool checked) { changeShape(marK::Shape::Polygon); });
 
-    m_ui->rectButton->setIcon(QIcon::fromTheme("tool_rectangle"));
-    connect(m_ui->rectButton, &QPushButton::clicked,
+    connect(m_ui->rectButton, &QPushButton::clicked, this,
             [&](bool checked) { changeShape(marK::Shape::Rectangle); });
 }
 
@@ -111,44 +155,38 @@ void marK::updateFiles()
 
 void marK::updateFiles(const QString &path)
 {
-    QListWidgetItem *previousSelectedItem = m_ui->listWidget->currentItem();
-    QString previousText;
-    if (previousSelectedItem != nullptr)
-        previousText = previousSelectedItem->text();
-
     m_ui->listWidget->clear();
 
     QDir resDirectory(path);
-    QStringList items = resDirectory.entryList(QStringList() << "*.jpg" << "*.jpeg" << "*.JPG" <<
-                                                "*.JPEG" << "*.png" << "*.PNG" << "*.txt" << "*.TXT", QDir::Files);
+    QStringList items = resDirectory.entryList(QStringList() << "*.jpg" << "*.JPG" 
+                                                             << "*.jpeg" << "*.JPEG"
+                                                             << "*.png" << "*.PNG"
+                                                             << "*.txt" << "*.TXT", QDir::Files);
 
-    for (const QString &item : items) {
-        QPixmap item_pix;
-
-        if (item.endsWith(".txt") || item.endsWith(".TXT"))
-            item_pix = QIcon::fromTheme("document-edit-sign").pixmap(20, 20);
-        else
-            item_pix = QPixmap(resDirectory.filePath(item));
+    for (const QString &item : qAsConst(items)) {
+        QPixmap item_pix = (item.endsWith(".txt") || item.endsWith(".TXT")) ? 
+                            QIcon::fromTheme("document-edit-sign").pixmap(20, 20) :
+                            QPixmap(resDirectory.filePath(item));
 
         item_pix = item_pix.scaledToWidth(20);
 
         QListWidgetItem *itemW = new QListWidgetItem(item_pix, item);
         m_ui->listWidget->addItem(itemW);
-
-        if (previousText != "" and previousText == item) {
-            int currentIndex = m_ui->listWidget->count() - 1;
-            m_ui->listWidget->setCurrentRow(currentIndex);
-            changeItem(currentIndex);
-        }
     }
 
-    if (previousText == "")
-        m_ui->annotatorWidget->clearScene();
+    m_ui->listWidget->setCurrentRow(0);
 }
 
-void marK::changeItem(int currentRow)
+void marK::changeIndex(const int count)
 {
-    QListWidgetItem *currentItem = m_ui->listWidget->item(currentRow);
+    int newIndex = m_ui->listWidget->currentRow() + count;
+    if (newIndex >= m_ui->listWidget->count())
+        newIndex = 0;
+    else if (newIndex < 0)
+        newIndex = m_ui->listWidget->count() - 1;
+
+    m_ui->listWidget->setCurrentRow(newIndex);
+    QListWidgetItem *currentItem = m_ui->listWidget->item(newIndex);
     changeItem(currentItem, nullptr);
 }
 
@@ -175,12 +213,18 @@ void marK::changeDirectory()
     QString path = QFileDialog::getExistingDirectory(this, "Select Directory", QDir::homePath(),
                                                      QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
+    if (m_currentDirectory == path)
+        return;
+
     if (!path.isEmpty()) {
-        if (m_currentDirectory != "")
+        if (m_currentDirectory != "") {
             m_watcher->removePath(m_currentDirectory);
+        }
         m_currentDirectory = path;
         m_watcher->addPath(m_currentDirectory);
-        updateFiles();
+        m_ui->annotatorWidget->clearScene();
+        m_filepath.clear();
+        updateFiles(path);
 
         QFontMetrics metrics(m_ui->listLabel->font());
         QString elidedText = metrics.elidedText(m_currentDirectory, Qt::ElideMiddle,
@@ -194,7 +238,12 @@ void marK::addNewClass()
 {
     int classQt = m_polygonClasses.size();
 
-    MarkedClass* newClass = new MarkedClass(QString::number(classQt));
+    addNewClass(QString::number(classQt));
+}
+
+void marK::addNewClass(const QString& name)
+{
+    MarkedClass* newClass = new MarkedClass(name);
     m_polygonClasses << newClass;
     
     QPixmap colorPix(70, 45);
@@ -224,27 +273,75 @@ void marK::selectClassColor()
 
 void marK::savePolygons(OutputType type)
 {
-    QString document;
+    bool success = m_ui->annotatorWidget->saveObjects(m_filepath, type);
 
-    if (type == OutputType::XML)
-        document = Serializer::toXML(m_ui->annotatorWidget->savedPolygons());
-    else if (type == OutputType::JSON)
-        document = Serializer::toJSON(m_ui->annotatorWidget->savedPolygons());
-
-    if (!document.isEmpty())
-    {
-        QString outputFile(m_filepath);
-        outputFile.replace(QRegularExpression(".jpg|.png|.xpm"), (type == OutputType::XML ? ".xml" : ".json"));
-
-        QFile fileOut(outputFile);
-
-        if (!fileOut.open(QIODevice::WriteOnly | QIODevice::Text))
-            return;
-
-        fileOut.write(document.toUtf8());
-
-        fileOut.close();
+    if (!success) {
+        QMessageBox msgBox;
+        msgBox.setText("failed to save annotation");
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.exec();
     }
 }
 
-marK::~marK() = default;
+void marK::importData()
+{
+    if (m_filepath.isEmpty()) return; //exiting because this is no image loaded
+
+    QString filepath = QFileDialog::getOpenFileName(this, "Select File", QDir::homePath(),
+                                                     "JSON and XML files (*.json *.xml)");
+
+    QStringList classesNames = m_ui->annotatorWidget->importObjects(filepath);
+
+    if (classesNames.isEmpty()) {
+        QMessageBox msgBox;
+        msgBox.setText("failed to load annotation");
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.exec();
+    }
+    else {
+        m_ui->comboBox->clear();
+
+        for (const QString& name : qAsConst(classesNames))
+            addNewClass(name);
+
+        m_ui->annotatorWidget->repaint();
+    }
+}
+
+void marK::retrieveTempFile()
+{
+    QString tempFilePath = Serializer::getTempFileName(m_filepath);
+
+    QStringList classesNames = m_ui->annotatorWidget->importObjects(tempFilePath);
+
+    for (const QString& markedClass : qAsConst(markedClasses))
+        addNewClass(markedClass);
+
+    m_ui->annotatorWidget->repaint();
+}
+
+void marK::toggleAutoSave()
+{
+    QAction *button = qobject_cast<QAction*>(sender());
+    QString type = button->text();
+    if (type == "Disabled") {
+        m_ui->annotatorWidget->setAutoSaveFile("", OutputType::None);
+        m_autoSaveType = OutputType::None;
+    }
+
+    else if (type == "XML") {
+        m_ui->annotatorWidget->setAutoSaveFile(m_filepath, OutputType::XML);
+        m_autoSaveType = OutputType::XML;
+    }
+
+    else if (type == "JSON") {
+        m_ui->annotatorWidget->setAutoSaveFile(m_filepath, OutputType::JSON);
+        m_autoSaveType = OutputType::JSON;
+    }
+}
+
+marK::~marK()
+{
+    if (markDirectory().exists())
+        markDirectory().removeRecursively();
+}
