@@ -64,9 +64,9 @@ marK::marK(QWidget *parent) :
 
     QAction *undoAction = editMenu->addAction("Undo");
     undoAction->setShortcut(QKeySequence(Qt::Modifier::CTRL + Qt::Key::Key_Z));
-    connect(undoAction, &QAction::triggered, m_ui->annotatorWidget, &AnnotatorWidget::undo);
+    connect(undoAction, &QAction::triggered, m_ui->containerWidget, &ImageContainer::undo);
 
-    m_ui->annotatorWidget->setMinimumSize(860, 650);
+    m_ui->containerWidget->setMinimumSize(860, 650);
 
     updateFiles();
     addNewClass();
@@ -79,8 +79,8 @@ marK::marK(QWidget *parent) :
 
     connect(m_ui->newClassButton, &QPushButton::clicked, this, &marK::addNewClass);
 
-    connect(m_ui->undoButton, &QPushButton::clicked, m_ui->annotatorWidget, &AnnotatorWidget::undo);
-    connect(m_ui->resetButton, &QPushButton::clicked, m_ui->annotatorWidget, &AnnotatorWidget::reset);
+    connect(m_ui->undoButton, &QPushButton::clicked, m_ui->containerWidget, &ImageContainer::undo);
+    connect(m_ui->resetButton, &QPushButton::clicked, m_ui->containerWidget, &ImageContainer::reset);
 
     connect(m_ui->comboBox, &QComboBox::editTextChanged, 
         [&](const QString & text) {
@@ -91,7 +91,7 @@ marK::marK(QWidget *parent) :
 
     connect(m_ui->comboBox, QOverload<int>::of(&QComboBox::activated), 
         [&](int index) {
-            m_ui->annotatorWidget->setCurrentPolygonClass(m_polygonClasses[index]);
+            m_ui->containerWidget->setObjClass(m_polygonClasses[index]);
         }
     );
 
@@ -145,7 +145,7 @@ void marK::updateFiles(const QString &path)
     }
 
     if (previousText == "")
-        m_ui->annotatorWidget->clearScene();
+        m_ui->containerWidget->scene()->clear();
 }
 
 void marK::changeItem(int currentRow)
@@ -162,14 +162,14 @@ void marK::changeItem(QListWidgetItem *current, QListWidgetItem *previous)
 
         if (itemPath != m_filepath) {
             m_filepath = itemPath;
-            m_ui->annotatorWidget->changeItem(itemPath);
+            m_ui->containerWidget->changeItem(itemPath);
         }
     }
 }
 
 void marK::changeShape(marK::Shape shape)
 {
-    m_ui->annotatorWidget->setShape(shape);
+    m_ui->containerWidget->setShape(shape);
 }
 
 void marK::changeDirectory()
@@ -205,7 +205,7 @@ void marK::addNewClass()
     m_ui->comboBox->addItem(QIcon(colorPix), newClass->name());
     m_ui->comboBox->setCurrentIndex(classQt);
 
-    m_ui->annotatorWidget->setCurrentPolygonClass(newClass);
+    m_ui->containerWidget->setObjClass(newClass);
 }
 
 void marK::selectClassColor()
@@ -221,17 +221,17 @@ void marK::selectClassColor()
         m_polygonClasses[m_ui->comboBox->currentIndex()]->setColor(colorDialog.selectedColor());
     }
 
-    m_ui->annotatorWidget->repaint();
+    m_ui->containerWidget->repaint();
 }
 
 void marK::savePolygons(OutputType type)
 {
     QString document;
-
+    /*
     if (type == OutputType::XML)
-        document = Serializer::toXML(m_ui->annotatorWidget->savedPolygons());
+        document = Serializer::toXML(m_ui->containerWidget->savedObjects());
     else if (type == OutputType::JSON)
-        document = Serializer::toJSON(m_ui->annotatorWidget->savedPolygons());
+        document = Serializer::toJSON(m_ui->containerWidget->savedObjects());
 
     if (!document.isEmpty())
     {
@@ -247,6 +247,7 @@ void marK::savePolygons(OutputType type)
 
         fileOut.close();
     }
+    */
 }
 
 void marK::importData()
@@ -254,16 +255,18 @@ void marK::importData()
     QString filepath = QFileDialog::getOpenFileName(this, "Select File", QDir::homePath(),
                                                      "JSON files (*.json)");// add later "XML files (*.xml)"
 
-    QByteArray data = Serializer::getData(filepath);
+    //QByteArray data = Serializer::getData(filepath);
 
-    if (filepath.endsWith(".json"))
-        m_ui->annotatorWidget->readPolygonsFromJson(data);
+    // FIXME
+
+    //if (filepath.endsWith(".json"))
+    //    m_ui->containerWidget->readPolygonsFromJson(data);
 
     //else if (filepath.endsWith(".xml"))
-        //m_ui->annotatorWidget->readPolygonsFromXml(data);
+        //m_ui->containerWidget->readPolygonsFromXml(data);
 
-    for (const auto& polygon : m_ui->annotatorWidget->savedPolygons())
-        addClass(polygon.polygonClass());
+    //for (const auto& polygon : m_ui->containerWidget->savedPolygons())
+    //    addClass(polygon.polygonClass());
 
     // TODO: warning if failed
 }
@@ -279,7 +282,7 @@ void marK::addClass(MarkedClass* markedClass)
     m_ui->comboBox->addItem(QIcon(colorPix), markedClass->name());
     m_ui->comboBox->setCurrentIndex(classQt);
 
-    m_ui->annotatorWidget->setCurrentPolygonClass(markedClass);
+    m_ui->containerWidget->setObjClass(markedClass);
 }
 
 marK::~marK() = default;

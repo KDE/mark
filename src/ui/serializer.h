@@ -18,6 +18,7 @@
 #ifndef SERIALIZER_H
 #define SERIALIZER_H
 
+#include "ui/mark.h"
 #include "ui/markedobject.h"
 
 #include <QVector>
@@ -28,19 +29,19 @@ class Serializer
 {
 public:
     explicit Serializer(const QString& filepath);
-    explicit Serializer(const QVector<MarkedObject>& items);
+    explicit Serializer(const QVector<MarkedObject*>& items);
 
 public:
     QString serialize(marK::OutputType output_type) const;
 
 private:
-    QVector<MarkedObject> readXML(const QString& filepath);
-    QVector<MarkedObject> readJSON(const QString& filepath);
+    QVector<MarkedObject*> readXML(const QString& filepath);
+    QVector<MarkedObject*> readJSON(const QString& filepath);
 
     QString toXML() const;
     QString toJSON() const;
 
 private:
-    QVector<MarkedObject> m_items;
+    QVector<MarkedObject*> m_items;
 };
 #endif // SERIALIZER_H

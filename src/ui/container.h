@@ -4,27 +4,28 @@
 #include "ui/markedclass.h"
 #include "ui/markedobject.h"
 
+#include <QObject>
 #include <QVector>
 
-class Container
+class Container : public QObject
 {
 public:
     void setObjClass(MarkedClass* objClass);
 
 public:
-    virtual QVector<MarkedObject> savedObjects() const;
+    virtual QVector<MarkedObject*> savedObjects() const;
 
     virtual void changeItem(const QString& itemPath) = 0;
     virtual void repaint() = 0;
-    virtual void paintObject(MarkedObject& object) = 0;
+    virtual void paintObject(MarkedObject* object) = 0;
 
 public slots:
     virtual void undo() = 0;
     virtual void reset() = 0;
 
 protected:
-    MarkedObject m_currentObject;
-    QVector<MarkedObject> m_savedObjects;
+    MarkedObject* m_currentObject;
+    QVector<MarkedObject*> m_savedObjects;
 };
 
 #endif // CONTAINER_H

@@ -11,8 +11,8 @@ class MarkedObject
 public:
     explicit MarkedObject(std::shared_ptr<MarkedObjectPrivate> d_ptr, MarkedClass* objClass);
 
-    MarkedClass* objClass() const { return d->m_objClass; }
-    void setObjClass(MarkedClass* objClass) { d->m_objClass = objClass; }
+    MarkedClass* objClass() const;
+    void setObjClass(MarkedClass* objClass);
 
     virtual void clear() = 0;
 

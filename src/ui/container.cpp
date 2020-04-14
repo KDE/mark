@@ -2,11 +2,11 @@
 
 void Container::setObjClass(MarkedClass* objClass)
 {
-    m_currentObject.setClass(objClass);
+    m_currentObject->setObjClass(objClass);
     repaint();
 }
 
-QVector<MarkedObject> Container::savedObjects() const
+QVector<MarkedObject*> Container::savedObjects() const
 {
     return m_savedObjects;
 }
