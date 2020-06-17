@@ -17,15 +17,15 @@
 
 #include "markedclass.h"
 
-#include <QTime>
 #include <QtGlobal>
+#include <QRandomGenerator>
 
 MarkedClass::MarkedClass(QString name) :
     m_name(name)
 {
-    qsrand((uint)QTime::currentTime().msec());
+    auto rand = QRandomGenerator().global();
 
-    m_color = QColor(qrand() % 256, qrand() % 256, qrand() % 256);
+    m_color = QColor(rand->bounded(0, 256), rand->bounded(0, 256), rand->bounded(0, 256));
 }
 
 MarkedClass::MarkedClass(QString name, QColor color) :

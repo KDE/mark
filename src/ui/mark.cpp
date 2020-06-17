@@ -29,7 +29,7 @@
 #include <QGraphicsPixmapItem>
 #include <QGraphicsItem>
 #include <QKeySequence>
-#include <QTime>
+#include <QRandomGenerator>
 #include <QtGlobal>
 #include <QColorDialog>
 #include <QFontMetrics>
@@ -284,8 +284,8 @@ void marK::addNewClass(MarkedClass* markedclass)
 
 void marK::selectClassColor()
 {
-    qsrand((uint)QTime::currentTime().msec());
-    QColorDialog colorDialog(QColor(qrand() % 256, qrand() % 256, qrand() % 256), this);
+    auto rand = QRandomGenerator().global();
+    QColorDialog colorDialog(QColor(rand->bounded(0, 256), rand->bounded(0, 256), rand->bounded(0, 256)), this);
 
     if (colorDialog.exec() == QDialog::DialogCode::Accepted) {
         QPixmap colorPix(70, 45);
