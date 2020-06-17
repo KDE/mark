@@ -84,7 +84,9 @@ void AnnotatorWidget::mousePressEvent(QMouseEvent* event)
 
                 if (m_currentPolygon.size() > 1 && m_currentPolygon.isClosed()) {
                     m_savedObjects << m_currentPolygon;
-                    m_currentPolygon.clear();
+                    m_currentObject = new Polygon();
+                    qDebug() << "heresss";
+                    //m_currentPolygon.clear();
                 }
 
                 repaint();
@@ -99,7 +101,7 @@ void AnnotatorWidget::mousePressEvent(QMouseEvent* event)
                     QPointF firstPt = m_currentPolygon.first();
                     m_currentPolygon << QPointF(clickedPoint.x(), firstPt.y()) << clickedPoint << QPointF(firstPt.x(), clickedPoint.y()) << firstPt;
                     m_savedObjects << m_currentPolygon;
-                    m_currentPolygon.clear();
+                    //m_currentPolygon.clear();
                 }
 
                 repaint();

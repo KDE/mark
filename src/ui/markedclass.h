@@ -31,7 +31,7 @@ public:
     QString name() const { return m_name; }
     QColor color() const { return m_color; }
     
-    void setName(const QString& name) { m_name = name; }
+    void setName(const QString& name) { m_name = QString(name); }
     void setColor(const QColor& color) { m_color = color; }
 
 private:

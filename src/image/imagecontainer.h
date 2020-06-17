@@ -1,6 +1,7 @@
 #ifndef IMAGECONTAINER_H
 #define IMAGECONTAINER_H
 
+#include "ui/mark.h"
 #include "ui/container.h"
 
 #include <QGraphicsView>
@@ -12,28 +13,26 @@ public:
     ~ImageContainer() override;
 
 public:
-    QVector<MarkedObject> savedObjects() const;
+    QVector<MarkedObject*> savedObjects() const override;
 
     void mousePressEvent(QMouseEvent* event) override;
 
-    void clearScene();
+    void changeItem(const QString& path) override;
+
     void repaint();
-    void paintObject(MarkedObject& object);
+    void paintObject(MarkedObject* object) override;
+    QVector<MarkedClass*> importObjects(QVector<MarkedObject*> objects) override;
 
-    void setCurrentClass(MarkedClass* objClass) { m_currentObject.setClass(objClass); repaint(); }
-    void setShape(marK::Shape shape) { m_shape = shape; m_currentObject.clear(); repaint(); }
-
-    QPointF scaledPoint(const QPointF& point) const { return QPointF(point.x(), point.y()); }
+    void setShape(marK::Shape shape) { m_shape = shape; m_currentObject->clear(); repaint(); }
 
 public slots:
-    void undo();
-    void reset();
+    void undo() override;
+    void reset() override;
 
 private:
-    MarkedObject m_currentObject; // TODO: move to container
-    QVector<MarkedObject> m_savedObjects; // TODO: move to container
     QVector<QGraphicsItem*> m_items;
-    QGraphicsPixmapItem* m_currImage;
+    QGraphicsPixmapItem* m_currentImage;
+    // FIXME: remove m_shape from marK
     marK::Shape m_shape;
 
     qreal m_scaleW;

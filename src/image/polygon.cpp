@@ -17,7 +17,52 @@
 
 #include "polygon.h"
 
-Polygon::Polygon(MarkedClass *polygonClass) :
-    m_polygonClass(polygonClass)
+Polygon::Polygon(/*std::shared_ptr<MarkedObjectPrivate> d_ptr, */MarkedClass* objClass)// :
+    //MarkedObject(d_ptr, objClass)
 {
+    /*d_p->*/m_objClass = objClass;
+}
+
+void Polygon::clear()
+{
+    QPolygonF::clear();
+}
+
+void Polygon::append(QVariant object)
+{
+    QPolygonF::append(object.toPointF());
+}
+
+int Polygon::size() const
+{
+    return QPolygonF::size();
+}
+
+QString Polygon::unitName() const
+{
+    return "pt";
+}
+
+QString Polygon::type() const
+{
+    return "Polygon";
+}
+QString Polygon::memberX() const
+{
+    return "x";
+}
+
+QString Polygon::memberY() const
+{
+    return "y";
+}
+
+qreal Polygon::XValueOf(int element) const
+{
+    return this->at(element).x();
+}
+
+qreal Polygon::YValueOf(int element) const
+{
+    return this->at(element).y();
 }

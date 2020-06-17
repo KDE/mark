@@ -54,7 +54,11 @@ public:
     void changeIndex(const int count);
     void changeShape(marK::Shape shape);
     void updateFiles();
+    void addNewClass(const QString& name);
     void addNewClass(MarkedClass* markedClass);
+    void retrieveTempFile();
+    void makeTempFile();
+    void autoSave();
 
 public slots:
     void changeItem(QListWidgetItem *current, QListWidgetItem *previous);
@@ -73,7 +77,9 @@ private:
     QScopedPointer<Ui::marK> m_ui;
     QFileSystemWatcher *m_watcher;
     QString m_currentDirectory;
-    QVector<MarkedClass*> m_polygonClasses;
+    QVector<MarkedClass*> m_objClasses;
+    QString m_filepath;
+    OutputType m_autoSaveType;
 };
 
 #endif // MARK_H

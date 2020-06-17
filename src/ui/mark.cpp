@@ -36,16 +36,18 @@
 #include <QMessageBox>
 #include <QShortcut>
 
-static const QDir markDirectory()
+static QDir markDirectory()
 {
-    return QDir::tempPath().filePath(".mark");
+    return QDir(QDir::tempPath().append("/mark"));
 }
 
 marK::marK(QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::marK),
     m_watcher(new QFileSystemWatcher(this)),
-    m_currentDirectory("")
+    m_currentDirectory(""),
+    m_filepath(""),
+    m_autoSaveType(OutputType::None)
 {
     m_ui->setupUi(this);
 
@@ -56,7 +58,7 @@ marK::marK(QWidget *parent) :
     addNewClass();
 
     if (!markDirectory().exists())
-        markDirectory.mkpath(".");
+        markDirectory().mkpath(".");
 }
 
 void marK::setupActions()
@@ -83,8 +85,9 @@ void marK::setupActions()
 
     QAction *undoAction = editMenu->addAction("Undo");
     undoAction->setShortcut(QKeySequence(Qt::Modifier::CTRL + Qt::Key::Key_Z));
-    connect(undoAction, &QAction::triggered, m_ui->annotatorWidget, &AnnotatorWidget::undo);
+    connect(undoAction, &QAction::triggered, m_ui->containerWidget, &ImageContainer::undo);
 
+    m_ui->containerWidget->setMinimumSize(860, 650);
     QMenu *autoSaveMenu = editMenu->addMenu("Auto Save");
 
     QActionGroup *autoSaveActionGroup = new QActionGroup(this);
@@ -123,19 +126,19 @@ void marK::setupConnections()
 
     connect(m_ui->newClassButton, &QPushButton::clicked, this, qOverload<>(&marK::addNewClass));
 
-    connect(m_ui->undoButton, &QPushButton::clicked, m_ui->annotatorWidget, &AnnotatorWidget::undo);
-    connect(m_ui->resetButton, &QPushButton::clicked, m_ui->annotatorWidget, &AnnotatorWidget::reset);
+    connect(m_ui->undoButton, &QPushButton::clicked, m_ui->containerWidget, &ImageContainer::undo);
+    connect(m_ui->resetButton, &QPushButton::clicked, m_ui->containerWidget, &ImageContainer::reset);
 
     connect(m_ui->comboBox, &QComboBox::editTextChanged, this, 
         [&](const QString & text) {
             m_ui->comboBox->setItemText(m_ui->comboBox->currentIndex(), text);
-            m_polygonClasses[m_ui->comboBox->currentIndex()]->setName(text);
+            m_objClasses[m_ui->comboBox->currentIndex()]->setName(text);
         }
     );
 
     connect(m_ui->comboBox, QOverload<int>::of(&QComboBox::activated), this, 
         [&](int index) {
-            m_ui->annotatorWidget->setCurrentPolygonClass(m_polygonClasses[index]);
+            m_ui->containerWidget->setObjClass(m_objClasses[index]);
         }
     );
 
@@ -155,6 +158,7 @@ void marK::updateFiles()
 
 void marK::updateFiles(const QString &path)
 {
+    int index = m_ui->listWidget->currentRow();
     m_ui->listWidget->clear();
 
     QDir resDirectory(path);
@@ -174,7 +178,7 @@ void marK::updateFiles(const QString &path)
         m_ui->listWidget->addItem(itemW);
     }
 
-    m_ui->listWidget->setCurrentRow(0);
+    m_ui->listWidget->setCurrentRow(index);
 }
 
 void marK::changeIndex(const int count)
@@ -182,6 +186,7 @@ void marK::changeIndex(const int count)
     int newIndex = m_ui->listWidget->currentRow() + count;
     if (newIndex >= m_ui->listWidget->count())
         newIndex = 0;
+
     else if (newIndex < 0)
         newIndex = m_ui->listWidget->count() - 1;
 
@@ -197,15 +202,21 @@ void marK::changeItem(QListWidgetItem *current, QListWidgetItem *previous)
         QString itemPath = QDir(m_currentDirectory).filePath(current->text());
 
         if (itemPath != m_filepath) {
+            makeTempFile();
+
+            if (m_autoSaveType != OutputType::None)
+                autoSave();
+
             m_filepath = itemPath;
-            m_ui->annotatorWidget->changeItem(itemPath);
+            m_ui->containerWidget->changeItem(itemPath);
+            retrieveTempFile();
         }
     }
 }
 
 void marK::changeShape(marK::Shape shape)
 {
-    m_ui->annotatorWidget->setShape(shape);
+    m_ui->containerWidget->setShape(shape);
 }
 
 void marK::changeDirectory()
@@ -217,18 +228,19 @@ void marK::changeDirectory()
         return;
 
     if (!path.isEmpty()) {
-        if (m_currentDirectory != "") {
+        if (m_currentDirectory != "")
             m_watcher->removePath(m_currentDirectory);
-        }
+
         m_currentDirectory = path;
         m_watcher->addPath(m_currentDirectory);
-        m_ui->annotatorWidget->clearScene();
+        m_ui->containerWidget->reset();
         m_filepath.clear();
         updateFiles(path);
 
         QFontMetrics metrics(m_ui->listLabel->font());
         QString elidedText = metrics.elidedText(m_currentDirectory, Qt::ElideMiddle,
                                                 m_ui->listLabel->maximumWidth() - int(m_ui->listLabel->maximumWidth() * 0.05));
+
         m_ui->listLabel->setText(elidedText);
         m_ui->listLabel->setToolTip(m_currentDirectory);
     }
@@ -236,7 +248,7 @@ void marK::changeDirectory()
 
 void marK::addNewClass()
 {
-    int classQt = m_polygonClasses.size();
+    int classQt = m_objClasses.size() + 1;
 
     addNewClass(QString::number(classQt));
 }
@@ -244,15 +256,26 @@ void marK::addNewClass()
 void marK::addNewClass(const QString& name)
 {
     MarkedClass* newClass = new MarkedClass(name);
-    m_polygonClasses << newClass;
+    m_objClasses << newClass;
     
     QPixmap colorPix(70, 45);
     colorPix.fill(newClass->color());
 
     m_ui->comboBox->addItem(QIcon(colorPix), newClass->name());
-    m_ui->comboBox->setCurrentIndex(classQt);
+    m_ui->comboBox->setCurrentIndex(m_objClasses.size() - 1);
 
-    m_ui->annotatorWidget->setCurrentPolygonClass(newClass);
+    m_ui->containerWidget->setObjClass(newClass);
+}
+
+void marK::addNewClass(MarkedClass* markedclass)
+{
+    m_objClasses << markedclass;
+    
+    QPixmap colorPix(70, 45);
+    colorPix.fill(markedclass->color());
+
+    m_ui->comboBox->addItem(QIcon(colorPix), markedclass->name());
+    m_ui->comboBox->setCurrentIndex(m_objClasses.size() - 1);
 }
 
 void marK::selectClassColor()
@@ -265,15 +288,23 @@ void marK::selectClassColor()
         colorPix.fill(colorDialog.selectedColor());
         m_ui->comboBox->setItemIcon(m_ui->comboBox->currentIndex(), QIcon(colorPix));
 
-        m_polygonClasses[m_ui->comboBox->currentIndex()]->setColor(colorDialog.selectedColor());
+        m_objClasses[m_ui->comboBox->currentIndex()]->setColor(colorDialog.selectedColor());
     }
 
-    m_ui->annotatorWidget->repaint();
+    m_ui->containerWidget->repaint();
 }
 
-void marK::savePolygons(OutputType type)
+void marK::saveObjects(OutputType type)
 {
-    bool success = m_ui->annotatorWidget->saveObjects(m_filepath, type);
+    // FIXME, either do not need outputtype in its parameters or have
+    // one specific for each outputtype
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
+                           m_currentDirectory,
+                           tr("JSON and XML files (*.json *.xml)"));
+
+
+    Serializer serializer = Serializer(m_ui->containerWidget->savedObjects());
+    bool success = serializer.write(fileName, type);
 
     if (!success) {
         QMessageBox msgBox;
@@ -287,57 +318,77 @@ void marK::importData()
 {
     if (m_filepath.isEmpty()) return; //exiting because this is no image loaded
 
-    QString filepath = QFileDialog::getOpenFileName(this, "Select File", QDir::homePath(),
+    QString filepath = QFileDialog::getOpenFileName(this, "Select File", m_currentDirectory,
                                                      "JSON and XML files (*.json *.xml)");
 
-    QStringList classesNames = m_ui->annotatorWidget->importObjects(filepath);
+    Serializer serializer = Serializer();
+    auto objects = serializer.read(filepath);
 
-    if (classesNames.isEmpty()) {
+    auto markedClasses = m_ui->containerWidget->importObjects(objects);
+
+    if (markedClasses.isEmpty()) {
         QMessageBox msgBox;
         msgBox.setText("failed to load annotation");
         msgBox.setIcon(QMessageBox::Warning);
         msgBox.exec();
+        return;
     }
-    else {
-        m_ui->comboBox->clear();
 
-        for (const QString& name : qAsConst(classesNames))
-            addNewClass(name);
+    //m_ui->comboBox->clear();
 
-        m_ui->annotatorWidget->repaint();
-    }
+    for (MarkedClass* markedclass : markedClasses)
+        addNewClass(markedclass);
 }
 
 void marK::retrieveTempFile()
 {
-    QString tempFilePath = Serializer::getTempFileName(m_filepath);
+    QString tempFilePath = markDirectory().filePath(QString(m_filepath).replace("/", "_"));
+    tempFilePath.replace(QRegularExpression(".jpg|.jpeg|.png|.xpm|.txt"), ".json");
 
-    QStringList classesNames = m_ui->annotatorWidget->importObjects(tempFilePath);
+    if (!QFile::exists(tempFilePath)) return;
 
-    for (const QString& markedClass : qAsConst(markedClasses))
+    Serializer serializer = Serializer();
+    auto objects = serializer.read(tempFilePath);
+    
+    auto markedClasses = m_ui->containerWidget->importObjects(objects);
+
+    for (MarkedClass* markedClass : markedClasses)
         addNewClass(markedClass);
 
-    m_ui->annotatorWidget->repaint();
+    m_ui->containerWidget->repaint();
+}
+
+void marK::makeTempFile()
+{
+    QString tempFilePath = markDirectory().filePath(QString(m_filepath).replace("/", "_"));
+
+    Serializer serializer = Serializer(m_ui->containerWidget->savedObjects());
+    serializer.write(tempFilePath, marK::OutputType::JSON);
 }
 
 void marK::toggleAutoSave()
 {
     QAction *button = qobject_cast<QAction*>(sender());
     QString type = button->text();
-    if (type == "Disabled") {
-        m_ui->annotatorWidget->setAutoSaveFile("", OutputType::None);
+
+    if (type == "Disabled")
         m_autoSaveType = OutputType::None;
-    }
 
-    else if (type == "XML") {
-        m_ui->annotatorWidget->setAutoSaveFile(m_filepath, OutputType::XML);
+    else if (type == "XML")
         m_autoSaveType = OutputType::XML;
-    }
 
-    else if (type == "JSON") {
-        m_ui->annotatorWidget->setAutoSaveFile(m_filepath, OutputType::JSON);
+    else if (type == "JSON")
         m_autoSaveType = OutputType::JSON;
-    }
+
+}
+
+void marK::autoSave()
+{
+    // FIXME: there is a bug happening that does not save correctly
+    QString filePath = markDirectory().filePath(m_filepath);
+
+    Serializer serializer = Serializer(m_ui->containerWidget->savedObjects());
+    serializer.write(filePath, m_autoSaveType);
 }
 
 marK::~marK()
