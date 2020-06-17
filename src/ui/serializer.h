@@ -18,7 +18,8 @@
 #ifndef SERIALIZER_H
 #define SERIALIZER_H
 
-#include "image/polygon.h"
+#include "ui/mark.h"
+#include "ui/markedobject.h"
 
 #include <QVector>
 #include <QString>
@@ -26,7 +27,25 @@
 class Serializer
 {
 public:
-    static QString toJSON(const QVector<Polygon>& annotatedPolygons);
-    static QString toXML(const QVector<Polygon>& annotatedPolygons);
+    explicit Serializer();
+
+    explicit Serializer(const QVector<MarkedObject*>& items);
+
+    bool write(const QString& filepath, marK::OutputType output_type);
+
+    QVector<MarkedObject*> read(const QString& filename);
+
+private:
+    QByteArray getData(const QString& filename);
+    QString toJSON();
+    QString toXML();
+
+    QVector<MarkedObject*> readJSON(const QString& filename);
+    QVector<MarkedObject*> readXML(const QString& filename);
+
+    QString serialize(marK::OutputType output_type);
+
+private:
+    QVector<MarkedObject*> m_items;
 };
 #endif // SERIALIZER_H

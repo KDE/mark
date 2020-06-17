@@ -35,13 +35,9 @@ class marK : public QMainWindow
 
 public:
     enum class OutputType {
+        None,
         XML,
         JSON
-    };
-
-    enum class Shape {
-        Polygon,
-        Rectangle
     };
 
 public:
@@ -50,25 +46,34 @@ public:
 
 public:
     void changeDirectory();
-    void changeItem(int currentRow);
-    void changeShape(marK::Shape shape);
+    void changeIndex(const int count);
     void updateFiles();
-    void savePolygons(OutputType type);
+    void addNewClass(const QString& name);
+    void addNewClass(MarkedClass* markedClass);
+    void retrieveTempFile();
+    void makeTempFile();
+    void autoSave();
 
 public slots:
     void changeItem(QListWidgetItem *current, QListWidgetItem *previous);
     void updateFiles(const QString &path);
     void addNewClass();
     void selectClassColor();
-    void saveToJson() { savePolygons(OutputType::JSON); };
-    void saveToXml() { savePolygons(OutputType::XML); };
+    void saveObjects(OutputType type);
+    void importData();
+    void toggleAutoSave();
+
+private:
+    void setupActions();
+    void setupConnections();
 
 private:
     QScopedPointer<Ui::marK> m_ui;
     QFileSystemWatcher *m_watcher;
     QString m_currentDirectory;
+    QVector<MarkedClass*> m_objClasses;
     QString m_filepath;
-    QVector<MarkedClass*> m_polygonClasses;
+    OutputType m_autoSaveType;
 };
 
 #endif // MARK_H

@@ -19,22 +19,26 @@
 #define POLYGON_H
 
 #include "ui/markedobject.h"
+#include "ui/markedobject_p.h"
 #include "ui/markedclass.h"
 
 #include <QPolygonF>
 
-class QGraphicsItem;
-
 class Polygon : public MarkedObject, public QPolygonF
 {
 public:
-    Polygon(MarkedClass* polygonClass = nullptr);
+    //FIXME: use shared_ptr
+    explicit Polygon(/*std::shared_ptr<MarkedObjectPrivate> d_ptr, */MarkedClass* objClass = nullptr);
     
-    MarkedClass* polygonClass() const { return m_polygonClass; }
-    void setPolygonClass(MarkedClass* polygonClass) { m_polygonClass = polygonClass; }
-    
-private:
-    MarkedClass* m_polygonClass;
+    void clear() override;
+    void append(QVariant obj) override;
+    int size() const override;
+    QString unitName() const override;
+    QString type() const override;
+    QString memberX() const override;
+    QString memberY() const override;
+    qreal XValueOf(int element) const override;
+    qreal YValueOf(int element) const override;
 };
 
 #endif // POLYGON_H

@@ -16,18 +16,61 @@
  *************************************************************************/
 
 #include "serializer.h"
+#include "markedclass.h"
+#include "image/polygon.h"
 
-#include <QDebug>
-#include <QPointF>
+#include <QtGlobal>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QXmlStreamWriter>
+#include <QFile>
+#include <QDir>
+#include <QRegularExpression>
+#include <QPointF>
 
-QString Serializer::toXML(const QVector<Polygon>& annotatedPolygons)
+Serializer::Serializer()
 {
-    if (annotatedPolygons.isEmpty())
+}
+
+Serializer::Serializer(const QVector<MarkedObject*>& items) :
+    m_items(items)
+{
+}
+
+QVector<MarkedObject*> Serializer::read(const QString& filename)
+{
+    QVector<MarkedObject*> objects;
+
+    bool fileExists = QFile::exists(filename);
+    if (fileExists) {
+        if (filename.endsWith(".xml"))
+            objects = this->readXML(filename);
+
+        else if (filename.endsWith(".json"))
+            objects = this->readJSON(filename);
+
+    }
+
+    return objects;
+}
+
+QString Serializer::serialize(marK::OutputType output_type)
+{
+    if (output_type == marK::OutputType::XML)
+        return this->toXML();
+
+    else if (output_type == marK::OutputType::JSON)
+        return this->toJSON();
+
+    return nullptr;
+}
+
+QString Serializer::toXML()
+{
+    if (m_items.isEmpty())
         return nullptr;
+
 
     QString xmldoc;
     QXmlStreamWriter xmlWriter(&xmldoc);
@@ -36,27 +79,27 @@ QString Serializer::toXML(const QVector<Polygon>& annotatedPolygons)
 
     xmlWriter.writeStartElement("annotation");
 
-    for (const Polygon& item : annotatedPolygons) {
+    for (const MarkedObject* item : m_items) {
         xmlWriter.writeStartElement("object");
 
         xmlWriter.writeStartElement("class");
-        xmlWriter.writeCharacters(item.polygonClass()->name());
+        xmlWriter.writeCharacters(item->className());
         xmlWriter.writeEndElement();
 
-        xmlWriter.writeStartElement("polygon");
+        xmlWriter.writeStartElement(item->type());
 
-        for (const QPointF& point : item) {
-            xmlWriter.writeStartElement("pt");
+        for (int i = 0; i < item->size(); ++i) {
+            xmlWriter.writeStartElement(item->unitName());
 
-            xmlWriter.writeStartElement("x");
+            xmlWriter.writeStartElement(item->memberX());
 
-            xmlWriter.writeCharacters(QString::number(point.x()));
+            xmlWriter.writeCharacters(QString::number(item->XValueOf(i)));
 
             xmlWriter.writeEndElement();
 
-            xmlWriter.writeStartElement("y");
+            xmlWriter.writeStartElement(item->memberY());
 
-            xmlWriter.writeCharacters(QString::number(point.y()));
+            xmlWriter.writeCharacters(QString::number(item->YValueOf(i)));
 
             xmlWriter.writeEndElement();
 
@@ -75,32 +118,33 @@ QString Serializer::toXML(const QVector<Polygon>& annotatedPolygons)
     return xmldoc;
 }
 
-QString Serializer::toJSON(const QVector<Polygon>& annotatedPolygons)
+QString Serializer::toJSON()
 {
-    if(annotatedPolygons.isEmpty())
+    if (m_items.isEmpty())
         return nullptr;
 
     QJsonArray classesArray;
 
-    for (const Polygon& item : annotatedPolygons) {
+    for (const MarkedObject* item : m_items) {
         QJsonObject recordObject;
 
-        recordObject.insert("Class", item.polygonClass()->name());
+        recordObject.insert("Class", item->className());
 
-        QJsonObject polygonObj;
-        QJsonArray polygonsArray;
+        QJsonArray objectsArray;
+        QJsonObject markedObj;
 
-        for (const QPointF &point : item) {
-            QJsonObject ptObj;
+        for (int i = 0; i < item->size(); ++i) {
+            QJsonObject unitObj;
 
-            ptObj.insert("x", QString::number(point.x()));
-            ptObj.insert("y", QString::number(point.y()));
+            unitObj.insert(item->memberX(), QString::number(item->XValueOf(i)));
 
-            polygonObj.insert("pt", ptObj);
-            polygonsArray.push_back(polygonObj);
+            unitObj.insert(item->memberY(), QString::number(item->YValueOf(i)));
+
+            markedObj.insert(item->unitName(), unitObj);
+            objectsArray.push_back(markedObj);
         }
 
-        recordObject.insert("Polygon", polygonsArray);
+        recordObject.insert(item->type(), objectsArray);
 
         classesArray.push_back(recordObject);
     }
@@ -108,4 +152,122 @@ QString Serializer::toJSON(const QVector<Polygon>& annotatedPolygons)
     QJsonDocument doc(classesArray);
 
     return doc.toJson();
+}
+
+QVector<MarkedObject*> Serializer::readJSON(const QString& filename)
+{
+    QByteArray data = getData(filename);
+    QJsonDocument doc = QJsonDocument::fromJson(data);
+
+    QJsonArray objectArray = doc.array();
+    QVector<MarkedObject*> savedObjects;
+
+    for (const QJsonValue& classObj : qAsConst(objectArray)) {
+        MarkedObject* object;
+        //FIXME: do a verification, if there is an object with the same class name, do not create a new one
+        auto objClass = new MarkedClass(classObj["Class"].toString());
+
+        object = new Polygon(objClass);
+        QJsonArray typeArray = classObj[object->type()].toArray();
+
+        for (const QJsonValue& typeObj : qAsConst(typeArray)) {
+            QJsonObject unitObj = typeObj[object->unitName()].toObject();
+
+            double x = unitObj.value(object->memberX()).toString().toDouble();
+            double y = unitObj.value(object->memberY()).toString().toDouble();
+
+            // this part needs improvement, do something to remove QPointF, maybe a pair?
+            object->append(QVariant(QPointF(x,y)));
+        }
+
+        savedObjects.append(object);
+    }
+
+    return savedObjects;
+}
+
+QVector<MarkedObject*> Serializer::readXML(const QString& filename)
+{
+    QVector<MarkedObject*> savedObjects;
+
+    QByteArray data = getData(filename);
+
+    QXmlStreamReader xmlReader(data);
+    xmlReader.readNextStartElement(); // going to first element
+
+    while (!xmlReader.atEnd()) {
+        QXmlStreamReader::TokenType token = xmlReader.readNext();
+        if (token == QXmlStreamReader::StartElement) {
+            MarkedObject* object;
+            MarkedClass* markedClass;
+            xmlReader.readNextStartElement();
+
+            if (xmlReader.name() == "class")
+            {
+                //FIXME: do a verification, if there is an object with the same class name, do not create a new one
+                markedClass = new MarkedClass(xmlReader.readElementText());
+
+                xmlReader.readNextStartElement();
+                if (xmlReader.name() == "Polygon") {
+                    object = new Polygon(markedClass);
+
+                    xmlReader.readNextStartElement();
+
+                    while (xmlReader.name() == object->unitName()) {
+                        xmlReader.readNextStartElement();
+
+                        double x = xmlReader.readElementText().toDouble();
+
+                        xmlReader.readNextStartElement();
+
+                        double y = xmlReader.readElementText().toDouble();
+
+                        object->append(QVariant(QPointF(x, y)));
+
+                        xmlReader.readNextStartElement();
+
+                        xmlReader.readNextStartElement();
+                    }
+
+                }
+            }
+            savedObjects << object;
+        }
+    }
+
+    return savedObjects;
+}
+
+QByteArray Serializer::getData(const QString& filename)
+{
+    QFile file(filename);
+    file.open(QIODevice::ReadOnly|QIODevice::Text);
+    QByteArray data = file.readAll();
+    file.close();
+
+    return data;
+}
+
+bool Serializer::write(const QString &filepath, marK::OutputType output_type)
+{
+    if (!m_items.isEmpty()) {
+        QString filename = QString(filepath);
+        // this part needs improvement
+        filename.replace(QRegularExpression(".jpg|.jpeg|.png|.xpm|.txt"), (output_type == marK::OutputType::XML ? ".xml" : ".json"));
+
+        QString document = serialize(output_type);
+
+        if (!document.isEmpty()) {
+            QFile file(filename);
+            bool fileOpened = file.open(QIODevice::WriteOnly|QIODevice::Text);
+            if (fileOpened) {
+                file.write(document.toUtf8());
+                file.close();
+
+                return true;
+            }
+        }
+    }
+
+    return false;
 }

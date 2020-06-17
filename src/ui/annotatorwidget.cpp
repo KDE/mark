@@ -22,15 +22,15 @@
 #include <QGraphicsScene>
 #include <QMouseEvent>
 
-#include <QDebug>
-
 AnnotatorWidget::AnnotatorWidget(QWidget* parent):
     QWidget(parent),
     m_ui(new Ui::AnnotatorWidget),
     m_currentImage(nullptr),
     m_shape(marK::Shape::Polygon),
     m_scaleW(0.0),
-    m_scaleH(0.0)
+    m_scaleH(0.0),
+    m_autoSaveFilePath(""),
+    m_autoSaveType(marK::OutputType::None)
 {
     m_ui->setupUi(this);
 
@@ -48,21 +48,6 @@ AnnotatorWidget::~AnnotatorWidget()
 {
 }
 
-// TODO: improve me and remove this loop
-QVector<Polygon> AnnotatorWidget::savedPolygons() const
-{
-    QVector<Polygon> copyPolygons(m_savedPolygons);
-
-    for (Polygon& polygon : copyPolygons) {
-        for (QPointF& point : polygon) {
-            point -= m_currentImage->pos();
-            point = scaledPoint(point);
-        }
-    }
-
-    return copyPolygons;
-}
-
 void AnnotatorWidget::mousePressEvent(QMouseEvent* event)
 {
     if (m_currentImage != nullptr) {
@@ -72,15 +57,15 @@ void AnnotatorWidget::mousePressEvent(QMouseEvent* event)
 
         if (m_shape == marK::Shape::Polygon) {
             auto savedPolClicked = std::find_if(
-                m_savedPolygons.begin(), m_savedPolygons.end(),
-                [&](const Polygon& pol) {
+                m_savedObjects.begin(), m_savedObjects.end(),
+                [&](const Polygon &pol) {
                     return pol.containsPoint(clickedPoint, Qt::OddEvenFill);
                 }
             );
-            bool isSavedPolClicked = savedPolClicked != m_savedPolygons.end();
+            bool isSavedPolClicked = savedPolClicked != m_savedObjects.end();
             if (isSavedPolClicked) {
                 m_currentPolygon = *savedPolClicked;
-                m_savedPolygons.erase(savedPolClicked);
+                m_savedObjects.erase(savedPolClicked);
                 m_currentPolygon.pop_back();
             }
 
@@ -89,16 +74,19 @@ void AnnotatorWidget::mousePressEvent(QMouseEvent* event)
                 QPointF cPolFirstPt = m_currentPolygon.first();
                 QRectF cPolFirstPtRect(cPolFirstPt, QPointF(cPolFirstPt.x() + 10, cPolFirstPt.y() + 10));
                 isPolFirstPtClicked = cPolFirstPtRect.contains(clickedPoint);
-                if (isPolFirstPtClicked)
+                if (isPolFirstPtClicked) {
                     clickedPoint = QPointF(cPolFirstPt);
+                }
             }
 
             if (isSavedPolClicked || isPolFirstPtClicked || isImageClicked) {
                 m_currentPolygon << clickedPoint;
 
                 if (m_currentPolygon.size() > 1 && m_currentPolygon.isClosed()) {
-                    m_savedPolygons << m_currentPolygon;
-                    m_currentPolygon.clear();
+                    m_savedObjects << m_currentPolygon;
+                    m_currentObject = new Polygon();
+                    qDebug() << "heresss";
+                    //m_currentPolygon.clear();
                 }
 
                 repaint();
@@ -106,13 +94,14 @@ void AnnotatorWidget::mousePressEvent(QMouseEvent* event)
         }
         else if (m_shape == marK::Shape::Rectangle) {
             if (isImageClicked) {
-                if (m_currentPolygon.empty())
+                if (m_currentPolygon.empty()) {
                     m_currentPolygon << clickedPoint;
+                }
                 else {
                     QPointF firstPt = m_currentPolygon.first();
                     m_currentPolygon << QPointF(clickedPoint.x(), firstPt.y()) << clickedPoint << QPointF(firstPt.x(), clickedPoint.y()) << firstPt;
-                    m_savedPolygons << m_currentPolygon;
-                    m_currentPolygon.clear();
+                    m_savedObjects << m_currentPolygon;
+                    //m_currentPolygon.clear();
                 }
 
                 repaint();
@@ -125,18 +114,20 @@ void AnnotatorWidget::mousePressEvent(QMouseEvent* event)
 
 void AnnotatorWidget::repaint()
 {
-    for (QGraphicsItem* item : m_items)
+    for (QGraphicsItem *item : qAsConst(m_items)) {
         m_ui->graphicsView->scene()->removeItem(item);
+    }
 
     m_items.clear();
 
-    for (Polygon& polygon : m_savedPolygons)
+    for (Polygon &polygon : m_savedObjects) {
         paintPolygon(polygon);
+    }
 
     paintPolygon(m_currentPolygon);
 }
 
-void AnnotatorWidget::paintPolygon(Polygon& polygon)
+void AnnotatorWidget::paintPolygon(Polygon &polygon)
 {
     QGraphicsScene *scene = m_ui->graphicsView->scene();
 
@@ -147,6 +138,10 @@ void AnnotatorWidget::paintPolygon(Polygon& polygon)
         QGraphicsPolygonItem *pol = scene->addPolygon(polygon, QPen(polygon.polygonClass()->color(), 2), QBrush(color));
 
         m_items << pol;
+
+        if (m_autoSaveType != marK::OutputType::None) {
+            saveObjects(m_autoSaveFilePath, m_autoSaveType);
+        }
     }
     else {
         for (auto it = polygon.begin(); it != polygon.end(); ++it) {
@@ -157,8 +152,9 @@ void AnnotatorWidget::paintPolygon(Polygon& polygon)
 
                 item = scene->addRect((*it).x(), (*it).y(), 10, 10, QPen(brush, 2), brush);
             }
-            else
+            else {
                 item = scene->addLine(QLineF(*(it - 1), *it), QPen(QBrush(polygon.polygonClass()->color()), 2));
+            }
 
             m_items << item;
         }
@@ -176,18 +172,15 @@ void AnnotatorWidget::undo()
 
 void AnnotatorWidget::reset()
 {
-    m_savedPolygons.clear();
+    m_savedObjects.clear();
     m_currentPolygon.clear();
     repaint();
 }
 
 void AnnotatorWidget::changeItem(QString itemPath)
 {
-    // TODO: create a temp file where the polygons from this image will be temporary stored, so they can be loaded again when
-    // the image is reopened
-    m_savedPolygons.clear();
     m_items.clear();
-    m_currentPolygon.clear();
+    reset();
 
     QGraphicsScene *scene = m_ui->graphicsView->scene();
     scene->setSceneRect(0, 0, 850, 640);
@@ -196,15 +189,22 @@ void AnnotatorWidget::changeItem(QString itemPath)
     QPixmap image(itemPath);
     QPixmap scaledImage;
 
-    if (image.height() >= 1280)
+    if (image.height() >= 1280) {
         scaledImage = image.scaledToHeight(int(1280 * 0.8));
-    if (image.width() >= 960)
+    }
+
+    if (image.width() >= 960) {
         scaledImage = image.scaledToWidth(int(960 * 0.8));
+    }
 
     if (!scaledImage.isNull()) {
         m_scaleW = qreal(scaledImage.width()) / qreal(image.width());
         m_scaleH = qreal(scaledImage.height()) / qreal(image.height());
         image = scaledImage;
+    }
+    else {
+        m_scaleW = 1.0;
+        m_scaleH = 1.0;
     }
 
     QGraphicsPixmapItem *pixmapItem = scene->addPixmap(image);
@@ -217,9 +217,59 @@ void AnnotatorWidget::changeItem(QString itemPath)
     pixmapItem->setPos(x_scene - x_image, y_scene - y_image);
 
     m_currentImage = pixmapItem;
+
+    // TODO: check if temp file exists and load it
+    // TODO: if temp file does not exist, create it
 }
 
 void AnnotatorWidget::clearScene()
 {
     m_ui->graphicsView->scene()->clear();
+}
+
+bool AnnotatorWidget::saveObjects(const QString &filepath, marK::OutputType type)
+{
+    QVector<Polygon> scaledObjects(m_savedObjects);
+
+    // TODO: improve me and remove this loop
+    for (Polygon &object : scaledObjects) {
+        for (QPointF &point : object) {
+            point -= m_currentImage->pos();
+            point = QPointF(point.x() / m_scaleW, point.y() / m_scaleH);
+        }
+    }
+    Serializer serializer(scaledObjects);
+
+    return serializer.write(filepath, type);
+}
+
+QVector<MarkedClass*> AnnotatorWidget::importObjects(const QString &filepath)
+{
+    Serializer serializer(filepath);
+
+    QVector<Polygon> objects = serializer.read();
+    QVector<MarkedClass*> markedClasses;
+
+    if (!objects.isEmpty()) {
+        QPointF offset = m_currentImage->pos();
+
+        for (Polygon &object : objects) {
+            for (QPointF &point : object) {
+                point = QPointF(point.x() * m_scaleW, point.y() * m_scaleH);
+                point += offset;
+            }
+            markedClasses.append(object.polygonClass());
+        }
+
+        m_savedObjects = objects;
+        repaint();
+    }
+
+    return markedClasses;
+}
+
+void AnnotatorWidget::setAutoSaveFile(const QString &str, marK::OutputType outputType)
+{
+    m_autoSaveFilePath = str;
+    m_autoSaveType = outputType;
 }

@@ -20,6 +20,7 @@
 
 #include "ui/mark.h"
 #include "image/polygon.h"
+#include "ui/serializer.h"
 
 #include <QVector>
 #include <QWidget>
@@ -38,7 +39,10 @@ public:
     ~AnnotatorWidget() override;
 
 public:
-    QVector<Polygon> savedPolygons() const;
+    QVector<MarkedClass*> importObjects(const QString &filepath);
+    bool saveObjects(const QString &filepath, marK::OutputType output_type);
+
+    void setAutoSaveFile(const QString &str, marK::OutputType outputType);
 
     void mousePressEvent(QMouseEvent* event) override;
 
@@ -51,9 +55,6 @@ public:
     void setCurrentPolygonClass(MarkedClass* polygonClass) { m_currentPolygon.setPolygonClass(polygonClass); repaint(); }
     void setShape(marK::Shape shape) { m_shape = shape; m_currentPolygon.clear(); repaint(); }
 
-    // TODO: scale a point
-    QPointF scaledPoint(const QPointF& point) const { return QPointF(point.x(), point.y()); }
-
 public slots:
     void undo();
     void reset();
@@ -61,13 +62,16 @@ public slots:
 private:
     Ui::AnnotatorWidget* m_ui;
     Polygon m_currentPolygon;
-    QVector<Polygon> m_savedPolygons;
+    QVector<Polygon> m_savedObjects;
     QVector<QGraphicsItem*> m_items;
     QGraphicsPixmapItem* m_currentImage;
     marK::Shape m_shape;
 
     qreal m_scaleW;
     qreal m_scaleH;
+
+    QString m_autoSaveFilePath;
+    marK::OutputType m_autoSaveType;
 };
 
 #endif // ANNOTATORWIDGET_H
