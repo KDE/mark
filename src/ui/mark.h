@@ -40,11 +40,6 @@ public:
         JSON
     };
 
-    enum class Shape {
-        Polygon,
-        Rectangle
-    };
-
 public:
     explicit marK(QWidget *parent = nullptr);
     ~marK() override;
@@ -52,7 +47,6 @@ public:
 public:
     void changeDirectory();
     void changeIndex(const int count);
-    void changeShape(marK::Shape shape);
     void updateFiles();
     void addNewClass(const QString& name);
     void addNewClass(MarkedClass* markedClass);

@@ -8,7 +8,7 @@
 ImageContainer::ImageContainer(QWidget* parent) :
     QGraphicsView(parent),
     m_currentImage(nullptr),
-    m_shape(marK::Shape::Polygon)
+    m_shape(Shape::Polygon)
 {
     QGraphicsScene *scene = new QGraphicsScene;
     scene->setItemIndexMethod(QGraphicsScene::NoIndex);
@@ -52,7 +52,7 @@ void ImageContainer::mousePressEvent(QMouseEvent* event)
 
         Polygon* currentPolygon = static_cast<Polygon*>(m_currentObject);
 
-        if (m_shape == marK::Shape::Polygon) {
+        if (m_shape == Shape::Polygon) {
             auto savedPolygClicked = std::find_if(
                 m_savedObjects.begin(), m_savedObjects.end(),
                 [&](const MarkedObject* obj) {
@@ -87,7 +87,7 @@ void ImageContainer::mousePressEvent(QMouseEvent* event)
                 repaint();
             }
         }
-        else if (m_shape == marK::Shape::Rectangle) {
+        else if (m_shape == Shape::Rectangle) {
             if (isImageClicked) {
                 if (currentPolygon->empty())
                     *currentPolygon << clickedPoint;

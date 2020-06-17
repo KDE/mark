@@ -9,6 +9,12 @@
 class ImageContainer : public Container, public QGraphicsView
 {
 public:
+    enum class Shape {
+        Polygon,
+        Rectangle
+    };
+
+public:
     explicit ImageContainer(QWidget* parent = nullptr);
     ~ImageContainer() override;
 
@@ -23,7 +29,7 @@ public:
     void paintObject(MarkedObject* object) override;
     QVector<MarkedClass*> importObjects(QVector<MarkedObject*> objects) override;
 
-    void setShape(marK::Shape shape) { m_shape = shape; m_currentObject->clear(); repaint(); }
+    void setShape(Shape shape) { m_shape = shape; m_currentObject->clear(); repaint(); }
 
 public slots:
     void undo() override;
@@ -32,8 +38,7 @@ public slots:
 private:
     QVector<QGraphicsItem*> m_items;
     QGraphicsPixmapItem* m_currentImage;
-    // FIXME: remove m_shape from marK
-    marK::Shape m_shape;
+    Shape m_shape;
 
     qreal m_scaleW;
     qreal m_scaleH;

@@ -145,10 +145,19 @@ void marK::setupConnections()
     connect(m_ui->selectClassColorButton, &QPushButton::clicked, this, &marK::selectClassColor);
 
     connect(m_ui->polygonButton, &QPushButton::clicked, this,
-            [&](bool checked) { changeShape(marK::Shape::Polygon); });
+        [&](bool checked) {
+        // probably temporary, made this so Shape can be in imagecontainer
+            auto polygonShape = m_ui->containerWidget->Shape::Polygon;
+            m_ui->containerWidget->setShape(polygonShape);
+        }
+    );
 
     connect(m_ui->rectButton, &QPushButton::clicked, this,
-            [&](bool checked) { changeShape(marK::Shape::Rectangle); });
+        [&](bool checked) {
+            auto rectangleShape = m_ui->containerWidget->Shape::Rectangle;
+            m_ui->containerWidget->setShape(rectangleShape);
+        }
+    );
 }
 
 void marK::updateFiles()
@@ -212,11 +221,6 @@ void marK::changeItem(QListWidgetItem *current, QListWidgetItem *previous)
             retrieveTempFile();
         }
     }
-}
-
-void marK::changeShape(marK::Shape shape)
-{
-    m_ui->containerWidget->setShape(shape);
 }
 
 void marK::changeDirectory()
