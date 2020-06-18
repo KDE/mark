@@ -1,9 +1,11 @@
 #include "image/imagecontainer.h"
 #include "image/polygon.h"
+#include "ui/markedobject_p.h"
 
 #include <QGraphicsItem>
 #include <QGraphicsScene>
 #include <QMouseEvent>
+#include <memory>
 
 ImageContainer::ImageContainer(QWidget* parent) :
     QGraphicsView(parent),
@@ -15,7 +17,8 @@ ImageContainer::ImageContainer(QWidget* parent) :
     setScene(scene);
     setMinimumSize(860, 600);
 
-    m_currentObject = new Polygon();
+    auto markedObjPrivate = std::make_shared<MarkedObjectPrivate>();
+    m_currentObject = new Polygon(markedObjPrivate);
 
     installEventFilter(this);
 
@@ -81,7 +84,8 @@ void ImageContainer::mousePressEvent(QMouseEvent* event)
 
                 if (currentPolygon->size() > 1 && currentPolygon->isClosed()) {
                     m_savedObjects << m_currentObject;
-                    m_currentObject = new Polygon(m_currentObject->objClass());
+                    auto markedObjPrivate = std::make_shared<MarkedObjectPrivate>();
+                    m_currentObject = new Polygon(markedObjPrivate, m_currentObject->objClass());
                 }
 
                 repaint();
@@ -96,7 +100,8 @@ void ImageContainer::mousePressEvent(QMouseEvent* event)
                     QPointF firstPt = currentPolygon->first();
                     *currentPolygon << QPointF(clickedPoint.x(), firstPt.y()) << clickedPoint << QPointF(firstPt.x(), clickedPoint.y()) << firstPt;
                     m_savedObjects << m_currentObject;
-                    m_currentObject = new Polygon(m_currentObject->objClass());
+                    auto markedObjPrivate = std::make_shared<MarkedObjectPrivate>();
+                    m_currentObject = new Polygon(markedObjPrivate, m_currentObject->objClass());
                 }
 
                 repaint();

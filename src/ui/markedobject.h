@@ -13,8 +13,7 @@ class MarkedObjectPrivate;
 class MarkedObject
 {
 public:
-    // FIXME: use shared_ptr
-    explicit MarkedObject(/*std::shared_ptr<MarkedObjectPrivate> d_ptr, */MarkedClass* objClass = nullptr);
+    explicit MarkedObject(std::shared_ptr<MarkedObjectPrivate> d_ptr, MarkedClass* objClass);
 
     MarkedClass* objClass() const;
     void setObjClass(MarkedClass* objClass);
@@ -29,9 +28,9 @@ public:
     virtual QString memberY() const = 0;
     virtual qreal XValueOf(int element) const = 0;
     virtual qreal YValueOf(int element) const = 0;
+
 protected:
-    MarkedClass* m_objClass;
-    //std::shared_ptr<MarkedObjectPrivate> d_p;
+    std::shared_ptr<MarkedObjectPrivate> d_p;
 };
 
 #endif // MARKEDOBJECT_H

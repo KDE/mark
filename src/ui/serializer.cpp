@@ -15,8 +15,9 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.*
  *************************************************************************/
 
-#include "serializer.h"
-#include "markedclass.h"
+#include "ui/serializer.h"
+#include "ui/markedclass.h"
+#include "ui/markedobject_p.h"
 #include "image/polygon.h"
 
 #include <QtGlobal>
@@ -28,6 +29,7 @@
 #include <QDir>
 #include <QRegularExpression>
 #include <QPointF>
+#include <memory>
 
 Serializer::Serializer()
 {
@@ -167,7 +169,8 @@ QVector<MarkedObject*> Serializer::readJSON(const QString& filename)
         //FIXME: do a verification, if there is an object with the same class name, do not create a new one
         auto objClass = new MarkedClass(classObj["Class"].toString());
 
-        object = new Polygon(objClass);
+        auto markedObjPrivate = std::make_shared<MarkedObjectPrivate>();
+        object = new Polygon(markedObjPrivate, objClass);
         QJsonArray typeArray = classObj[object->type()].toArray();
 
         for (const QJsonValue& typeObj : qAsConst(typeArray)) {
@@ -209,7 +212,8 @@ QVector<MarkedObject*> Serializer::readXML(const QString& filename)
 
                 xmlReader.readNextStartElement();
                 if (xmlReader.name() == "Polygon") {
-                    object = new Polygon(markedClass);
+                    auto markedObjPrivate = std::make_shared<MarkedObjectPrivate>();
+                    object = new Polygon(markedObjPrivate, markedClass);
 
                     xmlReader.readNextStartElement();
 

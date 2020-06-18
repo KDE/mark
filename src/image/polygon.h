@@ -27,8 +27,8 @@
 class Polygon : public MarkedObject, public QPolygonF
 {
 public:
-    //FIXME: use shared_ptr
-    explicit Polygon(/*std::shared_ptr<MarkedObjectPrivate> d_ptr, */MarkedClass* objClass = nullptr);
+    explicit Polygon(std::shared_ptr<MarkedObjectPrivate> d_ptr, MarkedClass* objClass = nullptr);
+    Polygon(const MarkedObject* pol);
     
     void clear() override;
     void append(QVariant obj) override;

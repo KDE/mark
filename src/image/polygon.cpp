@@ -17,10 +17,10 @@
 
 #include "polygon.h"
 
-Polygon::Polygon(/*std::shared_ptr<MarkedObjectPrivate> d_ptr, */MarkedClass* objClass)// :
-    //MarkedObject(d_ptr, objClass)
+Polygon::Polygon(std::shared_ptr<MarkedObjectPrivate> d_ptr, MarkedClass* objClass) :
+    MarkedObject(d_ptr, objClass)
 {
-    /*d_p->*/m_objClass = objClass;
+    d_p->m_objClass = objClass;
 }
 
 void Polygon::clear()
