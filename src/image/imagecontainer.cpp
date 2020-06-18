@@ -32,14 +32,16 @@ ImageContainer::~ImageContainer()
 // TODO: improve me and remove this method
 QVector<MarkedObject*> ImageContainer::savedObjects() const
 {
-    QVector<MarkedObject*> copyObjects(m_savedObjects);
+    QVector<MarkedObject*> copyObjects;
 
-    for (MarkedObject* obj : copyObjects) {
-        Polygon* pol = static_cast<Polygon*>(obj);
+    for (const MarkedObject* obj : m_savedObjects) {
+        Polygon* pol = new Polygon(obj);
         for (QPointF& point : *pol) {
             point -= m_currentImage->pos();
             point = QPointF(point.x() / m_scaleW, point.y() / m_scaleH);
         }
+
+        copyObjects.append(pol);
     }
 
     return copyObjects;

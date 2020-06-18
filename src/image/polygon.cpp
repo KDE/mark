@@ -23,6 +23,14 @@ Polygon::Polygon(std::shared_ptr<MarkedObjectPrivate> d_ptr, MarkedClass* objCla
     d_p->m_objClass = objClass;
 }
 
+Polygon::Polygon(const MarkedObject* pol) :
+    MarkedObject (std::make_shared<MarkedObjectPrivate>(), pol->objClass())
+{
+    const Polygon* p = static_cast<const Polygon*>(pol);
+    for (const QPointF& point : *p)
+        this->append(point);
+}
+
 void Polygon::clear()
 {
     QPolygonF::clear();

@@ -388,11 +388,8 @@ void marK::toggleAutoSave()
 
 void marK::autoSave()
 {
-    // FIXME: there is a bug happening that does not save correctly
-    QString filePath = markDirectory().filePath(m_filepath);
-
     Serializer serializer = Serializer(m_ui->containerWidget->savedObjects());
-    serializer.write(filePath, m_autoSaveType);
+    serializer.write(m_filepath, m_autoSaveType);
 }
 
 marK::~marK()
