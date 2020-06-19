@@ -31,7 +31,7 @@ public:
     Polygon(const MarkedObject* pol);
     
     void clear() override;
-    void append(QVariant obj) override;
+    void append(double memberX, double memberY) override;
     int size() const override;
     QString unitName() const override;
     QString type() const override;

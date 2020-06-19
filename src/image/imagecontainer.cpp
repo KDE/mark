@@ -206,8 +206,10 @@ QVector<MarkedClass*> ImageContainer::importObjects(QVector<MarkedObject*> objec
         }
 
         m_savedObjects << object;
-        markedClasses << object->objClass();
+        if (!markedClasses.contains(object->objClass()))
+            markedClasses << object->objClass();
     }
+
     repaint();
 
     return markedClasses;

@@ -28,7 +28,6 @@
 #include <QFile>
 #include <QDir>
 #include <QRegularExpression>
-#include <QPointF>
 #include <memory>
 
 Serializer::Serializer()
@@ -166,7 +165,7 @@ QVector<MarkedObject*> Serializer::readJSON(const QString& filename)
 
     for (const QJsonValue& classObj : qAsConst(objectArray)) {
         QString className = classObj["Class"].toString();
-        MarkedClass* objClass = new MarkedClass(className);
+        MarkedClass* objClass = getMarkedClass(className, savedObjects);
 
         auto object = new Polygon(objClass);
         QJsonArray typeArray = classObj[object->type()].toArray();
@@ -174,11 +173,10 @@ QVector<MarkedObject*> Serializer::readJSON(const QString& filename)
         for (const QJsonValue& typeObj : qAsConst(typeArray)) {
             QJsonObject unitObj = typeObj[object->unitName()].toObject();
 
-            double x = unitObj.value(object->memberX()).toString().toDouble();
-            double y = unitObj.value(object->memberY()).toString().toDouble();
+            double memberX = unitObj.value(object->memberX()).toDouble();
+            double memberY = unitObj.value(object->memberY()).toDouble();
 
-            // this part needs improvement, do something to remove QPointF, maybe a pair?
-            object->append(QVariant(QPointF(x,y)));
+            object->append(memberX, memberY);
         }
 
         savedObjects.append(object);
@@ -194,44 +192,47 @@ QVector<MarkedObject*> Serializer::readXML(const QString& filename)
     QByteArray data = getData(filename);
 
     QXmlStreamReader xmlReader(data);
-    xmlReader.readNextStartElement(); // going to first element
+    xmlReader.readNextStartElement();
 
     while (!xmlReader.atEnd()) {
         QXmlStreamReader::TokenType token = xmlReader.readNext();
         if (token == QXmlStreamReader::StartElement) {
-            MarkedObject* object;
-            MarkedClass* markedClass;
             xmlReader.readNextStartElement();
 
-            if (xmlReader.name() == "class")
-            {
-                //FIXME: do a verification, if there is an object with the same class name, do not create a new one
-                markedClass = new MarkedClass(xmlReader.readElementText());
+            if (xmlReader.name() != "class")
+                break; // exiting because the file is probably invalid
+
+            QString className;
+            MarkedClass* markedClass = getMarkedClass(className, savedObjects);
+
+            xmlReader.readNextStartElement();
+
+            MarkedObject* object;
+            if (xmlReader.name() == "Polygon")
+                object = new Polygon(markedClass);
+
+            // add new types later on
+            else
+                break;
+
+            xmlReader.readNextStartElement();
+
+            while (xmlReader.name() == object->unitName()) {
+                xmlReader.readNextStartElement();
+
+                double memberX = xmlReader.readElementText().toDouble();
 
                 xmlReader.readNextStartElement();
-                if (xmlReader.name() == "Polygon") {
 
-                    xmlReader.readNextStartElement();
-                    object = new Polygon(markedClass);
+                double memberY = xmlReader.readElementText().toDouble();
 
-                    while (xmlReader.name() == object->unitName()) {
-                        xmlReader.readNextStartElement();
+                object->append(memberX, memberY);
 
-                        double x = xmlReader.readElementText().toDouble();
+                xmlReader.readNextStartElement();
 
-                        xmlReader.readNextStartElement();
-
-                        double y = xmlReader.readElementText().toDouble();
-
-                        object->append(QVariant(QPointF(x, y)));
-
-                        xmlReader.readNextStartElement();
-
-                        xmlReader.readNextStartElement();
-                    }
-
-                }
+                xmlReader.readNextStartElement();
             }
+
             savedObjects << object;
         }
     }
@@ -247,6 +248,16 @@ QByteArray Serializer::getData(const QString& filename)
     file.close();
 
     return data;
+}
+
+MarkedClass* Serializer::getMarkedClass(const QString& className, const QVector<MarkedObject*>& objects)
+{
+    for (MarkedObject* obj : objects) {
+        if (obj->className() == className)
+            return obj->objClass();
+    }
+
+    return new MarkedClass(className);
 }
 
 bool Serializer::write(const QString &filepath, marK::OutputType output_type)

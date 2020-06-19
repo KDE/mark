@@ -45,6 +45,8 @@ private:
 
     QString serialize(marK::OutputType output_type);
 
+    MarkedClass* getMarkedClass(const QString& className, const QVector<MarkedObject*>& objects);
+
 private:
     QVector<MarkedObject*> m_items;
 };

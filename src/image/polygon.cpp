@@ -28,7 +28,7 @@ Polygon::Polygon(const MarkedObject* pol) :
 {
     const Polygon* p = static_cast<const Polygon*>(pol);
     for (const QPointF& point : *p)
-        this->append(point);
+        QPolygonF::append(point);
 }
 
 void Polygon::clear()
@@ -36,9 +36,9 @@ void Polygon::clear()
     QPolygonF::clear();
 }
 
-void Polygon::append(QVariant object)
+void Polygon::append(double memberX, double memberY)
 {
-    QPolygonF::append(object.toPointF());
+    QPolygonF::append(QPointF(memberX, memberY));
 }
 
 int Polygon::size() const

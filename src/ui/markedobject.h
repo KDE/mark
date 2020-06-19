@@ -20,7 +20,7 @@ public:
     QString className() const;
 
     virtual void clear() = 0;
-    virtual void append(QVariant obj) = 0;
+    virtual void append(double memberX, double memberY) = 0;
     virtual int size() const = 0;
     virtual QString unitName() const = 0;
     virtual QString type() const = 0;
