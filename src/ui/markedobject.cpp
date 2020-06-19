@@ -1,8 +1,8 @@
 #include "markedobject.h"
 #include "markedobject_p.h"
 
-MarkedObject::MarkedObject(std::shared_ptr<MarkedObjectPrivate> d_ptr, MarkedClass* objClass) :
-    d_p(d_ptr)
+MarkedObject::MarkedObject(std::unique_ptr<MarkedObjectPrivate> d_ptr, MarkedClass* objClass) :
+    d_p(std::move(d_ptr))
 {
     d_p->m_objClass = objClass;
 }

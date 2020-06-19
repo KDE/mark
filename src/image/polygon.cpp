@@ -17,14 +17,14 @@
 
 #include "polygon.h"
 
-Polygon::Polygon(std::shared_ptr<MarkedObjectPrivate> d_ptr, MarkedClass* objClass) :
-    MarkedObject(d_ptr, objClass)
+Polygon::Polygon(MarkedClass* objClass) :
+    MarkedObject(std::make_unique<MarkedObjectPrivate>(), objClass)
 {
     d_p->m_objClass = objClass;
 }
 
 Polygon::Polygon(const MarkedObject* pol) :
-    MarkedObject (std::make_shared<MarkedObjectPrivate>(), pol->objClass())
+    MarkedObject (std::make_unique<MarkedObjectPrivate>(), pol->objClass())
 {
     const Polygon* p = static_cast<const Polygon*>(pol);
     for (const QPointF& point : *p)

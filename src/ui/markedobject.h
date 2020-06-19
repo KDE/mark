@@ -13,7 +13,7 @@ class MarkedObjectPrivate;
 class MarkedObject
 {
 public:
-    explicit MarkedObject(std::shared_ptr<MarkedObjectPrivate> d_ptr, MarkedClass* objClass);
+    explicit MarkedObject(std::unique_ptr<MarkedObjectPrivate> d_ptr, MarkedClass* objClass);
 
     MarkedClass* objClass() const;
     void setObjClass(MarkedClass* objClass);
@@ -30,7 +30,7 @@ public:
     virtual qreal YValueOf(int element) const = 0;
 
 protected:
-    std::shared_ptr<MarkedObjectPrivate> d_p;
+    std::unique_ptr<MarkedObjectPrivate> d_p;
 };
 
 #endif // MARKEDOBJECT_H

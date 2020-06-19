@@ -165,12 +165,10 @@ QVector<MarkedObject*> Serializer::readJSON(const QString& filename)
     QVector<MarkedObject*> savedObjects;
 
     for (const QJsonValue& classObj : qAsConst(objectArray)) {
-        MarkedObject* object;
-        //FIXME: do a verification, if there is an object with the same class name, do not create a new one
-        auto objClass = new MarkedClass(classObj["Class"].toString());
+        QString className = classObj["Class"].toString();
+        MarkedClass* objClass = new MarkedClass(className);
 
-        auto markedObjPrivate = std::make_shared<MarkedObjectPrivate>();
-        object = new Polygon(markedObjPrivate, objClass);
+        auto object = new Polygon(objClass);
         QJsonArray typeArray = classObj[object->type()].toArray();
 
         for (const QJsonValue& typeObj : qAsConst(typeArray)) {
@@ -212,10 +210,9 @@ QVector<MarkedObject*> Serializer::readXML(const QString& filename)
 
                 xmlReader.readNextStartElement();
                 if (xmlReader.name() == "Polygon") {
-                    auto markedObjPrivate = std::make_shared<MarkedObjectPrivate>();
-                    object = new Polygon(markedObjPrivate, markedClass);
 
                     xmlReader.readNextStartElement();
+                    object = new Polygon(markedClass);
 
                     while (xmlReader.name() == object->unitName()) {
                         xmlReader.readNextStartElement();

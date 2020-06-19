@@ -17,8 +17,7 @@ ImageContainer::ImageContainer(QWidget* parent) :
     setScene(scene);
     setMinimumSize(860, 600);
 
-    auto markedObjPrivate = std::make_shared<MarkedObjectPrivate>();
-    m_currentObject = new Polygon(markedObjPrivate);
+    m_currentObject = new Polygon();
 
     installEventFilter(this);
 
@@ -86,8 +85,7 @@ void ImageContainer::mousePressEvent(QMouseEvent* event)
 
                 if (currentPolygon->size() > 1 && currentPolygon->isClosed()) {
                     m_savedObjects << m_currentObject;
-                    auto markedObjPrivate = std::make_shared<MarkedObjectPrivate>();
-                    m_currentObject = new Polygon(markedObjPrivate, m_currentObject->objClass());
+                    m_currentObject = new Polygon(m_currentObject->objClass());
                 }
 
                 repaint();
@@ -102,8 +100,7 @@ void ImageContainer::mousePressEvent(QMouseEvent* event)
                     QPointF firstPt = currentPolygon->first();
                     *currentPolygon << QPointF(clickedPoint.x(), firstPt.y()) << clickedPoint << QPointF(firstPt.x(), clickedPoint.y()) << firstPt;
                     m_savedObjects << m_currentObject;
-                    auto markedObjPrivate = std::make_shared<MarkedObjectPrivate>();
-                    m_currentObject = new Polygon(markedObjPrivate, m_currentObject->objClass());
+                    m_currentObject = new Polygon(m_currentObject->objClass());
                 }
 
                 repaint();
