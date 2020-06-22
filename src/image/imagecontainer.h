@@ -1,7 +1,6 @@
 #ifndef IMAGECONTAINER_H
 #define IMAGECONTAINER_H
 
-#include "ui/mark.h"
 #include "ui/container.h"
 
 #include <QGraphicsView>
@@ -27,7 +26,7 @@ public:
 
     void repaint();
     void paintObject(MarkedObject* object) override;
-    QVector<MarkedClass*> importObjects(QVector<MarkedObject*> objects) override;
+    bool importObjects(QVector<MarkedObject*> objects) override;
 
     void setShape(Shape shape) { m_shape = shape; m_currentObject->clear(); repaint(); }
 

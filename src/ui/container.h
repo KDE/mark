@@ -17,7 +17,7 @@ public:
     virtual void changeItem(const QString& itemPath) = 0;
     virtual void repaint() = 0;
     virtual void paintObject(MarkedObject* object) = 0;
-    virtual QVector<MarkedClass*> importObjects(QVector<MarkedObject*> objects) = 0;
+    virtual bool importObjects(QVector<MarkedObject*> objects) = 0;
 
 public slots:
     virtual void undo() = 0;

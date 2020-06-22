@@ -131,6 +131,8 @@ void marK::setupConnections()
 
     connect(m_ui->comboBox, &QComboBox::editTextChanged, this, 
         [&](const QString & text) {
+            if (m_ui->comboBox->count() == 0) return;
+
             m_ui->comboBox->setItemText(m_ui->comboBox->currentIndex(), text);
             m_objClasses[m_ui->comboBox->currentIndex()]->setName(text);
         }
@@ -252,14 +254,8 @@ void marK::changeDirectory()
 
 void marK::addNewClass()
 {
-    int classQt = m_objClasses.size() + 1;
-
-    addNewClass(QString::number(classQt));
-}
-
-void marK::addNewClass(const QString& name)
-{
-    MarkedClass* newClass = new MarkedClass(name);
+    auto classSize = QString::number(m_objClasses.size() + 1);
+    MarkedClass* newClass = new MarkedClass(classSize);
     m_objClasses << newClass;
     
     QPixmap colorPix(70, 45);
@@ -271,15 +267,19 @@ void marK::addNewClass(const QString& name)
     m_ui->containerWidget->setObjClass(newClass);
 }
 
-void marK::addNewClass(MarkedClass* markedclass)
+void marK::updateComboBox()
 {
-    m_objClasses << markedclass;
-    
-    QPixmap colorPix(70, 45);
-    colorPix.fill(markedclass->color());
+    m_ui->comboBox->clear();
 
-    m_ui->comboBox->addItem(QIcon(colorPix), markedclass->name());
+    for (const auto& markedClass : m_objClasses) {
+        QPixmap colorPix(70, 45);
+        colorPix.fill(markedClass->color());
+        m_ui->comboBox->addItem(QIcon(colorPix), markedClass->name());
+    }
+
     m_ui->comboBox->setCurrentIndex(m_objClasses.size() - 1);
+    MarkedClass* currentClass = m_objClasses[m_ui->comboBox->currentIndex() - 1];
+    m_ui->containerWidget->setObjClass(currentClass);
 }
 
 void marK::selectClassColor()
@@ -325,12 +325,12 @@ void marK::importData()
     QString filepath = QFileDialog::getOpenFileName(this, "Select File", m_currentDirectory,
                                                      "JSON and XML files (*.json *.xml)");
 
-    Serializer serializer = Serializer();
+    Serializer serializer = Serializer(&m_objClasses);
     auto objects = serializer.read(filepath);
 
-    auto markedClasses = m_ui->containerWidget->importObjects(objects);
+    auto success = m_ui->containerWidget->importObjects(objects);
 
-    if (markedClasses.isEmpty()) {
+    if (!success) {
         QMessageBox msgBox;
         msgBox.setText("failed to load annotation");
         msgBox.setIcon(QMessageBox::Warning);
@@ -338,10 +338,7 @@ void marK::importData()
         return;
     }
 
-    //m_ui->comboBox->clear();
-
-    for (MarkedClass* markedclass : markedClasses)
-        addNewClass(markedclass);
+    updateComboBox();
 }
 
 void marK::retrieveTempFile()
@@ -351,13 +348,14 @@ void marK::retrieveTempFile()
 
     if (!QFile::exists(tempFilePath)) return;
 
-    Serializer serializer = Serializer();
+    Serializer serializer = Serializer(&m_objClasses);
     auto objects = serializer.read(tempFilePath);
-    
-    auto markedClasses = m_ui->containerWidget->importObjects(objects);
 
-    for (MarkedClass* markedClass : markedClasses)
-        addNewClass(markedClass);
+    auto success = m_ui->containerWidget->importObjects(objects);
+
+    if (!success) return;
+
+    updateComboBox();
 
     m_ui->containerWidget->repaint();
 }

@@ -30,7 +30,8 @@
 #include <QRegularExpression>
 #include <memory>
 
-Serializer::Serializer()
+Serializer::Serializer(QVector<MarkedClass*>* markedClasses) :
+    m_markedClasses(markedClasses)
 {
 }
 
@@ -165,7 +166,7 @@ QVector<MarkedObject*> Serializer::readJSON(const QString& filename)
 
     for (const QJsonValue& classObj : qAsConst(objectArray)) {
         QString className = classObj["Class"].toString();
-        MarkedClass* objClass = getMarkedClass(className, savedObjects);
+        MarkedClass* objClass = getMarkedClass(className);
 
         auto object = new Polygon(objClass);
         QJsonArray typeArray = classObj[object->type()].toArray();
@@ -173,8 +174,9 @@ QVector<MarkedObject*> Serializer::readJSON(const QString& filename)
         for (const QJsonValue& typeObj : qAsConst(typeArray)) {
             QJsonObject unitObj = typeObj[object->unitName()].toObject();
 
-            double memberX = unitObj.value(object->memberX()).toDouble();
-            double memberY = unitObj.value(object->memberY()).toDouble();
+            // without toString() the value is 0
+            double memberX = unitObj.value(object->memberX()).toString().toDouble();
+            double memberY = unitObj.value(object->memberY()).toString().toDouble();
 
             object->append(memberX, memberY);
         }
@@ -199,21 +201,19 @@ QVector<MarkedObject*> Serializer::readXML(const QString& filename)
         if (token == QXmlStreamReader::StartElement) {
             xmlReader.readNextStartElement();
 
-            if (xmlReader.name() != "class")
-                break; // exiting because the file is probably invalid
-
-            QString className;
-            MarkedClass* markedClass = getMarkedClass(className, savedObjects);
+            QString className = xmlReader.readElementText();
+            MarkedClass* markedClass = getMarkedClass(className);
 
             xmlReader.readNextStartElement();
 
             MarkedObject* object;
+            // add new types later on
+            // not sure about this, needs improvement
             if (xmlReader.name() == "Polygon")
                 object = new Polygon(markedClass);
 
-            // add new types later on
             else
-                break;
+                return QVector<MarkedObject*>();
 
             xmlReader.readNextStartElement();
 
@@ -250,14 +250,17 @@ QByteArray Serializer::getData(const QString& filename)
     return data;
 }
 
-MarkedClass* Serializer::getMarkedClass(const QString& className, const QVector<MarkedObject*>& objects)
+MarkedClass* Serializer::getMarkedClass(const QString& className)
 {
-    for (MarkedObject* obj : objects) {
-        if (obj->className() == className)
-            return obj->objClass();
+    for (MarkedClass* markedClass : *m_markedClasses) {
+        if (markedClass->name() == className)
+            return markedClass;
     }
 
-    return new MarkedClass(className);
+    MarkedClass* mClass = new MarkedClass(className);
+    *m_markedClasses << mClass;
+
+    return mClass;
 }
 
 bool Serializer::write(const QString &filepath, marK::OutputType output_type)

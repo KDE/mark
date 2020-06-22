@@ -27,7 +27,7 @@
 class Serializer
 {
 public:
-    explicit Serializer();
+    explicit Serializer(QVector<MarkedClass*>* markedClasses);
 
     explicit Serializer(const QVector<MarkedObject*>& items);
 
@@ -45,9 +45,10 @@ private:
 
     QString serialize(marK::OutputType output_type);
 
-    MarkedClass* getMarkedClass(const QString& className, const QVector<MarkedObject*>& objects);
+    MarkedClass* getMarkedClass(const QString& className);
 
 private:
     QVector<MarkedObject*> m_items;
+    QVector<MarkedClass*>* m_markedClasses;
 };
 #endif // SERIALIZER_H

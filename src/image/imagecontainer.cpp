@@ -190,10 +190,8 @@ void ImageContainer::paintObject(MarkedObject* object)
     }
 }
 
-QVector<MarkedClass*> ImageContainer::importObjects(QVector<MarkedObject*> objects)
+bool ImageContainer::importObjects(QVector<MarkedObject*> objects)
 {
-    QVector<MarkedClass*> markedClasses;
-
     QPointF offset = m_currentImage->pos();
 
     reset();
@@ -206,13 +204,11 @@ QVector<MarkedClass*> ImageContainer::importObjects(QVector<MarkedObject*> objec
         }
 
         m_savedObjects << object;
-        if (!markedClasses.contains(object->objClass()))
-            markedClasses << object->objClass();
     }
 
     repaint();
 
-    return markedClasses;
+    return !objects.isEmpty();
 }
 
 void ImageContainer::undo()

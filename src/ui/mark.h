@@ -48,8 +48,7 @@ public:
     void changeDirectory();
     void changeIndex(const int count);
     void updateFiles();
-    void addNewClass(const QString& name);
-    void addNewClass(MarkedClass* markedClass);
+    void updateComboBox();
     void retrieveTempFile();
     void makeTempFile();
     void autoSave();
