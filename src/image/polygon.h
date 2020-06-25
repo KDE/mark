@@ -24,12 +24,21 @@
 
 #include <QPolygonF>
 
+/** Class that represent the annotated data of image annotation. */
 class Polygon : public MarkedObject, public QPolygonF
 {
 public:
+    /** Create a Polygon, if given MarkedClass, assign it.
+     * @param objClass - MarkedClass to assign.
+     */
     explicit Polygon(MarkedClass* objClass = nullptr);
+
+    /** Create a Polygon copying the contents of pol.
+     * @param pol - Polygon to copy.
+     */
     Polygon(const MarkedObject* pol);
     
+
     void clear() override;
     void append(double memberX, double memberY) override;
     int size() const override;

@@ -24,27 +24,68 @@
 #include <QVector>
 #include <QString>
 
+/** Class responsible of writing and reading annotation data from files. */
 class Serializer
 {
 public:
+    /** Create a Serializer object.
+     * @param markedClasses - Vector of MarkedClass to add and search for pointers.
+     */
     explicit Serializer(QVector<MarkedClass*>* markedClasses);
 
+    /** Create a Serializer object.
+     * @param items - annotated objects.
+     */
     explicit Serializer(const QVector<MarkedObject*>& items);
 
+    /** Write annotation to a file, the path is changed accordingly to the output_type.
+     * @param filepath - path of the file, its extension is changed accordingly to output_type.
+     * @param output_type - type of output to save.
+     */
     bool write(const QString& filepath, marK::OutputType output_type);
 
+    /** Read given file and return the annotated objects inside it.
+     * @param filename - path of the file to load.
+     */
     QVector<MarkedObject*> read(const QString& filename);
 
 private:
+    /** Read given file.
+     * @return raw data readen.
+     * @param filename - path of the file.
+     */
     QByteArray getData(const QString& filename);
+
+    /** Iterate through annnotated data and create a JSON document.
+     * @return JSON document created.
+     */
     QString toJSON();
+
+    /** Iterate through annnotated data and create a XML document.
+     * @return XML document created.
+     */
     QString toXML();
 
+    /** Read given JSON document and create MarkedObject's objects accordingly.
+     * @return created objects.
+     * @param filename - path of the JSON document.
+     */
     QVector<MarkedObject*> readJSON(const QString& filename);
+
+    /** Read given XML document and create MarkedObject's objects accordingly.
+     * @return created objects.
+     * @param filename - path of the XML document.
+     */
     QVector<MarkedObject*> readXML(const QString& filename);
 
+    /** Turns annotated objects into the file format of given output_type.
+     * @param output_type - file format to serialize the annotated objects.
+     */
     QString serialize(marK::OutputType output_type);
 
+    /** @return the pointer of a markedClass, or a new one if none matches the className.
+     * @param className - name of the markedClass.
+     */
     MarkedClass* getMarkedClass(const QString& className);
 
 private:

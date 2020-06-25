@@ -5,9 +5,11 @@
 
 #include <QGraphicsView>
 
+/** Image container for image annotation. */
 class ImageContainer : public Container, public QGraphicsView
 {
 public:
+    /** Shape of the drawer. */
     enum class Shape {
         Polygon,
         Rectangle
@@ -28,6 +30,7 @@ public:
     void paintObject(MarkedObject* object) override;
     bool importObjects(QVector<MarkedObject*> objects) override;
 
+    /** Change shape of the drawer. */
     void setShape(Shape shape) { m_shape = shape; m_currentObject->clear(); repaint(); }
 
 public slots:

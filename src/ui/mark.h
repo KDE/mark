@@ -29,11 +29,13 @@ namespace Ui {
 class marK;
 }
 
+/** Main class, also represents the main window. */
 class marK : public QMainWindow
 {
     Q_OBJECT
 
 public:
+    /** Output format of annotation data. */
     enum class OutputType {
         None,
         XML,
@@ -45,25 +47,64 @@ public:
     ~marK() override;
 
 public:
+    /** Change directory. */
     void changeDirectory();
+
+    /** Navegate through items with the arrows keys up and down.
+     * @param count - change index based in this number.
+     */
     void changeIndex(const int count);
+
+    /** Update known files in the working directory. */
     void updateFiles();
+
+    /** Update comboBox reloading all MarkedClass's objects. */
     void updateComboBox();
+
+    /** If exists, load annotated data from temporary file. */
     void retrieveTempFile();
+
+    /** Save state into a temporary file. */
     void makeTempFile();
+
+    /** If selected in the Edit options an OutputType different than None, auto save annotation. */
     void autoSave();
 
 public slots:
+
+    /** Change working file.
+     * @param current - current item in the widget list.
+     * @param previous - previous item in the widget list.
+     */
     void changeItem(QListWidgetItem *current, QListWidgetItem *previous);
+
+    /** Update known files in the given directory and make it the current working directory.
+     * @param path - path of the directory.
+     */
     void updateFiles(const QString &path);
+
+    /** Create a new MarkedClass and add it to comboBox. */
     void addNewClass();
+
+    /** Select the class color. */
     void selectClassColor();
+
+    /** Save Annotation in the selected file.
+     * @param type - type of output to save in the file.
+     */
     void saveObjects(OutputType type);
+
+    /** Import annotation data. */
     void importData();
+
+    /** Toggle autosave to JSON, XML or None. Default is None. */
     void toggleAutoSave();
 
 private:
+    /** Setup Actions. */
     void setupActions();
+
+    /** Setup connections. */
     void setupConnections();
 
 private:

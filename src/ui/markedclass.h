@@ -24,14 +24,34 @@
 class MarkedClass
 {
 public:
+    /** Create a MarkedClass with given name.
+     * @param name - name of the MarkedClass.
+     */
     explicit MarkedClass(QString name);
+
+    /** Create a MarkedClass with given name and color.
+     * @param name - name of the MarkedClass.
+     */
     explicit MarkedClass(QString name, QColor color);
     
 public:
-    QString name() const { return m_name; }
-    QColor color() const { return m_color; }
+
+    QString name() const { /** @return the name of MarkedClass. */
+        return m_name;
+    }
+
+    QColor color() const { /** @return the name of MarkedClass. */
+        return m_color;
+    }
     
+    /** Change name of the instance.
+     * @param name - new name of the instance.
+     */
     void setName(const QString& name) { m_name = QString(name); }
+
+    /** change the color of the instance.
+     * @param color - new color of the instance.
+     */
     void setColor(const QColor& color) { m_color = color; }
 
 private:
