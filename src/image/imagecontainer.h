@@ -22,6 +22,9 @@ public:
 public:
     QVector<MarkedObject*> savedObjects() const override;
 
+    /** Treat mouse press event.
+     * @param event - mouse event to treat.
+     */
     void mousePressEvent(QMouseEvent* event) override;
 
     void changeItem(const QString& path) override;
