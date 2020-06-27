@@ -34,7 +34,7 @@ QVector<MarkedObject*> ImageContainer::savedObjects() const
     QVector<MarkedObject*> copyObjects;
 
     for (const MarkedObject* obj : m_savedObjects) {
-        Polygon* pol = new Polygon(obj);
+        Polygon* pol = new Polygon(static_cast<const Polygon*>(obj));
         for (QPointF& point : *pol) {
             point -= m_currentImage->pos();
             point = QPointF(point.x() / m_scaleW, point.y() / m_scaleH);

@@ -36,7 +36,7 @@ public:
     /** Create a Polygon copying the contents of pol.
      * @param pol - Polygon to copy.
      */
-    Polygon(const MarkedObject* pol);
+    Polygon(const Polygon* pol);
     
 
     void clear() override;

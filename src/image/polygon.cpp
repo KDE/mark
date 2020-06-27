@@ -23,11 +23,10 @@ Polygon::Polygon(MarkedClass* objClass) :
     d_p->m_objClass = objClass;
 }
 
-Polygon::Polygon(const MarkedObject* pol) :
+Polygon::Polygon(const Polygon* pol) :
     MarkedObject (std::make_unique<MarkedObjectPrivate>(), pol->objClass())
 {
-    const Polygon* p = static_cast<const Polygon*>(pol);
-    for (const QPointF& point : *p)
+    for (const QPointF& point : *pol)
         QPolygonF::append(point);
 }
 
