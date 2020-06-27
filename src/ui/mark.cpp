@@ -277,7 +277,7 @@ void marK::updateComboBox()
     }
 
     m_ui->comboBox->setCurrentIndex(m_objClasses.size() - 1);
-    MarkedClass* currentClass = m_objClasses[m_ui->comboBox->currentIndex() - 1];
+    MarkedClass* currentClass = m_objClasses[m_ui->comboBox->currentIndex()];
     m_ui->containerWidget->setObjClass(currentClass);
 }
 
@@ -327,7 +327,7 @@ void marK::importData()
     Serializer serializer = Serializer(&m_objClasses);
     auto objects = serializer.read(filepath);
 
-    auto success = m_ui->containerWidget->importObjects(objects);
+    bool success = m_ui->containerWidget->importObjects(objects);
 
     if (!success) {
         QMessageBox msgBox;
@@ -350,7 +350,7 @@ void marK::retrieveTempFile()
     Serializer serializer = Serializer(&m_objClasses);
     auto objects = serializer.read(tempFilePath);
 
-    auto success = m_ui->containerWidget->importObjects(objects);
+    bool success = m_ui->containerWidget->importObjects(objects);
 
     if (!success) return;
 
