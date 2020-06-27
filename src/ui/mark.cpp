@@ -324,7 +324,7 @@ void marK::importData()
     QString filepath = QFileDialog::getOpenFileName(this, "Select File", m_currentDirectory,
                                                      "JSON and XML files (*.json *.xml)");
 
-    Serializer serializer = Serializer(&m_objClasses);
+    Serializer serializer = Serializer(m_objClasses);
     auto objects = serializer.read(filepath);
 
     bool success = m_ui->containerWidget->importObjects(objects);
@@ -347,7 +347,7 @@ void marK::retrieveTempFile()
 
     if (!QFile::exists(tempFilePath)) return;
 
-    Serializer serializer = Serializer(&m_objClasses);
+    Serializer serializer = Serializer(m_objClasses);
     auto objects = serializer.read(tempFilePath);
 
     bool success = m_ui->containerWidget->importObjects(objects);

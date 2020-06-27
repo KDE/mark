@@ -30,7 +30,7 @@
 #include <QRegularExpression>
 #include <memory>
 
-Serializer::Serializer(QVector<MarkedClass*>* markedClasses) :
+Serializer::Serializer(QVector<MarkedClass*>& markedClasses) :
     m_markedClasses(markedClasses)
 {
 }
@@ -252,13 +252,13 @@ QByteArray Serializer::getData(const QString& filename)
 
 MarkedClass* Serializer::getMarkedClass(const QString& className)
 {
-    for (MarkedClass* markedClass : *m_markedClasses) {
+    for (MarkedClass* markedClass : m_markedClasses) {
         if (markedClass->name() == className)
             return markedClass;
     }
 
     MarkedClass* mClass = new MarkedClass(className);
-    *m_markedClasses << mClass;
+    m_markedClasses << mClass;
 
     return mClass;
 }
