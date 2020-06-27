@@ -15,9 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.*
  *************************************************************************/
 
-#include "mark.h"
-#include "ui_mark.h"
-#include "serializer.h"
+#include "ui/mark.h"
+#include "ui/ui_mark.h"
 
 #include <QAction>
 #include <QActionGroup>
@@ -47,7 +46,7 @@ marK::marK(QWidget *parent) :
     m_watcher(new QFileSystemWatcher(this)),
     m_currentDirectory(""),
     m_filepath(""),
-    m_autoSaveType(OutputType::None)
+    m_autoSaveType(Serializer::OutputType::None)
 {
     m_ui->setupUi(this);
 
@@ -76,10 +75,10 @@ void marK::setupActions()
     QMenu *exportMenu = fileMenu->addMenu("Export");
 
     QAction *toXML = exportMenu->addAction("XML");
-    connect(toXML, &QAction::triggered, [&](){ saveObjects(OutputType::XML); });
+    connect(toXML, &QAction::triggered, [&](){ saveObjects(Serializer::OutputType::XML); });
 
     QAction *toJson = exportMenu->addAction("JSON");
-    connect(toJson, &QAction::triggered, [&](){ saveObjects(OutputType::JSON); });
+    connect(toJson, &QAction::triggered, [&](){ saveObjects(Serializer::OutputType::JSON); });
 
     QMenu *editMenu = m_ui->menuBar->addMenu("Edit");
 
@@ -215,7 +214,7 @@ void marK::changeItem(QListWidgetItem *current, QListWidgetItem *previous)
         if (itemPath != m_filepath) {
             makeTempFile();
 
-            if (m_autoSaveType != OutputType::None)
+            if (m_autoSaveType != Serializer::OutputType::None)
                 autoSave();
 
             m_filepath = itemPath;
@@ -298,7 +297,7 @@ void marK::selectClassColor()
     m_ui->containerWidget->repaint();
 }
 
-void marK::saveObjects(OutputType type)
+void marK::saveObjects(Serializer::OutputType type)
 {
     // FIXME, either do not need outputtype in its parameters or have
     // one specific for each outputtype
@@ -365,7 +364,7 @@ void marK::makeTempFile()
     QString tempFilePath = markDirectory().filePath(QString(m_filepath).replace("/", "_"));
 
     Serializer serializer = Serializer(m_ui->containerWidget->savedObjects());
-    serializer.write(tempFilePath, marK::OutputType::JSON);
+    serializer.write(tempFilePath, Serializer::OutputType::JSON);
 }
 
 void marK::toggleAutoSave()
@@ -374,13 +373,13 @@ void marK::toggleAutoSave()
     QString type = button->text();
 
     if (type == "Disabled")
-        m_autoSaveType = OutputType::None;
+        m_autoSaveType = Serializer::OutputType::None;
 
     else if (type == "XML")
-        m_autoSaveType = OutputType::XML;
+        m_autoSaveType = Serializer::OutputType::XML;
 
     else if (type == "JSON")
-        m_autoSaveType = OutputType::JSON;
+        m_autoSaveType = Serializer::OutputType::JSON;
 
 }
 

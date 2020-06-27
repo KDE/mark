@@ -18,7 +18,8 @@
 #ifndef MARK_H
 #define MARK_H
 
-#include "markedclass.h"
+#include "ui/markedclass.h"
+#include "ui/serializer.h"
 
 #include <QMainWindow>
 #include <QScopedPointer>
@@ -33,14 +34,6 @@ class marK;
 class marK : public QMainWindow
 {
     Q_OBJECT
-
-public:
-    /** Output format of annotation data. */
-    enum class OutputType {
-        None,
-        XML,
-        JSON
-    };
 
 public:
     explicit marK(QWidget *parent = nullptr);
@@ -67,7 +60,7 @@ public:
     /** Save state into a temporary file. */
     void makeTempFile();
 
-    /** If selected in the Edit options an OutputType different than None, auto save annotation. */
+    /** If selected in the Edit options an Serializer::OutputType different than None, auto save annotation. */
     void autoSave();
 
 public slots:
@@ -92,7 +85,7 @@ public slots:
     /** Save Annotation in the selected file.
      * @param type - type of output to save in the file.
      */
-    void saveObjects(OutputType type);
+    void saveObjects(Serializer::OutputType type);
 
     /** Import annotation data. */
     void importData();
@@ -113,7 +106,7 @@ private:
     QString m_currentDirectory;
     QVector<MarkedClass*> m_objClasses;
     QString m_filepath;
-    OutputType m_autoSaveType;
+    Serializer::OutputType m_autoSaveType;
 };
 
 #endif // MARK_H

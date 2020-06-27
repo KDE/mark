@@ -18,7 +18,6 @@
 #ifndef SERIALIZER_H
 #define SERIALIZER_H
 
-#include "ui/mark.h"
 #include "ui/markedobject.h"
 
 #include <QVector>
@@ -27,6 +26,14 @@
 /** Class responsible of writing and reading annotation data from files. */
 class Serializer
 {
+public:
+    /** Output format of annotation data. */
+    enum class OutputType {
+        None,
+        XML,
+        JSON
+    };
+
 public:
     /** Create a Serializer object.
      * @param markedClasses - Vector of MarkedClass to add and search for pointers.
@@ -42,7 +49,7 @@ public:
      * @param filepath - path of the file, its extension is changed accordingly to output_type.
      * @param output_type - type of output to save.
      */
-    bool write(const QString& filepath, marK::OutputType output_type);
+    bool write(const QString& filepath, OutputType output_type);
 
     /** Read given file and return the annotated objects inside it.
      * @param filename - path of the file to load.
@@ -81,7 +88,7 @@ private:
     /** Turns annotated objects into the file format of given output_type.
      * @param output_type - file format to serialize the annotated objects.
      */
-    QString serialize(marK::OutputType output_type);
+    QString serialize(OutputType output_type);
 
     /** @return the pointer of a markedClass, or a new one if none matches the className.
      * @param className - name of the markedClass.

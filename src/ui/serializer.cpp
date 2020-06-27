@@ -57,12 +57,12 @@ QVector<MarkedObject*> Serializer::read(const QString& filename)
     return objects;
 }
 
-QString Serializer::serialize(marK::OutputType output_type)
+QString Serializer::serialize(OutputType output_type)
 {
-    if (output_type == marK::OutputType::XML)
+    if (output_type == OutputType::XML)
         return this->toXML();
 
-    else if (output_type == marK::OutputType::JSON)
+    else if (output_type == OutputType::JSON)
         return this->toJSON();
 
     return nullptr;
@@ -263,12 +263,12 @@ MarkedClass* Serializer::getMarkedClass(const QString& className)
     return mClass;
 }
 
-bool Serializer::write(const QString &filepath, marK::OutputType output_type)
+bool Serializer::write(const QString &filepath, OutputType output_type)
 {
     if (!m_items.isEmpty()) {
         QString filename = QString(filepath);
         // this part needs improvement
-        filename.replace(QRegularExpression(".jpg|.jpeg|.png|.xpm|.txt"), (output_type == marK::OutputType::XML ? ".xml" : ".json"));
+        filename.replace(QRegularExpression(".jpg|.jpeg|.png|.xpm|.txt"), (output_type == OutputType::XML ? ".xml" : ".json"));
 
         QString document = serialize(output_type);
 
