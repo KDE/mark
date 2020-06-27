@@ -20,6 +20,11 @@ public:
      */
     explicit MarkedObject(std::unique_ptr<MarkedObjectPrivate> d_ptr, MarkedClass* objClass);
 
+    /** Create a MarkedObject with given MarkedClass's object, initialize a d pointer internally.
+     * @param objClass - pointer of a MarkedClass.
+     */
+    explicit MarkedObject(MarkedClass* objClass);
+
     /** @return the instance of MarkedClass used. */
     MarkedClass* objClass() const;
 

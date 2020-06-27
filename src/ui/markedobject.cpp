@@ -7,6 +7,12 @@ MarkedObject::MarkedObject(std::unique_ptr<MarkedObjectPrivate> d_ptr, MarkedCla
     d_p->m_objClass = objClass;
 }
 
+MarkedObject::MarkedObject(MarkedClass* objClass) :
+    d_p(std::make_unique<MarkedObjectPrivate>())
+{
+    d_p->m_objClass = objClass;
+}
+
 MarkedClass* MarkedObject::objClass() const
 {
     return d_p->m_objClass;
