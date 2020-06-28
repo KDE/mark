@@ -3,12 +3,31 @@
 
 #include "ui/markedclass.h"
 #include "ui/markedobject.h"
+//#include "image/imagepainter.h"
 
+#include <QGraphicsView>
 #include <QVector>
 
-/** Base class of all annotation containers. */
-class Container
+class ImagePainter;
+
+/** Annotation container. */
+class Container : public QGraphicsView
 {
+    
+    friend class ImagePainter;
+    
+public:
+    explicit Container(QWidget* parent = nullptr);
+    ~Container() override;
+    
+public:
+    /** Treat mouse press event.
+     * @param event - mouse event to treat.
+     */
+    void mousePressEvent(QMouseEvent* event) override;
+    
+    ImagePainter* painter() const { return m_painter; }
+    
 public:
     /** Set MarkedClass of the current object.
      * @param objClass - Class to define.
@@ -17,36 +36,40 @@ public:
 
 public:
     /** @return saved annotated objects. */
-    virtual QVector<MarkedObject*> savedObjects() const;
+    QVector<MarkedObject*> savedObjects() const;
+    
+    MarkedObject* currentObject() const { return m_currentObject; }
 
     /** Load given item/file.
      * @param itemPath - Path of the item.
      */
-    virtual void changeItem(const QString& itemPath) = 0;
+    void changeItem(const QString& itemPath);
 
     /** Repaint annotated objects. */
-    virtual void repaint() = 0;
+    void repaint();
 
     /** Paint given object.
      * @param object - object to paint.
      */
-    virtual void paintObject(MarkedObject* object) = 0;
+    void paintObject(MarkedObject* object);
 
     /** Load given objects.
      * @param objects - Vector of annotated object to load.
      */
-    virtual bool importObjects(QVector<MarkedObject*> objects) = 0;
+    bool importObjects(QVector<MarkedObject*> objects);
 
 public slots:
     /** Undo last action. */
-    virtual void undo() = 0;
+    void undo();
 
     /** Delete all annotated objects. */
-    virtual void reset() = 0;
+    void reset();
 
 protected:
     MarkedObject* m_currentObject;
     QVector<MarkedObject*> m_savedObjects;
+    
+    ImagePainter* m_painter;
 };
 
 #endif // CONTAINER_H

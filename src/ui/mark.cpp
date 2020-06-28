@@ -17,6 +17,7 @@
 
 #include "ui/mark.h"
 #include "ui/ui_mark.h"
+#include "image/imagepainter.h"
 
 #include <QAction>
 #include <QActionGroup>
@@ -84,7 +85,7 @@ void marK::setupActions()
 
     QAction *undoAction = editMenu->addAction("Undo");
     undoAction->setShortcut(QKeySequence(Qt::Modifier::CTRL + Qt::Key::Key_Z));
-    connect(undoAction, &QAction::triggered, m_ui->containerWidget, &ImageContainer::undo);
+    connect(undoAction, &QAction::triggered, m_ui->containerWidget, &Container::undo);
 
     m_ui->containerWidget->setMinimumSize(860, 650);
     QMenu *autoSaveMenu = editMenu->addMenu("Auto Save");
@@ -125,8 +126,8 @@ void marK::setupConnections()
 
     connect(m_ui->newClassButton, &QPushButton::clicked, this, qOverload<>(&marK::addNewClass));
 
-    connect(m_ui->undoButton, &QPushButton::clicked, m_ui->containerWidget, &ImageContainer::undo);
-    connect(m_ui->resetButton, &QPushButton::clicked, m_ui->containerWidget, &ImageContainer::reset);
+    connect(m_ui->undoButton, &QPushButton::clicked, m_ui->containerWidget, &Container::undo);
+    connect(m_ui->resetButton, &QPushButton::clicked, m_ui->containerWidget, &Container::reset);
 
     connect(m_ui->comboBox, &QComboBox::editTextChanged, this, 
         [&](const QString & text) {
@@ -148,15 +149,15 @@ void marK::setupConnections()
     connect(m_ui->polygonButton, &QPushButton::clicked, this,
         [&](bool checked) {
         // probably temporary, made this so Shape can be in imagecontainer
-            auto polygonShape = m_ui->containerWidget->Shape::Polygon;
-            m_ui->containerWidget->setShape(polygonShape);
+            auto polygonShape = ImagePainter::Shape::Polygon;
+            m_ui->containerWidget->painter()->setShape(polygonShape);
         }
     );
 
     connect(m_ui->rectButton, &QPushButton::clicked, this,
         [&](bool checked) {
-            auto rectangleShape = m_ui->containerWidget->Shape::Rectangle;
-            m_ui->containerWidget->setShape(rectangleShape);
+            auto rectangleShape = ImagePainter::Shape::Rectangle;
+            m_ui->containerWidget->painter()->setShape(rectangleShape);
         }
     );
 }

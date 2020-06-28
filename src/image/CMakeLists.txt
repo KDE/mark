@@ -14,6 +14,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(IMAGE_SRC
-    image/imagecontainer.cpp
+    image/imagepainter.cpp
     image/polygon.cpp
 )
