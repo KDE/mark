@@ -3,8 +3,6 @@
 
 #include <QGraphicsItem>
 
-#include <QDebug>
-
 ImagePainter::ImagePainter(Container* parent) :
     m_parent(parent),
     m_shape(Shape::Polygon)
@@ -35,8 +33,8 @@ void ImagePainter::paint(QPoint point)
         if (m_shape == Shape::Polygon) {
 
             int idxSavedPolygClicked = -1;
-            for (int i = 0; i < m_parent->savedObjects().size(); i++) {
-                const Polygon* polygon = static_cast<const Polygon*>(m_parent->savedObjects()[i]);
+            for (int i = 0; i < m_parent->m_savedObjects.size(); i++) {
+                const Polygon* polygon = static_cast<const Polygon*>(m_parent->m_savedObjects[i]);
                 if (polygon->containsPoint(clickedPoint, Qt::OddEvenFill)) {
                     idxSavedPolygClicked = i;
                     break;
@@ -46,8 +44,8 @@ void ImagePainter::paint(QPoint point)
             if (isSavedPolygClicked) {
                 delete currentPolygon;
                 // TODO: use set please
-                m_parent->m_currentObject = m_parent->savedObjects()[idxSavedPolygClicked];
-                m_parent->savedObjects().remove(idxSavedPolygClicked);
+                m_parent->m_currentObject = m_parent->m_savedObjects[idxSavedPolygClicked];
+                m_parent->m_savedObjects.remove(idxSavedPolygClicked);
                 currentPolygon = static_cast<Polygon*>(m_parent->m_currentObject);
                 currentPolygon->pop_back();
             }
@@ -132,7 +130,7 @@ void ImagePainter::repaint()
 
     m_items.clear();
 
-    for (MarkedObject* obj : m_parent->savedObjects())
+    for (MarkedObject* obj : m_parent->m_savedObjects)
         paintObject(obj);
 
     paintObject(m_parent->currentObject());

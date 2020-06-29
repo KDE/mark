@@ -6,8 +6,6 @@
 #include <QMouseEvent>
 #include <memory>
 
-#include <QDebug>
-
 Container::Container(QWidget* parent) :
     QGraphicsView(parent),
     m_currentObject(new Polygon),
@@ -30,13 +28,12 @@ Container::~Container()
 // TODO: improve me and remove this method
 QVector<MarkedObject*> Container::savedObjects() const
 {
-    //QVector<MarkedObject*> copyObjects;
+    QVector<MarkedObject*> copyObjects;
 
-    //for (const MarkedObject* obj : m_savedObjects)
-        //copyObjects.append(m_painter->scale(obj));
+    for (const MarkedObject* obj : m_savedObjects)
+        copyObjects.append(m_painter->scale(obj));
 
-    //return copyObjects;
-    return m_savedObjects;
+    return copyObjects;
 }
 
 void Container::mousePressEvent(QMouseEvent* event)
