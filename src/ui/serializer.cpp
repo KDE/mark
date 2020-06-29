@@ -48,10 +48,8 @@ QVector<MarkedObject*> Serializer::read(const QString& filename)
     if (fileExists) {
         if (filename.endsWith(".xml"))
             objects = this->readXML(filename);
-
         else if (filename.endsWith(".json"))
             objects = this->readJSON(filename);
-
     }
 
     return objects;
@@ -162,13 +160,14 @@ QVector<MarkedObject*> Serializer::readJSON(const QString& filename)
     QJsonDocument doc = QJsonDocument::fromJson(data);
 
     QJsonArray objectArray = doc.array();
+
     QVector<MarkedObject*> savedObjects;
 
     for (const QJsonValue& classObj : qAsConst(objectArray)) {
         QString className = classObj["Class"].toString();
         MarkedClass* objClass = getMarkedClass(className);
 
-        auto object = new Polygon(objClass);
+        MarkedObject* object = new Polygon(objClass);
         QJsonArray typeArray = classObj[object->type()].toArray();
 
         for (const QJsonValue& typeObj : qAsConst(typeArray)) {
@@ -285,4 +284,13 @@ bool Serializer::write(const QString &filepath, OutputType output_type)
     }
 
     return false;
+}
+
+const char* Serializer::filterString(OutputType output_type)
+{
+    if (output_type == OutputType::XML)
+        return "XML files (*.xml *.XML)";
+    else if (output_type == OutputType::JSON)
+        return "JSON files (*.json *.JSON)";
+    return "";
 }

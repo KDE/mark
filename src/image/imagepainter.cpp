@@ -179,7 +179,8 @@ bool ImagePainter::importObjects(QVector<MarkedObject*> objects)
             point += offset;
         }
 
-        m_parent->savedObjects() << object;
+        // TODO: use a method
+        m_parent->m_savedObjects << object;
     }
 
     repaint();

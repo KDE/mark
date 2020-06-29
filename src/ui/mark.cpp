@@ -304,8 +304,10 @@ void marK::saveObjects(Serializer::OutputType type)
     // one specific for each outputtype
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
                            m_currentDirectory,
-                           tr("JSON and XML files (*.json *.xml)"));
+                           tr(Serializer::filterString(type)));
 
+    if (fileName.isEmpty())
+        return;
 
     Serializer serializer = Serializer(m_ui->containerWidget->savedObjects());
     bool success = serializer.write(fileName, type);
@@ -324,6 +326,9 @@ void marK::importData()
 
     QString filepath = QFileDialog::getOpenFileName(this, "Select File", m_currentDirectory,
                                                      "JSON and XML files (*.json *.xml)");
+
+    if (filepath.isEmpty())
+        return;
 
     Serializer serializer = Serializer(m_objClasses);
     auto objects = serializer.read(filepath);
@@ -346,14 +351,16 @@ void marK::retrieveTempFile()
     QString tempFilePath = markDirectory().filePath(QString(m_filepath).replace("/", "_"));
     tempFilePath.replace(QRegularExpression(".jpg|.jpeg|.png|.xpm|.txt"), ".json");
 
-    if (!QFile::exists(tempFilePath)) return;
+    if (!QFile::exists(tempFilePath))
+        return;
 
     Serializer serializer = Serializer(m_objClasses);
     auto objects = serializer.read(tempFilePath);
 
     bool success = m_ui->containerWidget->importObjects(objects);
 
-    if (!success) return;
+    if (!success)
+        return;
 
     updateComboBox();
 

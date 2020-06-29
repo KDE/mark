@@ -56,6 +56,10 @@ public:
      */
     QVector<MarkedObject*> read(const QString& filename);
 
+public:
+
+    static const char* filterString(OutputType output_type);
+
 private:
     /** Read given file.
      * @return raw data readen.
