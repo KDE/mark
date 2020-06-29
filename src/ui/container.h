@@ -26,6 +26,7 @@ public:
      */
     void mousePressEvent(QMouseEvent* event) override;
     
+    /** @return pointer of the current Painter. */
     ImagePainter* painter() const { return m_painter; }
     
 public:
@@ -37,7 +38,8 @@ public:
 public:
     /** @return saved annotated objects. */
     QVector<MarkedObject*> savedObjects() const;
-    
+
+    /** @return pointer of current MarkedObject. */
     MarkedObject* currentObject() const { return m_currentObject; }
 
     /** Load given item/file.
