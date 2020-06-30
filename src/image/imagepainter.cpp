@@ -6,20 +6,9 @@
 #include <QDebug>
 
 ImagePainter::ImagePainter(Container* parent) :
-    m_parent(parent),
+    Painter(parent),
     m_shape(Shape::Polygon)
 {
-}
-
-ImagePainter::~ImagePainter()
-{
-    // TODO: destroy items to avoid memory leak when you change the painter
-    for (QGraphicsItem* item : m_items)
-        m_parent->scene()->removeItem(item);
-
-    m_items.clear();
-    
-    m_parent->scene()->removeItem(m_currentItem);
 }
 
 void ImagePainter::paint(QPoint point)
@@ -30,7 +19,7 @@ void ImagePainter::paint(QPoint point)
 
         bool isImageClicked = m_parent->scene()->itemAt(clickedPoint, m_parent->transform()) == currentItem;
         
-        Polygon* currentPolygon = static_cast<Polygon*>(m_parent->m_currentObject);
+        Polygon* currentPolygon = static_cast<Polygon*>(m_parent->currentObject());
 
         if (m_shape == Shape::Polygon) {
 
@@ -45,10 +34,9 @@ void ImagePainter::paint(QPoint point)
             bool isSavedPolygClicked = idxSavedPolygClicked != -1;
             if (isSavedPolygClicked) {
                 delete currentPolygon;
-                // TODO: use set please
-                m_parent->m_currentObject = m_parent->savedObjects()[idxSavedPolygClicked];
+                m_parent->setCurrentObject(m_parent->savedObjects()[idxSavedPolygClicked]);
                 m_parent->savedObjects().remove(idxSavedPolygClicked);
-                currentPolygon = static_cast<Polygon*>(m_parent->m_currentObject);
+                currentPolygon = static_cast<Polygon*>(m_parent->currentObject());
                 currentPolygon->pop_back();
             }
 
@@ -65,9 +53,8 @@ void ImagePainter::paint(QPoint point)
                 *currentPolygon << clickedPoint;
 
                 if (currentPolygon->size() > 1 && currentPolygon->isClosed()) {
-                    m_parent->m_savedObjects << m_parent->m_currentObject;
-                    // TODO: use set
-                    m_parent->m_currentObject = new Polygon(currentPolygon->objClass());
+                    m_parent->savedObjects() << m_parent->currentObject();
+                    m_parent->setCurrentObject(new Polygon(currentPolygon->objClass()));
                 }
 
                 repaint();
@@ -82,8 +69,8 @@ void ImagePainter::paint(QPoint point)
                     QPointF firstPt = currentPolygon->first();
                     *currentPolygon << QPointF(clickedPoint.x(), firstPt.y()) << clickedPoint << QPointF(firstPt.x(), clickedPoint.y()) << firstPt;
                     // TODO: use set
-                    m_parent->m_savedObjects << m_parent->currentObject();
-                    m_parent->m_currentObject = new Polygon(m_parent->currentObject()->objClass());
+                    m_parent->savedObjects() << m_parent->currentObject();
+                    m_parent->setCurrentObject(new Polygon(m_parent->currentObject()->objClass()));
                 }
 
                 repaint();
@@ -179,8 +166,7 @@ bool ImagePainter::importObjects(QVector<MarkedObject*> objects)
             point += offset;
         }
 
-        // TODO: use a method
-        m_parent->m_savedObjects << object;
+        m_parent->savedObjects() << object;
     }
 
     repaint();

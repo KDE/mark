@@ -27,18 +27,6 @@ Container::~Container()
 {
 }
 
-// TODO: improve me and remove this method
-QVector<MarkedObject*> Container::savedObjects() const
-{
-    //QVector<MarkedObject*> copyObjects;
-
-    //for (const MarkedObject* obj : m_savedObjects)
-        //copyObjects.append(m_painter->scale(obj));
-
-    //return copyObjects;
-    return m_savedObjects;
-}
-
 void Container::mousePressEvent(QMouseEvent* event)
 {
     m_painter->paint(event->pos());

@@ -150,14 +150,18 @@ void marK::setupConnections()
         [&](bool checked) {
         // probably temporary, made this so Shape can be in imagecontainer
             auto polygonShape = ImagePainter::Shape::Polygon;
-            m_ui->containerWidget->painter()->setShape(polygonShape);
+            ImagePainter* imgPainter = dynamic_cast<ImagePainter*>(m_ui->containerWidget->painter());
+            if (imgPainter != nullptr)
+                imgPainter->setShape(polygonShape);
         }
     );
 
     connect(m_ui->rectButton, &QPushButton::clicked, this,
         [&](bool checked) {
             auto rectangleShape = ImagePainter::Shape::Rectangle;
-            m_ui->containerWidget->painter()->setShape(rectangleShape);
+            ImagePainter* imgPainter = dynamic_cast<ImagePainter*>(m_ui->containerWidget->painter());
+            if (imgPainter != nullptr)
+                imgPainter->setShape(rectangleShape);
         }
     );
 }

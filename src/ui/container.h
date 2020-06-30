@@ -3,18 +3,17 @@
 
 #include "ui/markedclass.h"
 #include "ui/markedobject.h"
-//#include "image/imagepainter.h"
 
 #include <QGraphicsView>
 #include <QVector>
 
-class ImagePainter;
+class Painter;
 
 /** Annotation container. */
 class Container : public QGraphicsView
 {
     
-    friend class ImagePainter;
+    friend class Painter;
     
 public:
     explicit Container(QWidget* parent = nullptr);
@@ -26,8 +25,8 @@ public:
      */
     void mousePressEvent(QMouseEvent* event) override;
     
-    ImagePainter* painter() const { return m_painter; }
-    
+    Painter* painter() const { return m_painter; }
+
 public:
     /** Set MarkedClass of the current object.
      * @param objClass - Class to define.
@@ -36,9 +35,10 @@ public:
 
 public:
     /** @return saved annotated objects. */
-    QVector<MarkedObject*> savedObjects() const;
-    
-    MarkedObject* currentObject() const { return m_currentObject; }
+    QVector<MarkedObject*>& savedObjects() { return m_savedObjects; }
+
+    MarkedObject* currentObject() { return m_currentObject; }
+    void setCurrentObject(MarkedObject* currentObject) { m_currentObject = currentObject; }
 
     /** Load given item/file.
      * @param itemPath - Path of the item.
@@ -69,7 +69,7 @@ protected:
     MarkedObject* m_currentObject;
     QVector<MarkedObject*> m_savedObjects;
     
-    ImagePainter* m_painter;
+    Painter* m_painter;
 };
 
 #endif // CONTAINER_H
