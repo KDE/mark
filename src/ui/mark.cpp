@@ -300,8 +300,6 @@ void marK::selectClassColor()
 
 void marK::saveObjects(Serializer::OutputType type)
 {
-    // FIXME, either do not need outputtype in its parameters or have
-    // one specific for each outputtype
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
                            m_currentDirectory,
                            tr(Serializer::filterString(type)));

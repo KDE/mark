@@ -87,6 +87,11 @@ void Container::undo()
     }
 }
 
+void Container::setCurrentObject(MarkedObject* object)
+{
+    m_currentObject = object;
+}
+
 void Container::reset()
 {
     m_savedObjects.clear();

@@ -43,8 +43,7 @@ void ImagePainter::paint(QPoint point)
             bool isSavedPolygClicked = idxSavedPolygClicked != -1;
             if (isSavedPolygClicked) {
                 delete currentPolygon;
-                // TODO: use set please
-                m_parent->m_currentObject = m_parent->m_savedObjects[idxSavedPolygClicked];
+                m_parent->setCurrentObject(m_parent->m_savedObjects[idxSavedPolygClicked]);
                 m_parent->m_savedObjects.remove(idxSavedPolygClicked);
                 currentPolygon = static_cast<Polygon*>(m_parent->m_currentObject);
                 currentPolygon->pop_back();
@@ -63,9 +62,9 @@ void ImagePainter::paint(QPoint point)
                 *currentPolygon << clickedPoint;
 
                 if (currentPolygon->size() > 1 && currentPolygon->isClosed()) {
-                    m_parent->m_savedObjects << m_parent->m_currentObject;
-                    // TODO: use set
-                    m_parent->m_currentObject = new Polygon(currentPolygon->objClass());
+                    m_parent->m_savedObjects << currentPolygon;
+                    Polygon* newPolygon = new Polygon(currentPolygon->objClass());
+                    m_parent->setCurrentObject(newPolygon);
                 }
 
                 repaint();
@@ -79,9 +78,9 @@ void ImagePainter::paint(QPoint point)
                 else {
                     QPointF firstPt = currentPolygon->first();
                     *currentPolygon << QPointF(clickedPoint.x(), firstPt.y()) << clickedPoint << QPointF(firstPt.x(), clickedPoint.y()) << firstPt;
-                    // TODO: use set
-                    m_parent->m_savedObjects << m_parent->currentObject();
-                    m_parent->m_currentObject = new Polygon(m_parent->currentObject()->objClass());
+                    m_parent->m_savedObjects << currentPolygon;
+                    Polygon* newPolygon = new Polygon(currentPolygon->objClass());
+                    m_parent->setCurrentObject(newPolygon);
                 }
 
                 repaint();
@@ -139,25 +138,26 @@ void ImagePainter::repaint()
 void ImagePainter::paintObject(MarkedObject* object)
 {
     Polygon* polygon = static_cast<Polygon*>(object);
+    QColor color(polygon->objClass()->color());
+    QBrush brush(color);
+    QPen pen(brush, 2);
 
     if (polygon->size() > 1 && polygon->isClosed()) {
-        QColor color(polygon->objClass()->color());
         color.setAlpha(35);
 
-        QGraphicsPolygonItem* pol = m_parent->scene()->addPolygon(*polygon, QPen(polygon->objClass()->color(), 2), QBrush(color));
+        QGraphicsPolygonItem* pol = m_parent->scene()->addPolygon(*polygon, pen, QBrush(color));
 
         m_items << pol;
     }
     else {
-        QBrush brush(polygon->objClass()->color());
         for (auto it = polygon->begin(); it != polygon->end(); ++it) {
             QGraphicsItem* item;
 
             if (it == polygon->begin())
-                item = m_parent->scene()->addRect((*it).x(), (*it).y(), 10, 10, QPen(brush, 2), brush);
+                item = m_parent->scene()->addRect((*it).x(), (*it).y(), 10, 10, pen, brush);
 
             else
-                item = m_parent->scene()->addLine(QLineF(*(it - 1), *it), QPen(brush, 2));
+                item = m_parent->scene()->addLine(QLineF(*(it - 1), *it), pen);
 
             m_items << item;
         }

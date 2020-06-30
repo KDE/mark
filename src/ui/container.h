@@ -60,6 +60,11 @@ public:
      */
     bool importObjects(QVector<MarkedObject*> objects);
 
+    /** Set current object.
+     * @param object - object to set as current object.
+     */
+    void setCurrentObject(MarkedObject* object);
+
 public slots:
     /** Undo last action. */
     void undo();

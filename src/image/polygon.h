@@ -37,7 +37,6 @@ public:
      * @param pol - Polygon to copy.
      */
     Polygon(const Polygon* pol);
-    
 
     void clear() override;
     void append(double memberX, double memberY) override;
