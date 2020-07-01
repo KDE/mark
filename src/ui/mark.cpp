@@ -36,6 +36,7 @@
 #include <QMessageBox>
 #include <QShortcut>
 
+
 static QDir markDirectory()
 {
     return QDir(QDir::tempPath().append("/mark"));
@@ -119,6 +120,14 @@ void marK::setupActions()
 
 void marK::setupConnections()
 {
+    m_ui->newClassButton->setEnabled(false);
+    m_ui->undoButton->setEnabled(false);
+    m_ui->resetButton->setEnabled(false);
+    m_ui->comboBox->setEnabled(false);
+    m_ui->selectClassColorButton->setEnabled(false);
+    m_ui->polygonButton->setEnabled(false);
+    m_ui->rectButton->setEnabled(false);
+
     connect(m_ui->listWidget, &QListWidget::currentItemChanged, this,
             qOverload<QListWidgetItem*, QListWidgetItem*>(&marK::changeItem));
 
@@ -162,6 +171,18 @@ void marK::setupConnections()
             ImagePainter* imgPainter = dynamic_cast<ImagePainter*>(m_ui->containerWidget->painter());
             if (imgPainter != nullptr)
                 imgPainter->setShape(rectangleShape);
+        }
+    );
+
+    connect(m_ui->containerWidget, &Container::changed, this,
+        [&](bool hasItems) {
+            m_ui->newClassButton->setEnabled(hasItems);
+            m_ui->undoButton->setEnabled(hasItems);
+            m_ui->resetButton->setEnabled(hasItems);
+            m_ui->comboBox->setEnabled(hasItems);
+            m_ui->selectClassColorButton->setEnabled(hasItems);
+            m_ui->polygonButton->setEnabled(hasItems);
+            m_ui->rectButton->setEnabled(hasItems);
         }
     );
 }

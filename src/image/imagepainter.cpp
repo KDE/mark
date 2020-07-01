@@ -81,33 +81,37 @@ void ImagePainter::paint(QPoint point)
 
 void ImagePainter::changeItem(const QString& path)
 {
-    QPixmap image(path);
-    QPixmap scaledImage;
+    QGraphicsPixmapItem* pixmapItem = nullptr;
 
-    if (image.height() >= 1280)
-        scaledImage = image.scaledToHeight(int(1280 * 0.8));
+    if (path != "") {
+        QPixmap image(path);
+        QPixmap scaledImage;
 
-    if (image.width() >= 960)
-        scaledImage = image.scaledToWidth(int(960 * 0.8));
+        if (image.height() >= 1280)
+            scaledImage = image.scaledToHeight(int(1280 * 0.8));
 
-    if (!scaledImage.isNull()) {
-        m_scaleW = qreal(scaledImage.width()) / qreal(image.width());
-        m_scaleH = qreal(scaledImage.height()) / qreal(image.height());
-        image = scaledImage;
+        if (image.width() >= 960)
+            scaledImage = image.scaledToWidth(int(960 * 0.8));
+
+        if (!scaledImage.isNull()) {
+            m_scaleW = qreal(scaledImage.width()) / qreal(image.width());
+            m_scaleH = qreal(scaledImage.height()) / qreal(image.height());
+            image = scaledImage;
+        }
+        else {
+            m_scaleW = 1.0;
+            m_scaleH = 1.0;
+        }
+
+        pixmapItem = m_parent->scene()->addPixmap(image);
+
+        int x_scene = int(m_parent->scene()->width() / 2);
+        int y_scene = int(m_parent->scene()->height() / 2);
+        int x_image = int(image.width() / 2);
+        int y_image = int(image.height() / 2);
+
+        pixmapItem->setPos(x_scene - x_image, y_scene - y_image);
     }
-    else {
-        m_scaleW = 1.0;
-        m_scaleH = 1.0;
-    }
-
-    QGraphicsPixmapItem* pixmapItem = m_parent->scene()->addPixmap(image);
-
-    int x_scene = int(m_parent->scene()->width() / 2);
-    int y_scene = int(m_parent->scene()->height() / 2);
-    int x_image = int(image.width() / 2);
-    int y_image = int(image.height() / 2);
-
-    pixmapItem->setPos(x_scene - x_image, y_scene - y_image);
 
     m_currentItem = pixmapItem;
 }

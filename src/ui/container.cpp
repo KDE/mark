@@ -43,6 +43,8 @@ void Container::changeItem(const QString& path)
 
     // TODO: check if file format of path then change
     m_painter->changeItem(path);
+
+    emit changed(!scene()->items().empty());
 }
 
 void Container::setObjClass(MarkedClass* objClass)

@@ -89,11 +89,21 @@
             <property name="focusPolicy">
              <enum>Qt::NoFocus</enum>
             </property>
+            <property name="toolTip">
+             <string>Polygon</string>
+            </property>
+            <property name="toolTipDuration">
+             <number>-1</number>
+            </property>
+            <property name="whatsThis">
+             <string/>
+            </property>
             <property name="text">
              <string/>
             </property>
             <property name="icon">
-             <iconset theme="tool_polyline"/>
+             <iconset theme="tool_polyline">
+              <normaloff>.</normaloff>.</iconset>
             </property>
            </widget>
           </item>
@@ -108,11 +118,21 @@
             <property name="focusPolicy">
              <enum>Qt::NoFocus</enum>
             </property>
+            <property name="toolTip">
+             <string>Rectangle</string>
+            </property>
+            <property name="toolTipDuration">
+             <number>-1</number>
+            </property>
+            <property name="whatsThis">
+             <string/>
+            </property>
             <property name="text">
              <string/>
             </property>
             <property name="icon">
-             <iconset theme="tool_rectangle"/>
+             <iconset theme="tool_rectangle">
+              <normaloff>.</normaloff>.</iconset>
             </property>
            </widget>
           </item>

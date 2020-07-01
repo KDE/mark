@@ -12,6 +12,7 @@ class Painter;
 /** Annotation container. */
 class Container : public QGraphicsView
 {
+    Q_OBJECT
     
     friend class Painter;
     
@@ -64,6 +65,10 @@ public slots:
 
     /** Delete all annotated objects. */
     void reset();
+
+signals:
+
+    void changed(bool isEmpty);
 
 protected:
     MarkedObject* m_currentObject;

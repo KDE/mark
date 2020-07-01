@@ -6,9 +6,9 @@
 #include <QString>
 
 #include "ui/markedclass.h"
+#include "ui/markedobject_p.h"
 
 class MarkedClass;
-class MarkedObjectPrivate;
 
 /** Base class that represents all types of annotated data. */
 class MarkedObject

@@ -19,7 +19,6 @@
 #define POLYGON_H
 
 #include "ui/markedobject.h"
-#include "ui/markedobject_p.h"
 #include "ui/markedclass.h"
 
 #include <QPolygonF>
