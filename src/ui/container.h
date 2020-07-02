@@ -3,18 +3,18 @@
 
 #include "ui/markedclass.h"
 #include "ui/markedobject.h"
-//#include "image/imagepainter.h"
 
 #include <QGraphicsView>
 #include <QVector>
 
-class ImagePainter;
+class Painter;
 
 /** Annotation container. */
 class Container : public QGraphicsView
 {
+    Q_OBJECT
     
-    friend class ImagePainter;
+    friend class Painter;
     
 public:
     explicit Container(QWidget* parent = nullptr);
@@ -25,10 +25,10 @@ public:
      * @param event - mouse event to treat.
      */
     void mousePressEvent(QMouseEvent* event) override;
-    
+
     /** @return pointer of the current Painter. */
-    ImagePainter* painter() const { return m_painter; }
-    
+    Painter* painter() const { return m_painter; }
+
 public:
     /** Set MarkedClass of the current object.
      * @param objClass - Class to define.
@@ -37,10 +37,15 @@ public:
 
 public:
     /** @return saved annotated objects. */
-    QVector<MarkedObject*> savedObjects() const;
+    QVector<MarkedObject*>& savedObjects() { return m_savedObjects; }
 
     /** @return pointer of current MarkedObject. */
-    MarkedObject* currentObject() const { return m_currentObject; }
+    MarkedObject* currentObject() { return m_currentObject; }
+
+    /** Set current object.
+     * @param currentObject - object to set as current object.
+     */
+    void setCurrentObject(MarkedObject* currentObject) { m_currentObject = currentObject; }
 
     /** Load given item/file.
      * @param itemPath - Path of the item.
@@ -60,11 +65,6 @@ public:
      */
     bool importObjects(QVector<MarkedObject*> objects);
 
-    /** Set current object.
-     * @param object - object to set as current object.
-     */
-    void setCurrentObject(MarkedObject* object);
-
 public slots:
     /** Undo last action. */
     void undo();
@@ -72,11 +72,15 @@ public slots:
     /** Delete all annotated objects. */
     void reset();
 
+signals:
+
+    void changed(bool isEmpty);
+
 protected:
     MarkedObject* m_currentObject;
     QVector<MarkedObject*> m_savedObjects;
     
-    ImagePainter* m_painter;
+    Painter* m_painter;
 };
 
 #endif // CONTAINER_H

@@ -25,17 +25,6 @@ Container::~Container()
 {
 }
 
-// TODO: improve me and remove this method
-QVector<MarkedObject*> Container::savedObjects() const
-{
-    QVector<MarkedObject*> copyObjects;
-
-    for (const MarkedObject* obj : m_savedObjects)
-        copyObjects.append(m_painter->scale(obj));
-
-    return copyObjects;
-}
-
 void Container::mousePressEvent(QMouseEvent* event)
 {
     m_painter->paint(event->pos());
@@ -52,6 +41,8 @@ void Container::changeItem(const QString& path)
 
     // TODO: check if file format of path then change
     m_painter->changeItem(path);
+
+    emit changed(!scene()->items().empty());
 }
 
 void Container::setObjClass(MarkedClass* objClass)
@@ -85,11 +76,6 @@ void Container::undo()
 
         m_painter->repaint();
     }
-}
-
-void Container::setCurrentObject(MarkedObject* object)
-{
-    m_currentObject = object;
 }
 
 void Container::reset()
