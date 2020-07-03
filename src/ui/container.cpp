@@ -1,6 +1,7 @@
 #include "container.h"
 #include "image/polygon.h"
 #include "image/imagepainter.h"
+#include "text/textpainter.h"
 
 #include <QGraphicsScene>
 #include <QMouseEvent>
@@ -39,7 +40,11 @@ void Container::changeItem(const QString& path)
     scene()->setSceneRect(0, 0, 850, 640);
     scene()->clear();
 
-    // TODO: check if file format of path then change
+    if (path.endsWith(".txt") || path.endsWith(".TXT"))
+        m_painter = new TextPainter(this);
+    else
+        m_painter = new ImagePainter(this);
+
     m_painter->changeItem(path);
 
     emit changed(!scene()->items().empty());

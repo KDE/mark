@@ -233,7 +233,6 @@ void marK::changeIndex(const int count)
 
 void marK::changeItem(QListWidgetItem *current, QListWidgetItem *previous)
 {
-    // TODO: verify file extension and change annotatorwidget according to that
     if (current != nullptr) {
         QString itemPath = QDir(m_currentDirectory).filePath(current->text());
 
