@@ -174,15 +174,19 @@ void marK::setupConnections()
         }
     );
 
-    connect(m_ui->containerWidget, &Container::changed, this,
-        [&](bool hasItems) {
-            m_ui->newClassButton->setEnabled(hasItems);
-            m_ui->undoButton->setEnabled(hasItems);
-            m_ui->resetButton->setEnabled(hasItems);
-            m_ui->comboBox->setEnabled(hasItems);
-            m_ui->selectClassColorButton->setEnabled(hasItems);
-            m_ui->polygonButton->setEnabled(hasItems);
-            m_ui->rectButton->setEnabled(hasItems);
+    connect(m_ui->containerWidget, &Container::painterChanged, this,
+        [&](Container::PainterType type) {
+            m_ui->newClassButton->setEnabled(true);
+            m_ui->undoButton->setEnabled(true);
+            m_ui->resetButton->setEnabled(true);
+            m_ui->comboBox->setEnabled(true);
+            m_ui->selectClassColorButton->setEnabled(true);
+            m_ui->polygonButton->setEnabled(true);
+            m_ui->rectButton->setEnabled(true);
+            if (type != Container::PainterType::Image)
+                m_ui->groupBox_2->setHidden(true);
+            else
+                m_ui->groupBox_2->setVisible(true);
         }
     );
 }

@@ -40,14 +40,16 @@ void Container::changeItem(const QString& path)
     scene()->setSceneRect(0, 0, 850, 640);
     scene()->clear();
 
-    if (path.endsWith(".txt") || path.endsWith(".TXT"))
+    if (path.endsWith(".txt") || path.endsWith(".TXT")) {
+        Q_EMIT painterChanged(PainterType::Text);
         m_painter = new TextPainter(this);
-    else
+    }
+    else {
+        Q_EMIT painterChanged(PainterType::Image);
         m_painter = new ImagePainter(this);
+    }
 
     m_painter->changeItem(path);
-
-    emit changed(!scene()->items().empty());
 }
 
 void Container::setObjClass(MarkedClass* objClass)

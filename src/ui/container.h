@@ -19,7 +19,9 @@ class Container : public QGraphicsView
 public:
     explicit Container(QWidget* parent = nullptr);
     ~Container() override;
-    
+
+    enum class PainterType { Image, Text };
+
 public:
     /** Treat mouse press event.
      * @param event - mouse event to treat.
@@ -74,7 +76,7 @@ public slots:
 
 signals:
 
-    void changed(bool isEmpty);
+    void painterChanged(PainterType type);
 
 protected:
     MarkedObject* m_currentObject;
