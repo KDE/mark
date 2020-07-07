@@ -51,7 +51,7 @@ void ImagePainter::paint(QPoint point)
                 *currentPolygon << clickedPoint;
 
                 if (currentPolygon->size() > 1 && currentPolygon->isClosed()) {
-                    m_parent->savedObjects() << m_parent->currentObject();
+                    m_parent->appendObject(currentPolygon);
                     m_parent->setCurrentObject(new Polygon(currentPolygon->objClass()));
                 }
 
@@ -66,7 +66,7 @@ void ImagePainter::paint(QPoint point)
                 else {
                     QPointF firstPt = currentPolygon->first();
                     *currentPolygon << QPointF(clickedPoint.x(), firstPt.y()) << clickedPoint << QPointF(firstPt.x(), clickedPoint.y()) << firstPt;
-                    m_parent->savedObjects() << m_parent->currentObject();
+                    m_parent->appendObject(currentPolygon);
                     m_parent->setCurrentObject(new Polygon(m_parent->currentObject()->objClass()));
                 }
 

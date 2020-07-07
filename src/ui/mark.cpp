@@ -185,6 +185,8 @@ void marK::setupConnections()
             m_ui->rectButton->setEnabled(hasItems);
         }
     );
+
+    connect(m_ui->containerWidget, &Container::savedObjectsChanged, this, &marK::autoSave);
 }
 
 void marK::updateFiles()
@@ -239,10 +241,6 @@ void marK::changeItem(QListWidgetItem *current, QListWidgetItem *previous)
 
         if (itemPath != m_filepath) {
             makeTempFile();
-
-            if (m_autoSaveType != Serializer::OutputType::None)
-                autoSave();
-
             m_filepath = itemPath;
             m_ui->containerWidget->changeItem(itemPath);
             retrieveTempFile();
@@ -411,11 +409,13 @@ void marK::toggleAutoSave()
 
     else if (type == "JSON")
         m_autoSaveType = Serializer::OutputType::JSON;
-
 }
 
 void marK::autoSave()
 {
+    if (m_autoSaveType == Serializer::OutputType::None)
+        return();
+
     Serializer serializer = Serializer(m_ui->containerWidget->savedObjects());
     serializer.write(m_filepath, m_autoSaveType);
 }

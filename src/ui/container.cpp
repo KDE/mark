@@ -66,6 +66,12 @@ bool Container::importObjects(QVector<MarkedObject*> objects)
     return m_painter->importObjects(objects);
 }
 
+void Container::appendObject(MarkedObject* object)
+{
+    m_savedObjects << object;
+    Q_EMIT savedObjectsChanged();
+}
+
 void Container::undo()
 {
     // TODO: check painter type before working with polygons
