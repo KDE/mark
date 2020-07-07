@@ -25,17 +25,22 @@
 class Sentence : public MarkedObject
 {
 public:
+    /**  Create a Sentence.
+     * @param objClass - MarkedClass's instance to assign.
+     * @param begin - Location of the first letter of Sentence.
+     * @param end - Location of the last letter of sentence.
+     */
     explicit Sentence(MarkedClass *objClass, quint64 begin, quint64 end);
 
     void clear() override;
     void append(double memberX, double memberY) override;
-    //int size() const override;
-    //QString unitName() const override;
+    int size() const override;
+    QString unitName() const override;
     QString type() const override;
     QString memberX() const override;
     QString memberY() const override;
-    //qreal XValueOf(int element) const override;
-    //qreal YValueOf(int element) const override;
+    qreal XValueOf(int element) const override;
+    qreal YValueOf(int element) const override;
 };
 
 #endif // SENTENCE_H

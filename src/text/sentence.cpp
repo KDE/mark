@@ -27,25 +27,27 @@ Sentence::Sentence(MarkedClass* objClass, quint64 begin, quint64 end) :
 
 void Sentence::clear()
 {
-    //d_p->m_begin = 0;
-    //d_p->m_end = 0;
+    auto dpointer = static_cast<SentencePrivate*>(d_p.get());
+    dpointer->m_begin = 0;
+    dpointer->m_end = 0;
 }
 
 void Sentence::append(double memberX, double memberY)
 {
-    //d_p->m_begin = memberX;
-    //d_p->m_end = memberY;
+    auto dpointer = static_cast<SentencePrivate*>(d_p.get());
+    dpointer->m_begin = memberX;
+    dpointer->m_end = memberY;
 }
-/*
+
 int Sentence::size() const
 {
-    return d_p->end - d_p->begin;
+    return 1;
 }
+
 QString Sentence::unitName() const
 {
     return "st";
 }
-*/
 
 QString Sentence::type() const
 {
@@ -61,14 +63,16 @@ QString Sentence::memberY() const
 {
     return "end";
 }
-/*
+
 qreal Sentence::XValueOf(int element) const
 {
-    return this->at(element).x();
+    auto dpointer = static_cast<SentencePrivate*>(d_p.get());
+    return dpointer->m_begin;
 }
 
 qreal Sentence::YValueOf(int element) const
 {
-    return this->at(element).y();
+    auto dpointer = static_cast<SentencePrivate*>(d_p.get());
+    return dpointer->m_end;
 }
-*/
+

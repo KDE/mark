@@ -20,7 +20,6 @@ include(audio/CMakeLists.txt)
 
 set(mark_SRC
     main.cpp
-    text/textpainter.cpp
     ${UI_SRC}
     ${TEXT_SRC}
     ${IMAGE_SRC}
