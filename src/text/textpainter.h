@@ -23,6 +23,7 @@ public:
 
 private:
     QTextEdit *m_textEdit;
+    int undoTimes{0};
 };
 
 #endif // TEXTPAINTER_H

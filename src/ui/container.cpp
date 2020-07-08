@@ -2,6 +2,7 @@
 #include "image/polygon.h"
 #include "image/imagepainter.h"
 #include "text/textpainter.h"
+#include "text/sentence.h"
 
 #include <QGraphicsScene>
 #include <QMouseEvent>
@@ -76,12 +77,20 @@ bool Container::importObjects(QVector<MarkedObject*> objects)
 void Container::undo()
 {
     // TODO: check painter type before working with polygons
-    Polygon* polygon = static_cast<Polygon*>(m_currentObject);
+    Polygon* polygon = dynamic_cast<Polygon*>(m_currentObject);
 
-    if (!polygon->empty()) {
+    if (polygon && !polygon->empty()) {
         polygon->pop_back();
 
         m_painter->repaint();
+        return;
+    }
+
+    Sentence* sentence = dynamic_cast<Sentence*>(m_currentObject);
+    if (sentence) {
+        m_savedObjects.pop_back();
+        m_painter->repaint();
+        return;
     }
 }
 

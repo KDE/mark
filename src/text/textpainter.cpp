@@ -47,11 +47,15 @@ void TextPainter::paint(QPoint point)
     auto sentence = new Sentence(m_parent->currentObject()->objClass(), beginSentence, endSentence);
     m_parent->setCurrentObject(sentence);
     m_parent->savedObjects() << sentence;
+    undoTimes++;
 }
 
 void TextPainter::repaint()
 {
-    auto doc = m_textEdit->document();
+    for (int i = 0; i < undoTimes; i++)
+        m_textEdit->undo();
+
+    undoTimes = 0;
 
     for (MarkedObject* obj : m_parent->savedObjects())
         paintObject(obj);
@@ -69,6 +73,7 @@ void TextPainter::paintObject(MarkedObject *object)
     color.setAlpha(85);
     fmt.setBackground(color);
     textCursor.setCharFormat(fmt);
+    undoTimes++;
 }
 
 bool TextPainter::importObjects(QVector<MarkedObject*> objects)
