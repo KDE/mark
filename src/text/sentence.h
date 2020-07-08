@@ -30,7 +30,7 @@ public:
      * @param begin - Location of the first letter of Sentence.
      * @param end - Location of the last letter of sentence.
      */
-    explicit Sentence(MarkedClass *objClass, quint64 begin, quint64 end);
+    explicit Sentence(MarkedClass *objClass, quint64 begin = 0, quint64 end = 0);
 
     void clear() override;
     void append(double memberX, double memberY) override;

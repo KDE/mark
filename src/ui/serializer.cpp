@@ -19,6 +19,7 @@
 #include "ui/markedclass.h"
 #include "ui/markedobject_p.h"
 #include "image/polygon.h"
+#include "text/sentence.h"
 
 #include <QtGlobal>
 #include <QJsonDocument>
@@ -167,7 +168,14 @@ QVector<MarkedObject*> Serializer::readJSON(const QString& filename)
         QString className = classObj["Class"].toString();
         MarkedClass* objClass = getMarkedClass(className);
 
-        MarkedObject* object = new Polygon(objClass);
+        MarkedObject* object;
+        if (classObj["Polygon"] != QJsonValue::Undefined)
+            object = new Polygon(objClass);
+        else if (classObj["Sentence"] != QJsonValue::Undefined)
+            object = new Sentence(objClass);
+        else
+            return QVector<MarkedObject*>();
+
         QJsonArray typeArray = classObj[object->type()].toArray();
 
         for (const QJsonValue& typeObj : qAsConst(typeArray)) {
@@ -206,11 +214,10 @@ QVector<MarkedObject*> Serializer::readXML(const QString& filename)
             xmlReader.readNextStartElement();
 
             MarkedObject* object;
-            // add new types later on
-            // not sure about this, needs improvement
             if (xmlReader.name() == "Polygon")
                 object = new Polygon(markedClass);
-
+            else if (xmlReader.name() == "Sentence")
+                object = new Sentence(markedClass);
             else
                 return QVector<MarkedObject*>();
 
