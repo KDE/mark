@@ -87,10 +87,9 @@ void Container::undo()
     }
 
     Sentence* sentence = dynamic_cast<Sentence*>(m_currentObject);
-    if (sentence) {
+    if (sentence && !m_savedObjects.isEmpty()) {
         m_savedObjects.pop_back();
         m_painter->repaint();
-        return;
     }
 }
 

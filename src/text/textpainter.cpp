@@ -10,7 +10,8 @@ TextPainter::TextPainter(Container* parent) :
     Painter(parent),
     m_textEdit(new QTextEdit)
 {
-    m_textEdit->resize(850, 640);
+    // temporary, with this geometry textEdit is in the right position
+    m_textEdit->setGeometry(-13, -25, 877, 690);
     m_parent->scene()->addWidget(m_textEdit);
     m_textEdit->setReadOnly(true);
 }
@@ -20,7 +21,6 @@ TextPainter::~TextPainter()
     delete m_textEdit;
 }
 
-#include <QDebug>
 void TextPainter::changeItem(const QString& path)
 {
     QFile file(path);
@@ -34,7 +34,8 @@ void TextPainter::changeItem(const QString& path)
 
 void TextPainter::paint(QPoint point)
 {
-    auto textCursor = m_textEdit->textCursor();
+    auto textCursor = m_textEdit->cursorForPosition(point);
+    textCursor.select(QTextCursor::WordUnderCursor);
     auto beginSentence = textCursor.anchor();
     auto endSentence = textCursor.position();
 
