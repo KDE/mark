@@ -74,14 +74,7 @@ void Container::appendObject(MarkedObject* object)
 
 void Container::undo()
 {
-    // TODO: check painter type before working with polygons
-    Polygon* polygon = static_cast<Polygon*>(m_currentObject);
-
-    if (!polygon->empty()) {
-        polygon->pop_back();
-
-        m_painter->repaint();
-    }
+    m_painter->undo();
 }
 
 void Container::reset()

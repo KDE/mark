@@ -414,7 +414,7 @@ void marK::toggleAutoSave()
 void marK::autoSave()
 {
     if (m_autoSaveType == Serializer::OutputType::None)
-        return();
+        return;
 
     Serializer serializer = Serializer(m_ui->containerWidget->savedObjects());
     serializer.write(m_filepath, m_autoSaveType);

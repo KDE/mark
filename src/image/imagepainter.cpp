@@ -126,6 +126,22 @@ void ImagePainter::repaint()
     paintObject(m_parent->currentObject());
 }
 
+void ImagePainter::undo()
+{
+    Polygon* polygon = static_cast<Polygon*>(m_parent->currentObject());
+
+    if (!polygon->empty())
+        polygon->pop_back();
+    else {
+        polygon = static_cast<Polygon*>(m_parent->savedObjects().last());
+        polygon->pop_back();
+        if (polygon->empty())
+            m_parent->savedObjects().pop_back();
+    }
+
+    repaint();
+}
+
 void ImagePainter::paintObject(MarkedObject* object)
 {
     Polygon* polygon = static_cast<Polygon*>(object);

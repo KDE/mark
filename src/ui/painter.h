@@ -33,6 +33,9 @@ public:
     /** Load the current MarkedObjects. */
     virtual void repaint() = 0;
 
+    /** Undo last paint. */
+    virtual void undo() = 0;
+
     /** Load given item base on its path.
      * @param path - item path.
      */

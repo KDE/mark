@@ -24,6 +24,7 @@ public:
     void paint(QPoint point) override;
     void paintObject(MarkedObject* object) override;
     void repaint() override;
+    void undo() override;
     void changeItem(const QString& path) override;
 
     bool importObjects(QVector<MarkedObject*> objects) override;
