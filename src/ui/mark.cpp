@@ -262,7 +262,9 @@ void marK::changeDirectory()
 
         m_currentDirectory = path;
         m_watcher->addPath(m_currentDirectory);
+        m_ui->listWidget->clear();
         m_ui->containerWidget->reset();
+        m_ui->containerWidget->scene()->clear();
         m_filepath.clear();
         updateFiles(path);
 
