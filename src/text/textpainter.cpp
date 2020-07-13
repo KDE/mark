@@ -14,6 +14,7 @@ TextPainter::TextPainter(Container* parent) :
     m_textEdit->setGeometry(-13, -25, 877, 690);
     m_parent->scene()->addWidget(m_textEdit);
     m_textEdit->setReadOnly(true);
+    m_parent->setCurrentObject(new Sentence(m_parent->currentObject()->objClass(), 0, 0));
 }
 
 TextPainter::~TextPainter()
@@ -39,16 +40,24 @@ void TextPainter::paint(QPoint point)
     auto beginSentence = textCursor.anchor();
     auto endSentence = textCursor.position();
 
-    QTextCharFormat fmt;
-    QColor color (m_parent->currentObject()->objClass()->color());
-    color.setAlpha(85);
-    fmt.setBackground(color);
-    textCursor.setCharFormat(fmt);
+    for (MarkedObject *object : m_parent->savedObjects()) {
+        auto *st = static_cast<Sentence*>(object);
+        if (st->objClass() == m_parent->currentObject()->objClass()) {
+            // FIXME: after changing the end/beginSentence, object should not be in the
+            // savedObjects anymore, mantaining it by now because of undo functionality
+            // that needs it to work properly
+            if ((st->XValueOf() - 1) == endSentence) {
+                endSentence = st->YValueOf();
+            }
+            else if ((st->YValueOf() + 1) == beginSentence) {
+                beginSentence = st->XValueOf();
+            }
+        }
+    }
 
     auto sentence = new Sentence(m_parent->currentObject()->objClass(), beginSentence, endSentence);
-    m_parent->setCurrentObject(sentence);
     m_parent->savedObjects() << sentence;
-    undoTimes++;
+    paintObject(sentence);
 }
 
 void TextPainter::repaint()

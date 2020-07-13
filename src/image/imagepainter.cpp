@@ -7,6 +7,7 @@ ImagePainter::ImagePainter(Container* parent) :
     Painter(parent),
     m_shape(Shape::Polygon)
 {
+    m_parent->setCurrentObject(new Polygon(m_parent->currentObject()->objClass()));
 }
 
 void ImagePainter::paint(QPoint point)

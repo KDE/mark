@@ -61,12 +61,12 @@ public:
     /** @return the first member/location of given element.
      * @param element - element to get the member/location.
      */
-    virtual qreal XValueOf(int element) const = 0;
+    virtual qreal XValueOf(int element = 0) const = 0;
 
     /** @return the second member/location of given element.
      * @param element - element to get the member/location.
      */
-    virtual qreal YValueOf(int element) const = 0;
+    virtual qreal YValueOf(int element = 0) const = 0;
 
 protected:
     std::unique_ptr<MarkedObjectPrivate> d_p;

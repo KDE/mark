@@ -39,8 +39,8 @@ public:
     QString type() const override;
     QString memberX() const override;
     QString memberY() const override;
-    qreal XValueOf(int element) const override;
-    qreal YValueOf(int element) const override;
+    qreal XValueOf(int element = 0) const override;
+    qreal YValueOf(int element = 0) const override;
 };
 
 #endif // SENTENCE_H
