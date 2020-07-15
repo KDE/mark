@@ -72,6 +72,9 @@ public slots:
     /** Undo last action. */
     void undo();
 
+    /** Delete a MarkedObject's instance. */
+    void deleteObject();
+
     /** Delete all annotated objects. */
     void reset();
 

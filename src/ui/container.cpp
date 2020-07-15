@@ -77,6 +77,11 @@ void Container::undo()
     m_painter->undo();
 }
 
+void Container::deleteObject()
+{
+    m_painter->deleteCurrentObject();
+}
+
 void Container::reset()
 {
     m_savedObjects.clear();

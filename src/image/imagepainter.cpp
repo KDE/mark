@@ -130,16 +130,20 @@ void ImagePainter::undo()
 {
     Polygon* polygon = static_cast<Polygon*>(m_parent->currentObject());
 
-    if (!polygon->empty())
+    if (!polygon->empty()) {
         polygon->pop_back();
-    else {
-        polygon = static_cast<Polygon*>(m_parent->savedObjects().last());
-        polygon->pop_back();
-        if (polygon->empty())
-            m_parent->savedObjects().pop_back();
+        repaint();
     }
+}
 
-    repaint();
+void ImagePainter::deleteCurrentObject()
+{
+    Polygon* polygon = static_cast<Polygon*>(m_parent->currentObject());
+
+    if (polygon && !polygon->isClosed()) {
+        polygon->clear();
+        repaint();
+    }
 }
 
 void ImagePainter::paintObject(MarkedObject* object)

@@ -36,6 +36,9 @@ public:
     /** Undo last paint. */
     virtual void undo() = 0;
 
+    /** Delete the current instance of MarkedObject. */
+    virtual void deleteCurrentObject() = 0;
+
     /** Load given item base on its path.
      * @param path - item path.
      */
