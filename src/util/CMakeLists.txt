@@ -13,23 +13,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-include(ui/CMakeLists.txt)
-include(util/CMakeLists.txt)
-include(text/CMakeLists.txt)
-include(image/CMakeLists.txt)
-include(audio/CMakeLists.txt)
-
-set(mark_SRC
-    main.cpp
-    ${UI_SRC}
-    ${UTIL_SRC}
-    ${TEXT_SRC}
-    ${IMAGE_SRC}
-    ${AUDIO_SRC}
+set(UTIL_SRC
+    util/serializer.cpp
 )
-
-add_executable(mark ${mark_SRC})
-
-target_link_libraries(mark Qt5::Widgets)
-
-install(TARGETS mark DESTINATION bin)
