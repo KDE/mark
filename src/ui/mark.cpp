@@ -88,6 +88,10 @@ void marK::setupActions()
     undoAction->setShortcut(QKeySequence(Qt::Modifier::CTRL + Qt::Key::Key_Z));
     connect(undoAction, &QAction::triggered, m_ui->containerWidget, &Container::undo);
 
+    QAction *deleteAction = editMenu->addAction("Delete");
+    deleteAction->setShortcut(QKeySequence(Qt::Modifier::CTRL + Qt::Key::Key_D));
+    connect(deleteAction, &QAction::triggered, m_ui->containerWidget, &Container::deleteObject);
+
     m_ui->containerWidget->setMinimumSize(860, 650);
     QMenu *autoSaveMenu = editMenu->addMenu("Auto Save");
 
@@ -122,6 +126,7 @@ void marK::setupConnections()
 {
     m_ui->newClassButton->setEnabled(false);
     m_ui->undoButton->setEnabled(false);
+    m_ui->deleteButton->setEnabled(false);
     m_ui->resetButton->setEnabled(false);
     m_ui->comboBox->setEnabled(false);
     m_ui->selectClassColorButton->setEnabled(false);
@@ -136,6 +141,7 @@ void marK::setupConnections()
     connect(m_ui->newClassButton, &QPushButton::clicked, this, qOverload<>(&marK::addNewClass));
 
     connect(m_ui->undoButton, &QPushButton::clicked, m_ui->containerWidget, &Container::undo);
+    connect(m_ui->deleteButton, &QPushButton::clicked, m_ui->containerWidget, &Container::deleteObject);
     connect(m_ui->resetButton, &QPushButton::clicked, m_ui->containerWidget, &Container::reset);
 
     connect(m_ui->comboBox, &QComboBox::editTextChanged, this, 
@@ -183,12 +189,15 @@ void marK::setupConnections()
             m_ui->selectClassColorButton->setEnabled(true);
             m_ui->polygonButton->setEnabled(true);
             m_ui->rectButton->setEnabled(true);
+            m_ui->deleteButton->setEnabled(true);
             if (type != Container::PainterType::Image)
                 m_ui->groupBox_2->setHidden(true);
             else
                 m_ui->groupBox_2->setVisible(true);
         }
     );
+
+    connect(m_ui->containerWidget, &Container::savedObjectsChanged, this, &marK::autoSave);
 }
 
 void marK::updateFiles()
@@ -242,10 +251,6 @@ void marK::changeItem(QListWidgetItem *current, QListWidgetItem *previous)
 
         if (itemPath != m_filepath) {
             makeTempFile();
-
-            if (m_autoSaveType != Serializer::OutputType::None)
-                autoSave();
-
             m_filepath = itemPath;
             m_ui->containerWidget->changeItem(itemPath);
             retrieveTempFile();
@@ -267,7 +272,9 @@ void marK::changeDirectory()
 
         m_currentDirectory = path;
         m_watcher->addPath(m_currentDirectory);
+        m_ui->listWidget->clear();
         m_ui->containerWidget->reset();
+        m_ui->containerWidget->scene()->clear();
         m_filepath.clear();
         updateFiles(path);
 
@@ -414,11 +421,13 @@ void marK::toggleAutoSave()
 
     else if (type == "JSON")
         m_autoSaveType = Serializer::OutputType::JSON;
-
 }
 
 void marK::autoSave()
 {
+    if (m_autoSaveType == Serializer::OutputType::None)
+        return;
+
     Serializer serializer = Serializer(m_ui->containerWidget->savedObjects());
     serializer.write(m_filepath, m_autoSaveType);
 }

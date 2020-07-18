@@ -44,6 +44,9 @@ public:
     /** @return pointer of current MarkedObject. */
     MarkedObject* currentObject() { return m_currentObject; }
 
+    /** Append MarkedObject instance to savedObjects. */
+    void appendObject(MarkedObject* object);
+
     /** Set current object.
      * @param currentObject - object to set as current object.
      */
@@ -71,12 +74,17 @@ public slots:
     /** Undo last action. */
     void undo();
 
+    /** Delete a MarkedObject's instance. */
+    void deleteObject();
+
     /** Delete all annotated objects. */
     void reset();
 
 signals:
 
     void painterChanged(PainterType type);
+
+    void savedObjectsChanged();
 
 protected:
     MarkedObject* m_currentObject;

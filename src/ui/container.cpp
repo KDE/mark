@@ -74,23 +74,20 @@ bool Container::importObjects(QVector<MarkedObject*> objects)
     return m_painter->importObjects(objects);
 }
 
+void Container::appendObject(MarkedObject* object)
+{
+    m_savedObjects << object;
+    Q_EMIT savedObjectsChanged();
+}
+
 void Container::undo()
 {
-    // TODO: check painter type before working with polygons
-    Polygon* polygon = dynamic_cast<Polygon*>(m_currentObject);
+    m_painter->undo();
+}
 
-    if (polygon && !polygon->empty()) {
-        polygon->pop_back();
-
-        m_painter->repaint();
-        return;
-    }
-
-    Sentence* sentence = dynamic_cast<Sentence*>(m_currentObject);
-    if (sentence && !m_savedObjects.isEmpty()) {
-        m_savedObjects.pop_back();
-        m_painter->repaint();
-    }
+void Container::deleteObject()
+{
+    m_painter->deleteCurrentObject();
 }
 
 void Container::reset()

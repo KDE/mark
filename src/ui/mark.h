@@ -19,7 +19,7 @@
 #define MARK_H
 
 #include "ui/markedclass.h"
-#include "ui/serializer.h"
+#include "util/serializer.h"
 
 #include <QMainWindow>
 #include <QScopedPointer>
