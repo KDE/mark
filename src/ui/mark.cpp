@@ -182,14 +182,15 @@ void marK::setupConnections()
 
     connect(m_ui->containerWidget, &Container::painterChanged, this,
         [&](Container::PainterType type) {
-            m_ui->newClassButton->setEnabled(true);
-            m_ui->undoButton->setEnabled(true);
-            m_ui->resetButton->setEnabled(true);
-            m_ui->comboBox->setEnabled(true);
-            m_ui->selectClassColorButton->setEnabled(true);
-            m_ui->polygonButton->setEnabled(true);
-            m_ui->rectButton->setEnabled(true);
-            m_ui->deleteButton->setEnabled(true);
+            bool isFileLoaded = !m_filepath.isEmpty();
+            m_ui->newClassButton->setEnabled(isFileLoaded);
+            m_ui->undoButton->setEnabled(isFileLoaded);
+            m_ui->resetButton->setEnabled(isFileLoaded);
+            m_ui->comboBox->setEnabled(isFileLoaded);
+            m_ui->selectClassColorButton->setEnabled(isFileLoaded);
+            m_ui->polygonButton->setEnabled(isFileLoaded);
+            m_ui->rectButton->setEnabled(isFileLoaded);
+            m_ui->deleteButton->setEnabled(isFileLoaded);
             if (type != Container::PainterType::Image)
                 m_ui->groupBox_2->setHidden(true);
             else
@@ -276,6 +277,7 @@ void marK::changeDirectory()
         m_ui->containerWidget->reset();
         m_ui->containerWidget->scene()->clear();
         m_filepath.clear();
+        Q_EMIT m_ui->containerWidget->painterChanged(Container::PainterType::Image);
         updateFiles(path);
 
         QFontMetrics metrics(m_ui->listLabel->font());
