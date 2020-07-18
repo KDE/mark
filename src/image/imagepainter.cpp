@@ -141,7 +141,7 @@ void ImagePainter::deleteCurrentObject()
 {
     Polygon* polygon = static_cast<Polygon*>(m_parent->currentObject());
 
-    if (polygon && !polygon->isClosed()) {
+    if (!polygon->isClosed()) {
         polygon->clear();
         repaint();
     }

@@ -41,6 +41,9 @@ public:
     /** @return saved annotated objects. */
     QVector<MarkedObject*>& savedObjects() { return m_savedObjects; }
 
+    /** @return temporary annotated objects. */
+    QVector<MarkedObject*>& tempObjects() { return m_tempObjects; }
+
     /** @return pointer of current MarkedObject. */
     MarkedObject* currentObject() { return m_currentObject; }
 
@@ -89,6 +92,7 @@ signals:
 protected:
     MarkedObject* m_currentObject;
     QVector<MarkedObject*> m_savedObjects;
+    QVector<MarkedObject*> m_tempObjects;
     
     Painter* m_painter;
 };

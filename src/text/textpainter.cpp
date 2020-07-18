@@ -43,52 +43,78 @@ void TextPainter::paint(QPoint point)
     for (MarkedObject *object : m_parent->savedObjects()) {
         auto *st = static_cast<Sentence*>(object);
         if (st->objClass() == m_parent->currentObject()->objClass()) {
-            // FIXME: after changing the end/beginSentence, object should not be in the
-            // savedObjects anymore, mantaining it by now because of undo functionality
-            // that needs it to work properly
             if ((st->XValueOf() - 1) == endSentence) {
                 endSentence = st->YValueOf();
+                m_parent->savedObjects().removeOne(object);
             }
             else if ((st->YValueOf() + 1) == beginSentence) {
                 beginSentence = st->XValueOf();
+                m_parent->savedObjects().removeOne(object);
             }
         }
     }
 
     auto sentence = new Sentence(m_parent->currentObject()->objClass(), beginSentence, endSentence);
-    m_parent->savedObjects() << sentence;
+    m_parent->appendObject(sentence);
+    m_parent->tempObjects() << sentence;
     paintObject(sentence);
 }
 
 void TextPainter::repaint()
 {
-    for (int i = 0; i < undoTimes; i++)
+    for (int i = 0; i < m_parent->tempObjects().size() + 1; i++)
         m_textEdit->undo();
 
-    undoTimes = 0;
+    if (m_parent->savedObjects().size() == 0)
+        m_parent->tempObjects().clear();
 
-    for (MarkedObject* obj : m_parent->savedObjects())
+    for (MarkedObject* obj : m_parent->tempObjects())
         paintObject(obj);
+}
+
+void TextPainter::undo()
+{
+    if (m_parent->savedObjects().isEmpty())
+        return;
+
+    m_parent->savedObjects().pop_back();
+    if (m_parent->tempObjects().size() > 0) {
+        if (m_parent->savedObjects().last() != m_parent->tempObjects().last())
+            m_parent->appendObject(m_parent->tempObjects().last());
+        m_parent->tempObjects().pop_back();
+    }
+
+    repaint();
+}
+
+void TextPainter::deleteCurrentObject()
+{
+    if (m_parent->savedObjects().isEmpty())
+        return;
+
+    m_parent->savedObjects().pop_back();
+    m_parent->tempObjects().pop_back();
+    repaint();
 }
 
 void TextPainter::paintObject(MarkedObject *object)
 {
     auto sentence = static_cast<Sentence*>(object);
     auto textCursor = m_textEdit->textCursor();
-    textCursor.setPosition(sentence->XValueOf(0), QTextCursor::MoveAnchor);
-    textCursor.setPosition(sentence->YValueOf(0), QTextCursor::KeepAnchor);
+    textCursor.setPosition(sentence->XValueOf(), QTextCursor::MoveAnchor);
+    textCursor.setPosition(sentence->YValueOf(), QTextCursor::KeepAnchor);
 
     QTextCharFormat fmt;
     QColor color (sentence->objClass()->color());
     color.setAlpha(85);
     fmt.setBackground(color);
     textCursor.setCharFormat(fmt);
-    undoTimes++;
 }
 
 bool TextPainter::importObjects(QVector<MarkedObject*> objects)
 {
     m_parent->savedObjects() = objects;
+    m_parent->tempObjects() = objects;
     repaint();
     return !objects.isEmpty();
 }
