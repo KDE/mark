@@ -20,8 +20,6 @@ public:
     explicit Container(QWidget* parent = nullptr);
     ~Container() override;
 
-    enum class PainterType { Image, Text };
-
 public:
     /** Treat mouse press event.
      * @param event - mouse event to treat.
@@ -85,7 +83,7 @@ public slots:
 
 signals:
 
-    void painterChanged(PainterType type);
+    void painterChanged(bool shouldShapesBeVisible = true);
 
     void savedObjectsChanged();
 

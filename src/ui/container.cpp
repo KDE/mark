@@ -42,11 +42,12 @@ void Container::changeItem(const QString& path)
     scene()->clear();
 
     if (path.endsWith(".txt") || path.endsWith(".TXT")) {
-        Q_EMIT painterChanged(PainterType::Text);
+        bool setShapesVisibility = false;
+        Q_EMIT painterChanged(setShapesVisibility);
         m_painter = new TextPainter(this);
     }
     else {
-        Q_EMIT painterChanged(PainterType::Image);
+        Q_EMIT painterChanged();
         m_painter = new ImagePainter(this);
     }
 
