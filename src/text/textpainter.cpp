@@ -36,23 +36,8 @@ void TextPainter::changeItem(const QString& path)
 void TextPainter::paint(QPoint point)
 {
     auto textCursor = m_textEdit->cursorForPosition(point);
-    textCursor.select(QTextCursor::WordUnderCursor);
-    auto beginSentence = textCursor.anchor();
+    auto beginSentence = textCursor.anchor() - 1;
     auto endSentence = textCursor.position();
-
-    for (MarkedObject *object : m_parent->savedObjects()) {
-        auto *st = static_cast<Sentence*>(object);
-        if (st->objClass() == m_parent->currentObject()->objClass()) {
-            if ((st->XValueOf() - 1) == endSentence) {
-                endSentence = st->YValueOf();
-                m_parent->savedObjects().removeOne(object);
-            }
-            else if ((st->YValueOf() + 1) == beginSentence) {
-                beginSentence = st->XValueOf();
-                m_parent->savedObjects().removeOne(object);
-            }
-        }
-    }
 
     auto sentence = new Sentence(m_parent->currentObject()->objClass(), beginSentence, endSentence);
     m_parent->appendObject(sentence);
@@ -62,8 +47,8 @@ void TextPainter::paint(QPoint point)
 
 void TextPainter::repaint()
 {
-    for (int i = 0; i < m_parent->tempObjects().size() + 1; i++)
-        m_textEdit->undo();
+    QString plainText = m_textEdit->toPlainText();
+    m_textEdit->setPlainText(plainText);
 
     if (m_parent->savedObjects().size() == 0)
         m_parent->tempObjects().clear();

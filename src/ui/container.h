@@ -26,6 +26,16 @@ public:
      */
     void mousePressEvent(QMouseEvent* event) override;
 
+    /** Treat mouse release event.
+     * @param event - mouse event to treat.
+     */
+    void mouseReleaseEvent(QMouseEvent* event) override;
+
+    /** Treat mouse move event.
+     * @param event - mouse event to treat.
+     */
+    void mouseMoveEvent(QMouseEvent* event) override;
+
     /** @return pointer of the current Painter. */
     Painter* painter() const { return m_painter; }
 
@@ -91,7 +101,8 @@ protected:
     MarkedObject* m_currentObject;
     QVector<MarkedObject*> m_savedObjects;
     QVector<MarkedObject*> m_tempObjects;
-    
+    QPoint lastPosition;
+
     Painter* m_painter;
 };
 

@@ -6,7 +6,6 @@
 
 #include <QGraphicsScene>
 #include <QMouseEvent>
-#include <memory>
 
 Container::Container(QWidget* parent) :
     QGraphicsView(parent),
@@ -19,8 +18,6 @@ Container::Container(QWidget* parent) :
     setMinimumSize(860, 600);
 
     installEventFilter(this);
-
-    setMouseTracking(true);
 }
 
 Container::~Container()
@@ -29,9 +26,27 @@ Container::~Container()
 
 void Container::mousePressEvent(QMouseEvent* event)
 {
-    m_painter->paint(event->pos());
-    
+    lastPosition = event->pos();
+    m_painter->paint(lastPosition);
+
     QWidget::mousePressEvent(event);
+}
+
+void Container::mouseMoveEvent(QMouseEvent* event)
+{
+    if (lastPosition != event->pos()) {
+        lastPosition = event->pos();
+        m_painter->paint(lastPosition);
+    }
+
+    QWidget::mouseMoveEvent(event);
+}
+
+void Container::mouseReleaseEvent(QMouseEvent* event)
+{
+    m_painter->paint(event->pos());
+
+    QWidget::mouseReleaseEvent(event);
 }
 
 void Container::changeItem(const QString& path)
@@ -41,6 +56,8 @@ void Container::changeItem(const QString& path)
     scene()->setSceneRect(0, 0, 850, 640);
     scene()->clear();
 
+    //IMPROVEME: only change painter when a different type
+    // of file is loaded, and not always
     if (path.endsWith(".txt") || path.endsWith(".TXT")) {
         bool setShapesVisibility = false;
         Q_EMIT painterChanged(setShapesVisibility);
@@ -51,6 +68,7 @@ void Container::changeItem(const QString& path)
         m_painter = new ImagePainter(this);
     }
 
+    viewport()->setMouseTracking(false);
     m_painter->changeItem(path);
 }
 
