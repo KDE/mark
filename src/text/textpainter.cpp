@@ -8,7 +8,8 @@
 
 TextPainter::TextPainter(Container* parent) :
     Painter(parent),
-    m_textEdit(new QTextEdit)
+    m_textEdit(new QTextEdit),
+    m_lastTextCursor()
 {
     // temporary, with this geometry textEdit is in the right position
     m_textEdit->setGeometry(-13, -25, 877, 690);
@@ -36,8 +37,29 @@ void TextPainter::changeItem(const QString& path)
 void TextPainter::paint(QPoint point)
 {
     auto textCursor = m_textEdit->cursorForPosition(point);
+    if (textCursor == m_lastTextCursor)
+        return;
+
+    m_lastTextCursor = textCursor;
     auto beginSentence = textCursor.anchor() - 1;
     auto endSentence = textCursor.position();
+
+    for (auto *obj : m_parent->savedObjects()) {
+        if (obj->objClass() == m_parent->currentObject()->objClass()) {
+            if (endSentence == obj->XValueOf()) {
+                obj->append(beginSentence, obj->YValueOf());
+                repaint();
+                return;
+            }
+            else if (beginSentence == obj->YValueOf()) {
+                obj->append(obj->XValueOf(), endSentence);
+                repaint();
+                return;
+            }
+            else if (beginSentence == obj->XValueOf() || endSentence == obj->YValueOf())
+                return;
+        }
+    }
 
     auto sentence = new Sentence(m_parent->currentObject()->objClass(), beginSentence, endSentence);
     m_parent->appendObject(sentence);
@@ -62,6 +84,8 @@ void TextPainter::undo()
     if (m_parent->savedObjects().isEmpty())
         return;
 
+    //FIXME: tempObjects with mouse drag does not work properly
+    // with this logic
     m_parent->savedObjects().pop_back();
     if (m_parent->tempObjects().size() > 0) {
         if (m_parent->savedObjects().last() != m_parent->tempObjects().last())
@@ -78,7 +102,7 @@ void TextPainter::deleteCurrentObject()
         return;
 
     m_parent->savedObjects().pop_back();
-    m_parent->tempObjects().pop_back();
+    m_parent->tempObjects() = m_parent->savedObjects();
     repaint();
 }
 

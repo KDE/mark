@@ -5,6 +5,7 @@
 #include "ui/container.h"
 
 #include <QVector>
+#include <QTextCursor>
 
 class QTextEdit;
 
@@ -25,6 +26,7 @@ public:
 
 private:
     QTextEdit *m_textEdit;
+    QTextCursor m_lastTextCursor;
 };
 
 #endif // TEXTPAINTER_H
