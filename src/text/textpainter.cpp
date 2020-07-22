@@ -8,8 +8,7 @@
 
 TextPainter::TextPainter(Container* parent) :
     Painter(parent),
-    m_textEdit(new QTextEdit),
-    m_lastTextCursor()
+    m_textEdit(new QTextEdit)
 {
     // temporary, with this geometry textEdit is in the right position
     m_textEdit->setGeometry(-13, -25, 877, 690);
@@ -56,14 +55,25 @@ void TextPainter::paint(QPoint point)
                 repaint();
                 return;
             }
-            else if (beginSentence == obj->XValueOf() || endSentence == obj->YValueOf())
+            else if (beginSentence == obj->YValueOf() - 2) {
+                obj->append(obj->XValueOf(), obj->YValueOf() - 1);
+                repaint();
+                return;
+            }
+            else if (beginSentence == obj->XValueOf()) {
+                obj->append(obj->XValueOf() + 1, obj->YValueOf());
+                repaint();
+                return;
+            }
+            else if (endSentence == obj->YValueOf())
                 return;
         }
+        else if (beginSentence >= obj->XValueOf() && endSentence <= obj->YValueOf())
+            return;
     }
 
     auto sentence = new Sentence(m_parent->currentObject()->objClass(), beginSentence, endSentence);
     m_parent->appendObject(sentence);
-    m_parent->tempObjects() << sentence;
     paintObject(sentence);
 }
 
@@ -72,10 +82,7 @@ void TextPainter::repaint()
     QString plainText = m_textEdit->toPlainText();
     m_textEdit->setPlainText(plainText);
 
-    if (m_parent->savedObjects().size() == 0)
-        m_parent->tempObjects().clear();
-
-    for (MarkedObject* obj : m_parent->tempObjects())
+    for (MarkedObject* obj : m_parent->savedObjects())
         paintObject(obj);
 }
 
@@ -84,15 +91,7 @@ void TextPainter::undo()
     if (m_parent->savedObjects().isEmpty())
         return;
 
-    //FIXME: tempObjects with mouse drag does not work properly
-    // with this logic
     m_parent->savedObjects().pop_back();
-    if (m_parent->tempObjects().size() > 0) {
-        if (m_parent->savedObjects().last() != m_parent->tempObjects().last())
-            m_parent->appendObject(m_parent->tempObjects().last());
-        m_parent->tempObjects().pop_back();
-    }
-
     repaint();
 }
 
@@ -102,7 +101,6 @@ void TextPainter::deleteCurrentObject()
         return;
 
     m_parent->savedObjects().pop_back();
-    m_parent->tempObjects() = m_parent->savedObjects();
     repaint();
 }
 

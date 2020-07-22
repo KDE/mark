@@ -44,7 +44,10 @@ void Container::mouseMoveEvent(QMouseEvent* event)
 
 void Container::mouseReleaseEvent(QMouseEvent* event)
 {
-    m_painter->paint(event->pos());
+    if (lastPosition != event->pos()) {
+        lastPosition = event->pos();
+        m_painter->paint(lastPosition);
+    }
 
     QWidget::mouseReleaseEvent(event);
 }
@@ -59,12 +62,11 @@ void Container::changeItem(const QString& path)
     //IMPROVEME: only change painter when a different type
     // of file is loaded, and not always
     if (path.endsWith(".txt") || path.endsWith(".TXT")) {
-        bool setShapesVisibility = false;
-        Q_EMIT painterChanged(setShapesVisibility);
+        emit painterChanged(false);
         m_painter = new TextPainter(this);
     }
     else {
-        Q_EMIT painterChanged();
+        emit painterChanged();
         m_painter = new ImagePainter(this);
     }
 
@@ -96,7 +98,7 @@ bool Container::importObjects(QVector<MarkedObject*> objects)
 void Container::appendObject(MarkedObject* object)
 {
     m_savedObjects << object;
-    Q_EMIT savedObjectsChanged();
+    emit savedObjectsChanged();
 }
 
 void Container::undo()
