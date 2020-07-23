@@ -41,45 +41,51 @@ void TextPainter::changeItem(const QString& path)
 void TextPainter::paint(QPoint point)
 {
     auto textCursor = m_textEdit->cursorForPosition(point);
-    if (textCursor == m_lastTextCursor)
-        return;
-
-    m_lastTextCursor = textCursor;
     auto beginSentence = textCursor.anchor() - 1;
     auto endSentence = textCursor.position();
+    if (m_lastPos == beginSentence)
+        return;
+
+    m_lastPos = beginSentence;
+    MarkedObject *sentence = nullptr;
 
     for (auto *obj : m_parent->savedObjects()) {
         if (obj->objClass() == m_parent->currentObject()->objClass()) {
             if (endSentence == obj->XValueOf()) {
                 obj->append(beginSentence, obj->YValueOf());
-                repaint();
-                return;
+                sentence = obj;
+                break;
             }
             else if (beginSentence == obj->YValueOf()) {
                 obj->append(obj->XValueOf(), endSentence);
-                repaint();
-                return;
+                sentence = obj;
+                break;
             }
             else if (beginSentence == obj->YValueOf() - 2) {
                 obj->append(obj->XValueOf(), obj->YValueOf() - 1);
-                repaint();
-                return;
+                sentence = obj;
+                break;
             }
-            else if (beginSentence == obj->XValueOf()) {
+            else if (endSentence == obj->XValueOf() + 2) {
                 obj->append(obj->XValueOf() + 1, obj->YValueOf());
-                repaint();
-                return;
+                sentence = obj;
+                break;
             }
             else if (endSentence == obj->YValueOf())
                 return;
         }
+
         else if (beginSentence >= obj->XValueOf() && endSentence <= obj->YValueOf())
             return;
     }
 
-    auto sentence = new Sentence(m_parent->currentObject()->objClass(), beginSentence, endSentence);
-    m_parent->appendObject(sentence);
-    paintObject(sentence);
+    if (!sentence) {
+        sentence = new Sentence(m_parent->currentObject()->objClass(), beginSentence, endSentence);
+        m_parent->appendObject(sentence);
+        paintObject(sentence);
+    }
+    else
+        repaint();
 }
 
 void TextPainter::repaint()
