@@ -8,18 +8,23 @@
 
 TextPainter::TextPainter(Container* parent) :
     Painter(parent),
-    m_textEdit(new QTextEdit)
+    m_textEdit(new QTextEdit(parent))
 {
-    // temporary, with this geometry textEdit is in the right position
-    m_textEdit->setGeometry(-13, -25, 877, 690);
     m_parent->scene()->addWidget(m_textEdit);
+    m_textEdit->resize(parent->size());
+
+    // FIXME: find another way to get click mouse events to containerWidget
+    // as this one doesn't allow use the use of wheel in textEdit
+    m_textEdit->setAttribute(Qt::WA_TransparentForMouseEvents);
+    m_textEdit->setAttribute(Qt::WA_DeleteOnClose);
     m_textEdit->setReadOnly(true);
+    m_textEdit->setVisible(true);
     m_parent->setCurrentObject(new Sentence(m_parent->currentObject()->objClass(), 0, 0));
 }
 
 TextPainter::~TextPainter()
 {
-    delete m_textEdit;
+    m_textEdit->close();
 }
 
 void TextPainter::changeItem(const QString& path)
