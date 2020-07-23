@@ -38,7 +38,7 @@ public:
     /** Create a Serializer object.
      * @param markedClasses - Vector of MarkedClass to add and search for pointers.
      */
-    explicit Serializer(QVector<MarkedClass*>& markedClasses);
+    explicit Serializer(QVector<MarkedClass*>* markedClasses);
 
     /** Create a Serializer object.
      * @param items - annotated objects.
@@ -101,6 +101,6 @@ private:
 
 private:
     QVector<MarkedObject*> m_items;
-    QVector<MarkedClass*> m_markedClasses;
+    QVector<MarkedClass*>* m_markedClasses;
 };
 #endif // SERIALIZER_H

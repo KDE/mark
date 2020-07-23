@@ -362,7 +362,7 @@ void marK::importData()
     if (filepath.isEmpty())
         return;
 
-    Serializer serializer = Serializer(m_objClasses);
+    Serializer serializer = Serializer(&m_objClasses);
     auto objects = serializer.read(filepath);
 
     bool success = m_ui->containerWidget->importObjects(objects);
@@ -386,7 +386,7 @@ void marK::retrieveTempFile()
     if (!QFile::exists(tempFilePath))
         return;
 
-    Serializer serializer = Serializer(m_objClasses);
+    Serializer serializer = Serializer(&m_objClasses);
     auto objects = serializer.read(tempFilePath);
 
     bool success = m_ui->containerWidget->importObjects(objects);
