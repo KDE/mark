@@ -15,7 +15,7 @@ public:
      * @param parent - Container instance to use.
      */
     explicit Painter(Container* parent);
-    ~Painter();
+    virtual ~Painter();
 
     /** @return pointer to the current instance of QGraphicsItem. */
     QGraphicsItem* currentItem() const { return m_currentItem; }

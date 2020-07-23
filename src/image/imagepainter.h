@@ -17,6 +17,7 @@ public:
 
 public:
     explicit ImagePainter(Container* parent);
+    ~ImagePainter();
     
     qreal scaleW() const { return m_scaleW; }
     qreal scaleH() const { return m_scaleH; }

@@ -10,6 +10,19 @@ ImagePainter::ImagePainter(Container* parent) :
     m_parent->setCurrentObject(new Polygon(m_parent->currentObject()->objClass()));
 }
 
+ImagePainter::~ImagePainter()
+{
+    if (m_items.isEmpty())
+        return;
+
+    for (QGraphicsItem* item : m_items)
+        m_parent->scene()->removeItem(item);
+
+    m_items.clear();
+
+    m_parent->scene()->removeItem(m_currentItem);
+}
+
 void ImagePainter::paint(QPoint point)
 {
     QGraphicsPixmapItem* currentItem = static_cast<QGraphicsPixmapItem*>(m_currentItem);

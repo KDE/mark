@@ -63,11 +63,15 @@ void Container::changeItem(const QString& path)
     // of file is loaded, and not always
     if (path.endsWith(".txt") || path.endsWith(".TXT")) {
         emit painterChanged(false);
+        Painter *oldPainter = m_painter;
         m_painter = new TextPainter(this);
+        delete oldPainter;
     }
     else {
         emit painterChanged();
+        Painter *oldPainter = m_painter;
         m_painter = new ImagePainter(this);
+        delete oldPainter;
     }
 
     viewport()->setMouseTracking(false);
