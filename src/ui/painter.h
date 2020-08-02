@@ -22,8 +22,9 @@ public:
 
     /** paint given point.
      * @param point - point to paint.
+     * @param isDragging = to know if it is a mouse drag event
      */
-    virtual void paint(QPoint point) = 0;
+    virtual void paint(QPoint point, bool isDragging) = 0;
 
     /** Display given object.
      * @param object - MarkedObject instance to display.

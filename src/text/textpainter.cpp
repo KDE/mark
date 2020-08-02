@@ -38,12 +38,12 @@ void TextPainter::changeItem(const QString& path)
     m_textEdit->setText(textStream.readAll());
 }
 
-void TextPainter::paint(QPoint point)
+void TextPainter::paint(QPoint point, bool isDragging)
 {
     auto textCursor = m_textEdit->cursorForPosition(point);
     auto beginSentence = textCursor.anchor() - 1;
     auto endSentence = textCursor.position();
-    if (m_lastPos == beginSentence)
+    if (m_lastPos == beginSentence && isDragging)
         return;
 
     m_lastPos = beginSentence;
@@ -71,8 +71,6 @@ void TextPainter::paint(QPoint point)
                 sentence = obj;
                 break;
             }
-            else if (endSentence == obj->YValueOf())
-                return;
         }
 
         else if (beginSentence >= obj->XValueOf() && endSentence <= obj->YValueOf())
@@ -84,8 +82,11 @@ void TextPainter::paint(QPoint point)
         m_parent->appendObject(sentence);
         paintObject(sentence);
     }
-    else
+    else {
         repaint();
+        if (!isDragging)
+            emit m_parent->savedObjectsChanged();
+    }
 }
 
 void TextPainter::repaint()

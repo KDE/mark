@@ -22,7 +22,7 @@ public:
     qreal scaleW() const { return m_scaleW; }
     qreal scaleH() const { return m_scaleH; }
     
-    void paint(QPoint point) override;
+    void paint(QPoint point, bool isDragging) override;
     void paintObject(MarkedObject* object) override;
     void repaint() override;
     void undo() override;
@@ -38,6 +38,7 @@ public:
 private:
     qreal m_scaleW;
     qreal m_scaleH;
+    QPointF lastClickedPoint;
 
     Shape m_shape;
 };

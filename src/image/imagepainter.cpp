@@ -23,17 +23,20 @@ ImagePainter::~ImagePainter()
     m_parent->scene()->removeItem(m_currentItem);
 }
 
-void ImagePainter::paint(QPoint point)
+void ImagePainter::paint(QPoint point, bool isDragging)
 {
     QGraphicsPixmapItem* currentItem = static_cast<QGraphicsPixmapItem*>(m_currentItem);
     if (currentItem != nullptr) {
         QPointF clickedPoint = m_parent->mapToScene(point);
+        if (clickedPoint == lastClickedPoint)
+            return;
 
+        lastClickedPoint = clickedPoint;
         bool isImageClicked = m_parent->scene()->itemAt(clickedPoint, m_parent->transform()) == currentItem;
         
         Polygon* currentPolygon = static_cast<Polygon*>(m_parent->currentObject());
 
-        if (m_shape == Shape::Polygon) {
+        if (m_shape == Shape::Polygon || isDragging) {
 
             int idxSavedPolygClicked = -1;
             for (int i = 0; i < m_parent->savedObjects().size(); i++) {

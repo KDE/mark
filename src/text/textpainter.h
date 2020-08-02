@@ -14,7 +14,7 @@ public:
     explicit TextPainter(Container* parent);
     ~TextPainter();
 
-    void paint(QPoint point) override;
+    void paint(QPoint point, bool isDragging) override;
     void paintObject(MarkedObject* object) override;
     void repaint() override;
     void undo() override;

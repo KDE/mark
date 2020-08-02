@@ -27,7 +27,7 @@ Container::~Container()
 void Container::mousePressEvent(QMouseEvent* event)
 {
     lastPosition = event->pos();
-    m_painter->paint(lastPosition);
+    m_painter->paint(lastPosition, false);
 
     QWidget::mousePressEvent(event);
 }
@@ -36,7 +36,7 @@ void Container::mouseMoveEvent(QMouseEvent* event)
 {
     if (lastPosition != event->pos()) {
         lastPosition = event->pos();
-        m_painter->paint(lastPosition);
+        m_painter->paint(lastPosition, true);
     }
 
     QWidget::mouseMoveEvent(event);
@@ -44,10 +44,7 @@ void Container::mouseMoveEvent(QMouseEvent* event)
 
 void Container::mouseReleaseEvent(QMouseEvent* event)
 {
-    if (lastPosition != event->pos()) {
-        lastPosition = event->pos();
-        m_painter->paint(lastPosition);
-    }
+    m_painter->paint(lastPosition, false);
 
     QWidget::mouseReleaseEvent(event);
 }
