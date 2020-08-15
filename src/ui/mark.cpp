@@ -46,11 +46,13 @@ marK::marK(QWidget *parent) :
     QMainWindow(parent),
     m_ui(new Ui::marK),
     m_watcher(new QFileSystemWatcher(this)),
-    m_currentDirectory(""),
+    m_currentDirectory(QDir::currentPath()),
     m_filepath(""),
     m_autoSaveType(Serializer::OutputType::None)
 {
     m_ui->setupUi(this);
+    m_ui->listLabel->setText(m_currentDirectory);
+    m_ui->listLabel->setToolTip(m_currentDirectory);
 
     setupActions();
     setupConnections();
