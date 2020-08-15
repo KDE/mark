@@ -111,6 +111,16 @@ void Container::deleteObject()
 void Container::reset()
 {
     m_savedObjects.clear();
+    m_tempObjects.clear();
     m_currentObject->clear();
     m_painter->repaint();
+}
+
+void Container::clear()
+{
+    reset();
+    scene()->clear();
+    delete m_painter;
+    m_painter = new ImagePainter(this);
+    Q_EMIT painterChanged();
 }

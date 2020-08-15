@@ -71,6 +71,9 @@ public:
     /** Repaint annotated objects. */
     void repaint();
 
+    /** Clear all visual elements of Container. */
+    void clear();
+
     /** Paint given object.
      * @param object - object to paint.
      */
