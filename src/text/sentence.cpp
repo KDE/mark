@@ -31,6 +31,12 @@ bool Sentence::isValid()
     return dpointer->m_begin < dpointer->m_end;
 }
 
+bool Sentence::hasBetween(int number)
+{
+    auto dpointer = static_cast<SentencePrivate*>(d_p.get());
+    return number < dpointer->m_end && number > dpointer->m_begin;
+}
+
 void Sentence::clear()
 {
     auto dpointer = static_cast<SentencePrivate*>(d_p.get());

@@ -35,6 +35,9 @@ public:
     /** Verify if a sentence is valid (its begin is different and smaller than its end). */
     bool isValid();
 
+    /** Verify if a number is between the begin and end of a sentence. */
+    bool hasBetween(int number);
+
     void clear() override;
     void append(double memberX, double memberY) override;
     int size() const override;

@@ -45,11 +45,7 @@ void TextPainter::paint(QPoint point, bool isDragging)
     Sentence *currentSentence = static_cast<Sentence*>(m_parent->currentObject());
 
     bool toSave = point.isNull() && !isDragging && currentSentence->isValid();
-    if (toSave) {
-        m_parent->appendObject(currentSentence);
-        m_parent->setCurrentObject(new Sentence(currentSentence->objClass()));
-    }
-    else {
+    if (!toSave) {
         if (!isDragging)
             m_anchor = textCursor.position() - 1;
         double end = textCursor.position();
@@ -57,16 +53,12 @@ void TextPainter::paint(QPoint point, bool isDragging)
         bool toPaint = true;
         int idxNearbySentence = -1;
         for (int i = 0; i < m_parent->savedObjects().size(); i++) {
-            MarkedObject *obj = m_parent->savedObjects()[i];
-            double objAnchor = obj->XValueOf();
-            double objEnd = obj->YValueOf();
-            bool isInsideRight = end < objEnd && end > objAnchor;
-            bool isInsideLeft = m_anchor > objAnchor && m_anchor < objEnd;
-            if (isInsideRight || isInsideLeft) {
+            Sentence *obj = static_cast<Sentence*>(m_parent->savedObjects()[i]);
+            if (obj->hasBetween(m_anchor) || obj->hasBetween(end)) {
                 toPaint = false;
                 break;
             }
-            else if (m_anchor == objEnd || end == objAnchor) {
+            else if (m_anchor == obj->YValueOf() || end == obj->XValueOf()) {
                 idxNearbySentence = i;
                 break;
             }
@@ -75,8 +67,8 @@ void TextPainter::paint(QPoint point, bool isDragging)
         if (idxNearbySentence != -1) {
             MarkedObject* obj = m_parent->savedObjects()[idxNearbySentence];
             if (currentSentence->objClass() == obj->objClass()) {
-                // FIXME: when it is in the begin of the NearbySentence
-                // it will be reseted
+                if (end == obj->XValueOf())
+                    toSave = true;
                 m_anchor = qMin(m_anchor, obj->XValueOf());
                 end = qMax(end, obj->YValueOf());
                 m_parent->savedObjects().remove(idxNearbySentence);
@@ -87,6 +79,10 @@ void TextPainter::paint(QPoint point, bool isDragging)
             currentSentence->append(std::min(m_anchor, end), std::max(end, m_anchor));
             repaint();
         }
+    }
+    if (toSave) {
+        m_parent->appendObject(currentSentence);
+        m_parent->setCurrentObject(new Sentence(currentSentence->objClass()));
     }
 }
 
