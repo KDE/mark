@@ -39,8 +39,8 @@ void ImagePainter::paint(QPoint point, bool isDragging)
         if (m_shape == Shape::Polygon || isDragging) {
 
             int idxSavedPolygClicked = -1;
-            for (int i = 0; i < m_parent->savedObjects().size(); i++) {
-                const Polygon* polygon = static_cast<const Polygon*>(m_parent->savedObjects()[i]);
+            for (int i = 0; i < m_parent->tempObjects().size(); i++) {
+                const Polygon* polygon = static_cast<const Polygon*>(m_parent->tempObjects()[i]);
                 if (polygon->containsPoint(clickedPoint, Qt::OddEvenFill)) {
                     idxSavedPolygClicked = i;
                     break;
@@ -49,7 +49,8 @@ void ImagePainter::paint(QPoint point, bool isDragging)
             bool isSavedPolygClicked = idxSavedPolygClicked != -1;
             if (isSavedPolygClicked) {
                 delete currentPolygon;
-                m_parent->setCurrentObject(m_parent->savedObjects()[idxSavedPolygClicked]);
+                m_parent->setCurrentObject(m_parent->tempObjects()[idxSavedPolygClicked]);
+                m_parent->tempObjects().remove(idxSavedPolygClicked);
                 m_parent->savedObjects().remove(idxSavedPolygClicked);
                 currentPolygon = static_cast<Polygon*>(m_parent->currentObject());
                 currentPolygon->pop_back();
@@ -68,7 +69,8 @@ void ImagePainter::paint(QPoint point, bool isDragging)
                 *currentPolygon << clickedPoint;
 
                 if (currentPolygon->size() > 1 && currentPolygon->isClosed()) {
-                    m_parent->appendObject(currentPolygon);
+                    m_parent->tempObjects() << currentPolygon;
+                    m_parent->appendObject(scale(currentPolygon));
                     m_parent->setCurrentObject(new Polygon(currentPolygon->objClass()));
                 }
 
@@ -83,7 +85,8 @@ void ImagePainter::paint(QPoint point, bool isDragging)
                 else {
                     QPointF firstPt = currentPolygon->first();
                     *currentPolygon << QPointF(clickedPoint.x(), firstPt.y()) << clickedPoint << QPointF(firstPt.x(), clickedPoint.y()) << firstPt;
-                    m_parent->appendObject(currentPolygon);
+                    m_parent->tempObjects() << currentPolygon;
+                    m_parent->appendObject(scale(currentPolygon));
                     m_parent->setCurrentObject(new Polygon(m_parent->currentObject()->objClass()));
                 }
 
@@ -137,7 +140,7 @@ void ImagePainter::repaint()
 
     m_items.clear();
 
-    for (MarkedObject* obj : m_parent->savedObjects())
+    for (MarkedObject* obj : m_parent->tempObjects())
         paintObject(obj);
 
     paintObject(m_parent->currentObject());
@@ -200,12 +203,13 @@ bool ImagePainter::importObjects(QVector<MarkedObject*> objects)
 
     for (MarkedObject* object : objects) {
         Polygon* polygon = static_cast<Polygon*>(object);
+        m_parent->savedObjects() << new Polygon(polygon);
         for (QPointF& point : *polygon) {
             point = QPointF(point.x() * m_scaleW, point.y() * m_scaleH);
             point += offset;
         }
 
-        m_parent->savedObjects() << object;
+        m_parent->tempObjects() << object;
     }
 
     repaint();
