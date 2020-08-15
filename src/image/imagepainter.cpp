@@ -28,15 +28,12 @@ void ImagePainter::paint(QPoint point, bool isDragging)
     QGraphicsPixmapItem* currentItem = static_cast<QGraphicsPixmapItem*>(m_currentItem);
     if (currentItem != nullptr) {
         QPointF clickedPoint = m_parent->mapToScene(point);
-        if (clickedPoint == lastClickedPoint)
-            return;
 
-        lastClickedPoint = clickedPoint;
         bool isImageClicked = m_parent->scene()->itemAt(clickedPoint, m_parent->transform()) == currentItem;
         
         Polygon* currentPolygon = static_cast<Polygon*>(m_parent->currentObject());
 
-        if (m_shape == Shape::Polygon || isDragging) {
+        if (m_shape == Shape::Polygon) {
 
             int idxSavedPolygClicked = -1;
             for (int i = 0; i < m_parent->tempObjects().size(); i++) {
@@ -78,19 +75,28 @@ void ImagePainter::paint(QPoint point, bool isDragging)
             }
         }
         else if (m_shape == Shape::Rectangle) {
+            bool toSave = point.isNull() && currentPolygon->size() > 1;
             if (isImageClicked) {
+                QPointF firstPt = currentPolygon->first();
+                if (isDragging) {
+                    currentPolygon->clear();
+                    *currentPolygon << firstPt;
+                }
                 if (currentPolygon->empty())
                     *currentPolygon << clickedPoint;
 
                 else {
-                    QPointF firstPt = currentPolygon->first();
                     *currentPolygon << QPointF(clickedPoint.x(), firstPt.y()) << clickedPoint << QPointF(firstPt.x(), clickedPoint.y()) << firstPt;
-                    m_parent->tempObjects() << currentPolygon;
-                    m_parent->appendObject(scale(currentPolygon));
-                    m_parent->setCurrentObject(new Polygon(m_parent->currentObject()->objClass()));
+                    if (!isDragging)
+                        toSave = true;
                 }
 
                 repaint();
+            }
+            if (toSave) {
+                m_parent->tempObjects() << currentPolygon;
+                m_parent->appendObject(scale(currentPolygon));
+                m_parent->setCurrentObject(new Polygon(m_parent->currentObject()->objClass()));
             }
         }
     }

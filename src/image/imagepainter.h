@@ -38,7 +38,6 @@ public:
 private:
     qreal m_scaleW;
     qreal m_scaleH;
-    QPointF lastClickedPoint;
 
     Shape m_shape;
 };
