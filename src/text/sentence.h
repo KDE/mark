@@ -32,6 +32,9 @@ public:
      */
     explicit Sentence(MarkedClass *objClass, quint64 begin = 0, quint64 end = 0);
 
+    /** Verify if a sentence is valid (its begin is different and smaller than its end). */
+    bool isValid();
+
     void clear() override;
     void append(double memberX, double memberY) override;
     int size() const override;

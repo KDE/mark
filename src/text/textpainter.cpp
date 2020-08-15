@@ -19,7 +19,7 @@ TextPainter::TextPainter(Container* parent) :
     m_textEdit->setAttribute(Qt::WA_DeleteOnClose);
     m_textEdit->setReadOnly(true);
     m_textEdit->setVisible(true);
-    m_parent->setCurrentObject(new Sentence(m_parent->currentObject()->objClass(), 0, 0));
+    m_parent->setCurrentObject(new Sentence(m_parent->currentObject()->objClass()));
 }
 
 TextPainter::~TextPainter()
@@ -41,51 +41,52 @@ void TextPainter::changeItem(const QString& path)
 void TextPainter::paint(QPoint point, bool isDragging)
 {
     auto textCursor = m_textEdit->cursorForPosition(point);
-    auto beginSentence = textCursor.anchor() - 1;
-    auto endSentence = textCursor.position();
-    if (m_lastPos == beginSentence && isDragging)
-        return;
 
-    m_lastPos = beginSentence;
-    MarkedObject *sentence = nullptr;
+    Sentence *currentSentence = static_cast<Sentence*>(m_parent->currentObject());
 
-    for (auto *obj : m_parent->savedObjects()) {
-        if (obj->objClass() == m_parent->currentObject()->objClass()) {
-            if (endSentence == obj->XValueOf()) {
-                obj->append(beginSentence, obj->YValueOf());
-                sentence = obj;
+    bool toSave = point.isNull() && !isDragging && currentSentence->isValid();
+    if (toSave) {
+        m_parent->appendObject(currentSentence);
+        m_parent->setCurrentObject(new Sentence(currentSentence->objClass()));
+    }
+    else {
+        if (!isDragging)
+            m_anchor = textCursor.position() - 1;
+        double end = textCursor.position();
+
+        bool toPaint = true;
+        int idxNearbySentence = -1;
+        for (int i = 0; i < m_parent->savedObjects().size(); i++) {
+            MarkedObject *obj = m_parent->savedObjects()[i];
+            double objAnchor = obj->XValueOf();
+            double objEnd = obj->YValueOf();
+            bool isInsideRight = end < objEnd && end > objAnchor;
+            bool isInsideLeft = m_anchor > objAnchor && m_anchor < objEnd;
+            if (isInsideRight || isInsideLeft) {
+                toPaint = false;
                 break;
             }
-            else if (beginSentence == obj->YValueOf()) {
-                obj->append(obj->XValueOf(), endSentence);
-                sentence = obj;
-                break;
-            }
-            else if (beginSentence == obj->YValueOf() - 2) {
-                obj->append(obj->XValueOf(), obj->YValueOf() - 1);
-                sentence = obj;
-                break;
-            }
-            else if (endSentence == obj->XValueOf() + 2) {
-                obj->append(obj->XValueOf() + 1, obj->YValueOf());
-                sentence = obj;
+            else if (m_anchor == objEnd || end == objAnchor) {
+                idxNearbySentence = i;
                 break;
             }
         }
 
-        else if (beginSentence >= obj->XValueOf() && endSentence <= obj->YValueOf())
-            return;
-    }
+        if (idxNearbySentence != -1) {
+            MarkedObject* obj = m_parent->savedObjects()[idxNearbySentence];
+            if (currentSentence->objClass() == obj->objClass()) {
+                // FIXME: when it is in the begin of the NearbySentence
+                // it will be reseted
+                m_anchor = qMin(m_anchor, obj->XValueOf());
+                end = qMax(end, obj->YValueOf());
+                m_parent->savedObjects().remove(idxNearbySentence);
+            }
+        }
 
-    if (!sentence) {
-        sentence = new Sentence(m_parent->currentObject()->objClass(), beginSentence, endSentence);
-        m_parent->appendObject(sentence);
-        paintObject(sentence);
-    }
-    else {
-        repaint();
-        if (!isDragging)
-            emit m_parent->savedObjectsChanged();
+        if (toPaint) {
+            currentSentence->append(std::min(m_anchor, end), std::max(end, m_anchor));
+            repaint();
+        }
     }
 }
 
@@ -96,6 +97,8 @@ void TextPainter::repaint()
 
     for (MarkedObject* obj : m_parent->savedObjects())
         paintObject(obj);
+
+    paintObject(m_parent->currentObject());
 }
 
 void TextPainter::undo()

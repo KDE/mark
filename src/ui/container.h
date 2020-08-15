@@ -101,7 +101,6 @@ protected:
     MarkedObject* m_currentObject;
     QVector<MarkedObject*> m_savedObjects;
     QVector<MarkedObject*> m_tempObjects;
-    QPoint lastPosition;
 
     Painter* m_painter;
 };

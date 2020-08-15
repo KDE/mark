@@ -25,7 +25,7 @@ public:
 
 private:
     QTextEdit *m_textEdit;
-    int m_lastPos;
+    double m_anchor;
 };
 
 #endif // TEXTPAINTER_H

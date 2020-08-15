@@ -26,25 +26,21 @@ Container::~Container()
 
 void Container::mousePressEvent(QMouseEvent* event)
 {
-    lastPosition = event->pos();
-    m_painter->paint(lastPosition, false);
+    m_painter->paint(event->pos(), false);
 
     QWidget::mousePressEvent(event);
 }
 
 void Container::mouseMoveEvent(QMouseEvent* event)
 {
-    if (lastPosition != event->pos()) {
-        lastPosition = event->pos();
-        m_painter->paint(lastPosition, true);
-    }
+    m_painter->paint(event->pos(), true);
 
     QWidget::mouseMoveEvent(event);
 }
 
 void Container::mouseReleaseEvent(QMouseEvent* event)
 {
-    m_painter->paint(lastPosition, false);
+    m_painter->paint(QPoint(), false);
 
     QWidget::mouseReleaseEvent(event);
 }
@@ -99,7 +95,7 @@ bool Container::importObjects(QVector<MarkedObject*> objects)
 void Container::appendObject(MarkedObject* object)
 {
     m_savedObjects << object;
-    emit savedObjectsChanged();
+    Q_EMIT savedObjectsChanged();
 }
 
 void Container::undo()

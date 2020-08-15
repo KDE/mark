@@ -25,6 +25,12 @@ Sentence::Sentence(MarkedClass* objClass, quint64 begin, quint64 end) :
 {
 }
 
+bool Sentence::isValid()
+{
+    auto dpointer = static_cast<SentencePrivate*>(d_p.get());
+    return dpointer->m_begin < dpointer->m_end;
+}
+
 void Sentence::clear()
 {
     auto dpointer = static_cast<SentencePrivate*>(d_p.get());
