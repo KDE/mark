@@ -45,6 +45,8 @@ void ImagePainter::paint(QPoint point, bool isDragging)
             }
             bool isSavedPolygClicked = idxSavedPolygClicked != -1;
             if (isSavedPolygClicked) {
+                if (isDragging)
+                    return;
                 delete currentPolygon;
                 m_parent->setCurrentObject(m_parent->tempObjects()[idxSavedPolygClicked]);
                 m_parent->tempObjects().remove(idxSavedPolygClicked);
@@ -57,7 +59,7 @@ void ImagePainter::paint(QPoint point, bool isDragging)
             if (!currentPolygon->empty()) {
                 QPointF cPolygFirstPt = currentPolygon->first();
                 QRectF cPolygFirstPtRect(cPolygFirstPt, QPointF(cPolygFirstPt.x() + 10, cPolygFirstPt.y() + 10));
-                isPolygFirstPtClicked = cPolygFirstPtRect.contains(clickedPoint);
+                isPolygFirstPtClicked = cPolygFirstPtRect.contains(clickedPoint) && currentPolygon->size() > 1;
                 if (isPolygFirstPtClicked)
                     clickedPoint = cPolygFirstPt;
             }
