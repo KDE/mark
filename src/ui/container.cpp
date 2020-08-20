@@ -27,22 +27,23 @@ Container::~Container()
 void Container::mousePressEvent(QMouseEvent* event)
 {
     m_painter->paint(event->pos(), false);
-
-    QWidget::mousePressEvent(event);
 }
 
 void Container::mouseMoveEvent(QMouseEvent* event)
 {
     m_painter->paint(event->pos(), true);
-
-    QWidget::mouseMoveEvent(event);
 }
 
 void Container::mouseReleaseEvent(QMouseEvent* event)
 {
     m_painter->paint(QPoint(), false);
+}
 
-    QWidget::mouseReleaseEvent(event);
+void Container::mouseDoubleClickEvent(QMouseEvent* event)
+{
+    TextPainter *textPainter = dynamic_cast<TextPainter*>(m_painter);
+    if (textPainter)
+        m_painter->paint(event->pos(), false);
 }
 
 void Container::changeItem(const QString& path)

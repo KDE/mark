@@ -40,7 +40,7 @@ void TextPainter::changeItem(const QString& path)
 
 void TextPainter::paint(QPoint point, bool isDragging)
 {
-    auto textCursor = m_textEdit->cursorForPosition(point);
+    QTextCursor textCursor = m_textEdit->cursorForPosition(point);
 
     Sentence *currentSentence = static_cast<Sentence*>(m_parent->currentObject());
 
@@ -50,21 +50,31 @@ void TextPainter::paint(QPoint point, bool isDragging)
             m_anchor = textCursor.position() - 1;
         double end = textCursor.position();
 
-        bool toPaint = true;
         int idxNearbySentence = -1;
+        int idxDoubleClick = -1;
         for (int i = 0; i < m_parent->savedObjects().size(); i++) {
             Sentence *obj = static_cast<Sentence*>(m_parent->savedObjects()[i]);
-            if (obj->hasBetween(m_anchor) || obj->hasBetween(end)) {
-                toPaint = false;
-                break;
-            }
+            if (obj->hasBetween(m_anchor) || obj->hasBetween(end))
+                return;
             else if (m_anchor == obj->YValueOf() || end == obj->XValueOf()) {
                 idxNearbySentence = i;
                 break;
             }
+            else if (obj->YValueOf() - obj->XValueOf() == 1 && end == obj->YValueOf()) {
+                idxDoubleClick = i;
+                break;
+            }
         }
 
-        if (idxNearbySentence != -1) {
+        if (idxDoubleClick != -1) {
+            toSave = true;
+            textCursor.select(QTextCursor::WordUnderCursor);
+            m_anchor = textCursor.anchor();
+            end = textCursor.position();
+            m_parent->savedObjects().remove(idxDoubleClick);
+        }
+
+        else if (idxNearbySentence != -1) {
             MarkedObject* obj = m_parent->savedObjects()[idxNearbySentence];
             if (currentSentence->objClass() == obj->objClass()) {
                 if (end == obj->XValueOf())
@@ -75,10 +85,8 @@ void TextPainter::paint(QPoint point, bool isDragging)
             }
         }
 
-        if (toPaint) {
-            currentSentence->append(std::min(m_anchor, end), std::max(end, m_anchor));
-            repaint();
-        }
+        currentSentence->append(std::min(m_anchor, end), std::max(end, m_anchor));
+        repaint();
     }
     if (toSave) {
         m_parent->appendObject(currentSentence);

@@ -36,6 +36,11 @@ public:
      */
     void mouseMoveEvent(QMouseEvent* event) override;
 
+    /** Treat mouse double click event.
+     * @param event - mouse event to treat.
+     */
+    void mouseDoubleClickEvent(QMouseEvent* event) override;
+
     /** @return pointer of the current Painter. */
     Painter* painter() const { return m_painter; }
 
