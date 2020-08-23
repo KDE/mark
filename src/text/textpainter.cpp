@@ -10,12 +10,9 @@ TextPainter::TextPainter(Container* parent) :
     Painter(parent),
     m_textEdit(new QTextEdit(parent))
 {
-    m_parent->scene()->addWidget(m_textEdit);
     m_textEdit->resize(parent->size());
-
-    // FIXME: find another way to get click mouse events to containerWidget
-    // as this one doesn't allow use the use of wheel in textEdit
-    m_textEdit->setAttribute(Qt::WA_TransparentForMouseEvents);
+    m_textEdit->viewport()->installEventFilter(m_parent);
+    m_textEdit->viewport()->setMouseTracking(false);
     m_textEdit->setAttribute(Qt::WA_DeleteOnClose);
     m_textEdit->setReadOnly(true);
     m_textEdit->setVisible(true);
@@ -96,6 +93,8 @@ void TextPainter::paint(QPoint point, bool isDragging)
 
 void TextPainter::repaint()
 {
+    //FIXME: current implementation resets to the top of textEdit, causing problems when
+    // annotating in the middle or end of a document big enough to need to use scrollbar
     QString plainText = m_textEdit->toPlainText();
     m_textEdit->setPlainText(plainText);
 

@@ -21,25 +21,11 @@ public:
     ~Container() override;
 
 public:
-    /** Treat mouse press event.
-     * @param event - mouse event to treat.
+    /** Filter events in the container, if it is a mouse event treat it, otherwise ignore.
+     * @param watched - watched object.
+     * @param event - event to treat.
      */
-    void mousePressEvent(QMouseEvent* event) override;
-
-    /** Treat mouse release event.
-     * @param event - mouse event to treat.
-     */
-    void mouseReleaseEvent(QMouseEvent* event) override;
-
-    /** Treat mouse move event.
-     * @param event - mouse event to treat.
-     */
-    void mouseMoveEvent(QMouseEvent* event) override;
-
-    /** Treat mouse double click event.
-     * @param event - mouse event to treat.
-     */
-    void mouseDoubleClickEvent(QMouseEvent* event) override;
+    bool eventFilter(QObject* watched, QEvent* event);
 
     /** @return pointer of the current Painter. */
     Painter* painter() const { return m_painter; }

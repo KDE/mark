@@ -24,26 +24,25 @@ Container::~Container()
 {
 }
 
-void Container::mousePressEvent(QMouseEvent* event)
+bool Container::eventFilter(QObject* watched, QEvent* event)
 {
-    m_painter->paint(event->pos(), false);
-}
+    QMouseEvent *mouseEvent = dynamic_cast<QMouseEvent*>(event);
+    if (!mouseEvent || event->type() == QEvent::Wheel)
+        return false;
 
-void Container::mouseMoveEvent(QMouseEvent* event)
-{
-    m_painter->paint(event->pos(), true);
-}
+    if (event->type() == QEvent::MouseButtonPress)
+        m_painter->paint(mouseEvent->pos(), false);
+    else if (event->type() == QEvent::MouseButtonDblClick) {
+        TextPainter *textPainter = dynamic_cast<TextPainter*>(m_painter);
+        if (textPainter)
+            m_painter->paint(mouseEvent->pos(), false);
+    }
+    else if (event->type() == QEvent::MouseMove)
+        m_painter->paint(mouseEvent->pos(), true);
+    else if (event->type() == QEvent::MouseButtonRelease)
+        m_painter->paint(QPoint(), false);
 
-void Container::mouseReleaseEvent(QMouseEvent* event)
-{
-    m_painter->paint(QPoint(), false);
-}
-
-void Container::mouseDoubleClickEvent(QMouseEvent* event)
-{
-    TextPainter *textPainter = dynamic_cast<TextPainter*>(m_painter);
-    if (textPainter)
-        m_painter->paint(event->pos(), false);
+    return true;
 }
 
 void Container::changeItem(const QString& path)
@@ -65,10 +64,11 @@ void Container::changeItem(const QString& path)
         emit painterChanged();
         Painter *oldPainter = m_painter;
         m_painter = new ImagePainter(this);
+        viewport()->installEventFilter(this);
+        viewport()->setMouseTracking(false);
         delete oldPainter;
     }
 
-    viewport()->setMouseTracking(false);
     m_painter->changeItem(path);
 }
 
