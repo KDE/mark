@@ -124,13 +124,12 @@ void TextPainter::deleteCurrentObject()
 
 void TextPainter::paintObject(MarkedObject *object)
 {
-    auto sentence = static_cast<Sentence*>(object);
     auto textCursor = m_textEdit->textCursor();
-    textCursor.setPosition(sentence->XValueOf(), QTextCursor::MoveAnchor);
-    textCursor.setPosition(sentence->YValueOf(), QTextCursor::KeepAnchor);
+    textCursor.setPosition(object->XValueOf(), QTextCursor::MoveAnchor);
+    textCursor.setPosition(object->YValueOf(), QTextCursor::KeepAnchor);
 
     QTextCharFormat fmt;
-    QColor color (sentence->objClass()->color());
+    QColor color (object->objClass()->color());
     color.setAlpha(85);
     fmt.setBackground(color);
     textCursor.setCharFormat(fmt);
