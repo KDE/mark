@@ -8,6 +8,8 @@ ImagePainter::ImagePainter(Container* parent) :
     m_shape(Shape::Polygon)
 {
     m_parent->setCurrentObject(new Polygon(m_parent->currentObject()->objClass()));
+    m_parent->viewport()->installEventFilter(m_parent);
+    m_parent->viewport()->setMouseTracking(false);
 }
 
 ImagePainter::~ImagePainter()

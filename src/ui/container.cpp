@@ -52,21 +52,21 @@ void Container::changeItem(const QString& path)
     scene()->setSceneRect(0, 0, 850, 640);
     scene()->clear();
 
-    //IMPROVEME: only change painter when a different type
-    // of file is loaded, and not always
     if (path.endsWith(".txt") || path.endsWith(".TXT")) {
-        emit painterChanged(false);
-        Painter *oldPainter = m_painter;
-        m_painter = new TextPainter(this);
-        delete oldPainter;
+        if (!dynamic_cast<TextPainter*>(m_painter)) {
+            emit painterChanged(false);
+            Painter *oldPainter = m_painter;
+            m_painter = new TextPainter(this);
+            delete oldPainter;
+        }
     }
     else {
-        emit painterChanged();
-        Painter *oldPainter = m_painter;
-        m_painter = new ImagePainter(this);
-        viewport()->installEventFilter(this);
-        viewport()->setMouseTracking(false);
-        delete oldPainter;
+        if (!dynamic_cast<ImagePainter*>(m_painter)) {
+            emit painterChanged();
+            Painter *oldPainter = m_painter;
+            m_painter = new ImagePainter(this);
+            delete oldPainter;
+        }
     }
 
     m_painter->changeItem(path);
