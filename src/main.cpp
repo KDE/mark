@@ -32,9 +32,9 @@ int main(int argc, char *argv[])
             // A displayable program name string. (displayName)
             QStringLiteral("marK"),
             // The program version string. (version)
-            QStringLiteral("0.0.1"),
+            QStringLiteral("0.1.0"),
             // Short description of what the app does. (shortDescription)
-            QStringLiteral("A dataset annotation tool meant to help in the process of annotating data."),
+            QStringLiteral("Scientific tool for annotation of machine learning datasets."),
             // The license this code is released under
             KAboutLicense::GPL_V3,
             // Copyright Statement (copyrightStatement = QString())
