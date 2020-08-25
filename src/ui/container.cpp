@@ -10,7 +10,8 @@
 Container::Container(QWidget* parent) :
     QGraphicsView(parent),
     m_currentObject(new Polygon),
-    m_painter(new ImagePainter(this))
+    m_painter(nullptr),
+    m_painterType(PainterType::None)
 {
     QGraphicsScene *scene = new QGraphicsScene;
     scene->setItemIndexMethod(QGraphicsScene::NoIndex);
@@ -27,14 +28,13 @@ Container::~Container()
 bool Container::eventFilter(QObject* watched, QEvent* event)
 {
     QMouseEvent *mouseEvent = dynamic_cast<QMouseEvent*>(event);
-    if (!mouseEvent || event->type() == QEvent::Wheel)
+    if (!mouseEvent || event->type() == QEvent::Wheel || m_painterType == PainterType::None)
         return false;
 
     if (event->type() == QEvent::MouseButtonPress)
         m_painter->paint(mouseEvent->pos(), false);
     else if (event->type() == QEvent::MouseButtonDblClick) {
-        TextPainter *textPainter = dynamic_cast<TextPainter*>(m_painter);
-        if (textPainter)
+        if (m_painterType == PainterType::Text)
             m_painter->paint(mouseEvent->pos(), false);
     }
     else if (event->type() == QEvent::MouseMove)
@@ -53,19 +53,19 @@ void Container::changeItem(const QString& path)
     scene()->clear();
 
     if (path.endsWith(".txt") || path.endsWith(".TXT")) {
-        if (!dynamic_cast<TextPainter*>(m_painter)) {
-            emit painterChanged(false);
-            Painter *oldPainter = m_painter;
+        if (m_painterType != PainterType::Text) {
+            delete m_painter;
             m_painter = new TextPainter(this);
-            delete oldPainter;
+            m_painterType = PainterType::Text;
+            emit painterChanged(m_painterType);
         }
     }
     else {
-        if (!dynamic_cast<ImagePainter*>(m_painter)) {
-            emit painterChanged();
-            Painter *oldPainter = m_painter;
+        if (m_painterType != PainterType::Image) {
+            delete m_painter;
             m_painter = new ImagePainter(this);
-            delete oldPainter;
+            m_painterType = PainterType::Image;
+            emit painterChanged(m_painterType);
         }
     }
 
@@ -80,7 +80,8 @@ void Container::setObjClass(MarkedClass* objClass)
 
 void Container::repaint()
 {
-    m_painter->repaint();
+    if (m_painterType != PainterType::None)
+        m_painter->repaint();
 }
 
 void Container::paintObject(MarkedObject* object)
@@ -114,7 +115,8 @@ void Container::reset()
     m_savedObjects.clear();
     m_tempObjects.clear();
     m_currentObject->clear();
-    m_painter->repaint();
+    if (m_painterType != PainterType::None)
+        m_painter->repaint();
 }
 
 void Container::clear()
@@ -122,6 +124,7 @@ void Container::clear()
     reset();
     scene()->clear();
     delete m_painter;
-    m_painter = new ImagePainter(this);
-    Q_EMIT painterChanged();
+    m_painter = nullptr;
+    m_painterType = PainterType::None;
+    Q_EMIT painterChanged(m_painterType);
 }

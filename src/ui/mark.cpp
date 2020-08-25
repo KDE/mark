@@ -15,6 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.*
  *************************************************************************/
 
+#include "ui/container.h"
 #include "ui/mark.h"
 #include "ui/ui_mark.h"
 #include "image/imagepainter.h"
@@ -183,8 +184,8 @@ void marK::setupConnections()
     );
 
     connect(m_ui->containerWidget, &Container::painterChanged, this,
-        [&](bool shouldShapesBeVisible) {
-            bool isFileLoaded = !m_filepath.isEmpty();
+        [&](Container::PainterType painterType) {
+            bool isFileLoaded = painterType != Container::PainterType::None;
             m_ui->newClassButton->setEnabled(isFileLoaded);
             m_ui->undoButton->setEnabled(isFileLoaded);
             m_ui->resetButton->setEnabled(isFileLoaded);
@@ -193,7 +194,10 @@ void marK::setupConnections()
             m_ui->polygonButton->setEnabled(isFileLoaded);
             m_ui->rectButton->setEnabled(isFileLoaded);
             m_ui->deleteButton->setEnabled(isFileLoaded);
-            m_ui->groupBox_2->setVisible(shouldShapesBeVisible);
+            if (painterType == Container::PainterType::Image || !isFileLoaded)
+                m_ui->groupBox_2->setVisible(true);
+            else
+                m_ui->groupBox_2->setVisible(false);
         }
     );
 

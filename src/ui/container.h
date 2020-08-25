@@ -21,6 +21,13 @@ public:
     ~Container() override;
 
 public:
+    /** Represents the possible types of a Painter. */
+    enum class PainterType {
+        None,
+        Image,
+        Text
+    };
+
     /** Filter events in the container, if it is a mouse event treat it, otherwise ignore.
      * @param watched - watched object.
      * @param event - event to treat.
@@ -87,7 +94,7 @@ public slots:
 
 signals:
 
-    void painterChanged(bool shouldShapesBeVisible = true);
+    void painterChanged(PainterType painterType);
 
     void savedObjectsChanged();
 
@@ -96,6 +103,7 @@ protected:
     QVector<MarkedObject*> m_savedObjects;
     QVector<MarkedObject*> m_tempObjects;
 
+    PainterType m_painterType;
     Painter* m_painter;
 };
 
