@@ -13,6 +13,27 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+find_package(ECM 1.0.0 REQUIRED NO_MODULE)
+set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
+include(KDEInstallDirs)
+include(KDECMakeSettings)
+#include(KDECompilerSettings)
+include(FeatureSummary)
+
+find_package(Qt5 ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS
+    Core    # QStringLiteral
+    Widgets # QApplication, QAction
+)
+
+find_package(KF5 ${KF5_MIN_VERSION} REQUIRED COMPONENTS
+    CoreAddons      # KAboutData
+    XmlGui          # KXmlGuiWindow, KActionCollection
+    ConfigWidgets   # KStandardActions
+)
+
+feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES FATAL_ON_MISSING_REQUIRED_PACKAGES)
+
 include(ui/CMakeLists.txt)
 include(util/CMakeLists.txt)
 include(text/CMakeLists.txt)
@@ -30,6 +51,12 @@ set(mark_SRC
 
 add_executable(mark ${mark_SRC})
 
-target_link_libraries(mark Qt5::Widgets)
+target_link_libraries(mark
+    Qt5::Core
+    Qt5::Widgets
+    KF5::CoreAddons
+    KF5::XmlGui
+)
 
-install(TARGETS mark DESTINATION bin)
+install(TARGETS mark ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(FILES ui/markui.rc DESTINATION ${KXMLGUI_INSTALL_DIR}/mark)

@@ -21,17 +21,18 @@
 #include "ui/markedclass.h"
 #include "util/serializer.h"
 
-#include <QMainWindow>
 #include <QScopedPointer>
 #include <QListWidgetItem>
 #include <QFileSystemWatcher>
+
+#include <KXmlGuiWindow>
 
 namespace Ui {
 class marK;
 }
 
 /** Main class, also represents the main window. */
-class marK : public QMainWindow
+class marK : public KXmlGuiWindow
 {
     Q_OBJECT
 

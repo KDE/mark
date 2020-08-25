@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gui name="mark"
+     version="0.0.1"
+     xmlns="http://www.kde.org/standards/kxmlgui/1.0"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0
+                         http://www.kde.org/standards/kxmlgui/1.0/kxmlgui.xsd" >
+
+  <MenuBar>
+    <Menu name="file" ><text>File</text>
+      <Action name="openDirectory" />
+      <Action name="importData" />
+      <Menu name="exportData" ><text>Save as</text>
+        <Action name="toJSON" />
+        <Action name="toXML" />
+      </Menu>
+    </Menu>
+    <Menu name="edit" ><text>Edit</text>
+      <Action name="undo" />
+      <Action name="delete" />
+      <Action name="autosave" />
+      <Menu name="autosave" ><text>autosave</text>
+        <Action name="autosaveDisabled" />
+        <Action name="autosaveJSON" />
+        <Action name="autosaveXML" />
+      </Menu>
+    </Menu>
+  </MenuBar>
+
+</gui>

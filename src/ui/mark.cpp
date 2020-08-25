@@ -37,6 +37,7 @@
 #include <QMessageBox>
 #include <QShortcut>
 
+#include <KActionCollection>
 
 static QDir markDirectory()
 {
@@ -44,7 +45,7 @@ static QDir markDirectory()
 }
 
 marK::marK(QWidget *parent) :
-    QMainWindow(parent),
+    KXmlGuiWindow(parent),
     m_ui(new Ui::marK),
     m_watcher(new QFileSystemWatcher(this)),
     m_currentDirectory(QDir::currentPath()),
@@ -54,9 +55,11 @@ marK::marK(QWidget *parent) :
     m_ui->setupUi(this);
     m_ui->listLabel->setText(m_currentDirectory);
     m_ui->listLabel->setToolTip(m_currentDirectory);
+    m_ui->containerWidget->setMinimumSize(860, 650);
 
     setupActions();
     setupConnections();
+    setupGUI(Default);
 
     updateFiles();
     addNewClass();
@@ -67,54 +70,64 @@ marK::marK(QWidget *parent) :
 
 void marK::setupActions()
 {
-    QMenu *fileMenu = m_ui->menuBar->addMenu("File");
-
-    QAction *openDirAction = fileMenu->addAction("Open Directory");
-    openDirAction->setShortcut(QKeySequence(Qt::Modifier::CTRL + Qt::Key::Key_O));
+    QAction *openDirAction = new QAction(this);
+    openDirAction->setText("Open Directory");
+    openDirAction->setIcon(QIcon::fromTheme("document-open"));
+    actionCollection()->setDefaultShortcut(openDirAction, Qt::Modifier::CTRL + Qt::Key::Key_O);
+    actionCollection()->addAction("openDirectory", openDirAction);
     connect(openDirAction, &QAction::triggered, this, &marK::changeDirectory);
 
-    QAction *importData = fileMenu->addAction("Import");
-    importData->setShortcut(QKeySequence(Qt::Modifier::CTRL + Qt::Key::Key_I));
+    QAction *importData = new QAction(this);
+    importData->setText("Import");
+    actionCollection()->setDefaultShortcut(importData, Qt::Modifier::CTRL + Qt::Key::Key_I);
+    actionCollection()->addAction("importData", importData);
     connect(importData, &QAction::triggered, this, &marK::importData);
 
-    QMenu *exportMenu = fileMenu->addMenu("Export");
-
-    QAction *toXML = exportMenu->addAction("XML");
+    QAction *toXML = new QAction(this);
+    toXML->setText("XML");
+    actionCollection()->addAction("toXML", toXML);
     connect(toXML, &QAction::triggered, [&](){ saveObjects(Serializer::OutputType::XML); });
 
-    QAction *toJson = exportMenu->addAction("JSON");
+    QAction *toJson = new QAction(this);
+    toJson->setText("JSON");
+    actionCollection()->addAction("toJSON", toJson);
     connect(toJson, &QAction::triggered, [&](){ saveObjects(Serializer::OutputType::JSON); });
 
-    QMenu *editMenu = m_ui->menuBar->addMenu("Edit");
-
-    QAction *undoAction = editMenu->addAction("Undo");
-    undoAction->setShortcut(QKeySequence(Qt::Modifier::CTRL + Qt::Key::Key_Z));
+    QAction *undoAction = new QAction(this);
+    undoAction->setText("Undo");
+    actionCollection()->setDefaultShortcut(undoAction, Qt::Modifier::CTRL + Qt::Key::Key_Z);
+    actionCollection()->addAction("undo", undoAction);
     connect(undoAction, &QAction::triggered, m_ui->containerWidget, &Container::undo);
 
-    QAction *deleteAction = editMenu->addAction("Delete");
-    deleteAction->setShortcut(QKeySequence(Qt::Modifier::CTRL + Qt::Key::Key_D));
+    QAction *deleteAction  = new QAction(this);
+    deleteAction->setText("Delete");
+    actionCollection()->setDefaultShortcut(deleteAction, Qt::Modifier::CTRL + Qt::Key::Key_D);
+    actionCollection()->addAction("delete", deleteAction);
     connect(deleteAction, &QAction::triggered, m_ui->containerWidget, &Container::deleteObject);
-
-    m_ui->containerWidget->setMinimumSize(860, 650);
-    QMenu *autoSaveMenu = editMenu->addMenu("Auto Save");
 
     QActionGroup *autoSaveActionGroup = new QActionGroup(this);
 
-    QAction *autoSaveJsonButton = autoSaveMenu->addAction("JSON");
+    QAction *autoSaveJsonButton = new QAction(this);
+    autoSaveJsonButton->setText("JSON");
     autoSaveJsonButton->setCheckable(true);
-    connect(autoSaveJsonButton, &QAction::triggered, this, &marK::toggleAutoSave);
     autoSaveJsonButton->setActionGroup(autoSaveActionGroup);
+    actionCollection()->addAction("autosaveJSON", autoSaveJsonButton);
+    connect(autoSaveJsonButton, &QAction::triggered, this, &marK::toggleAutoSave);
 
-    QAction *autoSaveXmlButton = autoSaveMenu->addAction("XML");
+    QAction *autoSaveXmlButton = new QAction(this);
+    autoSaveXmlButton->setText("XML");
     autoSaveXmlButton->setCheckable(true);
-    connect(autoSaveXmlButton, &QAction::triggered, this, &marK::toggleAutoSave);
     autoSaveXmlButton->setActionGroup(autoSaveActionGroup);
+    actionCollection()->addAction("autosaveXML", autoSaveXmlButton);
+    connect(autoSaveXmlButton, &QAction::triggered, this, &marK::toggleAutoSave);
 
-    QAction *autoSaveDisableButton = autoSaveMenu->addAction("Disabled");
-    autoSaveDisableButton->setCheckable(true);
-    autoSaveDisableButton->setChecked(true);
-    connect(autoSaveDisableButton, &QAction::triggered, this, &marK::toggleAutoSave);
-    autoSaveDisableButton->setActionGroup(autoSaveActionGroup);
+    QAction *autoSaveDisabledButton = new QAction(this);
+    autoSaveDisabledButton->setText("Disabled");
+    autoSaveDisabledButton->setCheckable(true);
+    autoSaveDisabledButton->setChecked(true);
+    autoSaveDisabledButton->setActionGroup(autoSaveActionGroup);
+    actionCollection()->addAction("autosaveDisabled", autoSaveDisabledButton);
+    connect(autoSaveDisabledButton, &QAction::triggered, this, &marK::toggleAutoSave);
 
     QShortcut *nextItemShortcut = new QShortcut(this);
     nextItemShortcut->setKey(Qt::Key_Down);
@@ -135,6 +148,8 @@ void marK::setupConnections()
     m_ui->selectClassColorButton->setEnabled(false);
     m_ui->polygonButton->setEnabled(false);
     m_ui->rectButton->setEnabled(false);
+
+    KStandardAction::quit(qApp, SLOT(quit()), actionCollection());
 
     connect(m_ui->listWidget, &QListWidget::currentItemChanged, this,
             qOverload<QListWidgetItem*, QListWidgetItem*>(&marK::changeItem));

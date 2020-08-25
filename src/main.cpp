@@ -19,10 +19,40 @@
 #include <QApplication>
 #include <QScreen>
 
+#include <KAboutData>
+#include <KXmlGuiWindow>
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    
+
+    KAboutData aboutData(
+            // The program name used internally. (componentName)
+            QStringLiteral("mark"),
+            // A displayable program name string. (displayName)
+            QStringLiteral("marK"),
+            // The program version string. (version)
+            QStringLiteral("0.0.1"),
+            // Short description of what the app does. (shortDescription)
+            QStringLiteral("A dataset annotation tool meant to help in the process of annotating data."),
+            // The license this code is released under
+            KAboutLicense::GPL_V3,
+            // Copyright Statement (copyrightStatement = QString())
+            QStringLiteral("(c) 2020"),
+            // Optional text shown in the About box.
+            // Can contain any information desired. (otherText)
+            QStringLiteral("The project is in its early stage of development, currently supports image and text annotation."),
+            // The program homepage string. (homePageAddress = QString())
+            QStringLiteral("https://invent.kde.org/education/mark"),
+            // The bug report email address
+            // (bugsEmailAddress = QLatin1String("submit@bugs.kde.org")
+            QStringLiteral("submit@bugs.kde.org"));
+    aboutData.addAuthor(QStringLiteral("Caio Jordão Carvalho"), QStringLiteral("Mantainer"), QStringLiteral("caiojcarvalho@gmail.com"),
+                        QStringLiteral("caiojcarvalho.wordpress.com"), QStringLiteral("cjlcarvalho"));
+    aboutData.addAuthor(QStringLiteral("Jean Lima Andrade"), QStringLiteral("Contribuitor"), QStringLiteral("jyeno@protonmail.com"),
+                        QStringLiteral("jyeno.home.blog"), QStringLiteral("jyeno"));
+    KAboutData::setApplicationData(aboutData);
+
     marK w;
     w.setFixedSize(qApp->primaryScreen()->availableSize());
     w.setWindowState(Qt::WindowMaximized);
@@ -31,4 +61,3 @@ int main(int argc, char *argv[])
 
     return app.exec();
 }
-
