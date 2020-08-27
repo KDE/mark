@@ -200,6 +200,9 @@ void marK::setupConnections()
 
     connect(m_ui->containerWidget, &Container::painterChanged, this,
         [&](Container::PainterType painterType) {
+            m_objClasses.clear();
+            m_ui->comboBox->clear();
+            addNewClass();
             bool isFileLoaded = painterType != Container::PainterType::None;
             m_ui->newClassButton->setEnabled(isFileLoaded);
             m_ui->undoButton->setEnabled(isFileLoaded);
