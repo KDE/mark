@@ -10,7 +10,6 @@
 Container::Container(QWidget* parent) :
     QGraphicsView(parent),
     m_currentObject(new Polygon),
-    m_painter(nullptr),
     m_painterType(PainterType::None)
 {
     QGraphicsScene *scene = new QGraphicsScene;
@@ -54,16 +53,14 @@ void Container::changeItem(const QString& path)
 
     if (path.endsWith(".txt") || path.endsWith(".TXT")) {
         if (m_painterType != PainterType::Text) {
-            delete m_painter;
-            m_painter = new TextPainter(this);
+            m_painter = std::make_unique<TextPainter>(this);
             m_painterType = PainterType::Text;
             Q_EMIT painterChanged(m_painterType);
         }
     }
     else {
         if (m_painterType != PainterType::Image) {
-            delete m_painter;
-            m_painter = new ImagePainter(this);
+            m_painter = std::make_unique<ImagePainter>(this);
             m_painterType = PainterType::Image;
             Q_EMIT painterChanged(m_painterType);
         }
@@ -123,7 +120,7 @@ void Container::clear()
 {
     reset();
     scene()->clear();
-    delete m_painter;
+    m_painter.reset();
     m_painterType = PainterType::None;
     Q_EMIT painterChanged(m_painterType);
 }

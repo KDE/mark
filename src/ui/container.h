@@ -4,6 +4,8 @@
 #include "ui/markedclass.h"
 #include "ui/markedobject.h"
 
+#include <memory>
+
 #include <QGraphicsView>
 #include <QVector>
 
@@ -35,7 +37,7 @@ public:
     bool eventFilter(QObject* watched, QEvent* event);
 
     /** @return pointer of the current Painter. */
-    Painter* painter() const { return m_painter; }
+    Painter* painter() const { return m_painter.get(); }
 
 public:
     /** Set MarkedClass of the current object.
@@ -104,7 +106,7 @@ protected:
     QVector<MarkedObject*> m_tempObjects;
 
     PainterType m_painterType;
-    Painter* m_painter;
+    std::unique_ptr<Painter> m_painter;
 };
 
 #endif // CONTAINER_H
