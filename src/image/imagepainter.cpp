@@ -61,7 +61,7 @@ void ImagePainter::paint(QPoint point, bool isDragging)
             if (!currentPolygon->empty()) {
                 QPointF cPolygFirstPt = currentPolygon->first();
                 QRectF cPolygFirstPtRect(cPolygFirstPt, QPointF(cPolygFirstPt.x() + 10, cPolygFirstPt.y() + 10));
-                isPolygFirstPtClicked = cPolygFirstPtRect.contains(clickedPoint) && currentPolygon->size() > 1;
+                isPolygFirstPtClicked = cPolygFirstPtRect.contains(clickedPoint);
                 if (isPolygFirstPtClicked)
                     clickedPoint = cPolygFirstPt;
             }
