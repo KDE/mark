@@ -10,7 +10,7 @@
     <Menu name="file" ><text>File</text>
       <Action name="openDirectory" />
       <Action name="importData" />
-      <Menu name="exportData" ><text>Save as</text>
+      <Menu name="exportData" ><text>Export</text>
         <Action name="toJSON" />
         <Action name="toXML" />
       </Menu>

@@ -431,13 +431,13 @@ void marK::toggleAutoSave()
     QAction *button = qobject_cast<QAction*>(sender());
     QString type = button->text();
 
-    if (type == "Disabled")
+    if (type == "&Disabled")
         m_autoSaveType = Serializer::OutputType::None;
 
-    else if (type == "XML")
+    else if (type == "&XML")
         m_autoSaveType = Serializer::OutputType::XML;
 
-    else if (type == "JSON")
+    else if (type == "&JSON")
         m_autoSaveType = Serializer::OutputType::JSON;
 }
 

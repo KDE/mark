@@ -57,7 +57,7 @@ void Container::changeItem(const QString& path)
             delete m_painter;
             m_painter = new TextPainter(this);
             m_painterType = PainterType::Text;
-            emit painterChanged(m_painterType);
+            Q_EMIT painterChanged(m_painterType);
         }
     }
     else {
@@ -65,7 +65,7 @@ void Container::changeItem(const QString& path)
             delete m_painter;
             m_painter = new ImagePainter(this);
             m_painterType = PainterType::Image;
-            emit painterChanged(m_painterType);
+            Q_EMIT painterChanged(m_painterType);
         }
     }
 
@@ -124,7 +124,6 @@ void Container::clear()
     reset();
     scene()->clear();
     delete m_painter;
-    m_painter = nullptr;
     m_painterType = PainterType::None;
     Q_EMIT painterChanged(m_painterType);
 }

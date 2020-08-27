@@ -47,9 +47,9 @@ int main(int argc, char *argv[])
             // The bug report email address
             // (bugsEmailAddress = QLatin1String("submit@bugs.kde.org")
             QStringLiteral("submit@bugs.kde.org"));
-    aboutData.addAuthor(QStringLiteral("Caio Jordão Carvalho"), QStringLiteral("Mantainer"), QStringLiteral("caiojcarvalho@gmail.com"),
+    aboutData.addAuthor(QStringLiteral("Caio Jordão Carvalho"), QStringLiteral("Maintainer"), QStringLiteral("caiojcarvalho@gmail.com"),
                         QStringLiteral("caiojcarvalho.wordpress.com"), QStringLiteral("cjlcarvalho"));
-    aboutData.addAuthor(QStringLiteral("Jean Lima Andrade"), QStringLiteral("Contribuitor"), QStringLiteral("jyeno@protonmail.com"),
+    aboutData.addAuthor(QStringLiteral("Jean Lima Andrade"), QStringLiteral("Text support"), QStringLiteral("jyeno@protonmail.com"),
                         QStringLiteral("jyeno.home.blog"), QStringLiteral("jyeno"));
     KAboutData::setApplicationData(aboutData);
 
