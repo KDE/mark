@@ -23,7 +23,6 @@
 #include <QAction>
 #include <QActionGroup>
 #include <QDir>
-#include <QMenu>
 #include <QToolButton>
 #include <QFileSystemWatcher>
 #include <QFileDialog>

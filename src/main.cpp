@@ -53,11 +53,11 @@ int main(int argc, char *argv[])
                         QStringLiteral("jyeno.home.blog"), QStringLiteral("jyeno"));
     KAboutData::setApplicationData(aboutData);
 
-    marK w;
-    w.setFixedSize(qApp->primaryScreen()->availableSize());
-    w.setWindowState(Qt::WindowMaximized);
-    w.setWindowIcon(QIcon::fromTheme("document-edit"));
-    w.show();
+    marK *w = new marK();
+    w->setFixedSize(qApp->primaryScreen()->availableSize());
+    w->setWindowState(Qt::WindowMaximized);
+    w->setWindowIcon(QIcon::fromTheme("document-edit"));
+    w->show();
 
     return app.exec();
 }
