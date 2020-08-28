@@ -92,6 +92,8 @@ void TextPainter::paint(QPoint point, bool isDragging)
 
             paintObject(currentSentence);
         }
+        else
+            currentSentence->append(m_anchor, end + 1);
     }
     if (toSave) {
         m_parent->appendObject(currentSentence);
