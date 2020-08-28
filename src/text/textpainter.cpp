@@ -3,6 +3,7 @@
 
 #include <QTextEdit>
 #include <QFile>
+#include <QScrollBar>
 #include <QString>
 #include <QTextStream>
 
@@ -93,10 +94,10 @@ void TextPainter::paint(QPoint point, bool isDragging)
 
 void TextPainter::repaint()
 {
-    //FIXME: current implementation resets to the top of textEdit, causing problems when
-    // annotating in the middle or end of a document big enough to need to use scrollbar
+    int scrollPreviousPos = m_textEdit->verticalScrollBar()->value();
     QString plainText = m_textEdit->toPlainText();
     m_textEdit->setPlainText(plainText);
+    m_textEdit->verticalScrollBar()->setValue(scrollPreviousPos);
 
     for (MarkedObject* obj : m_parent->savedObjects())
         paintObject(obj);
