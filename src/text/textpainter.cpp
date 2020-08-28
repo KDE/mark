@@ -1,10 +1,10 @@
 #include "text/textpainter.h"
 #include "text/sentence.h"
 
-#include <QTextEdit>
 #include <QFile>
 #include <QScrollBar>
 #include <QString>
+#include <QTextEdit>
 #include <QTextStream>
 
 TextPainter::TextPainter(Container* parent) :
@@ -84,18 +84,30 @@ void TextPainter::paint(QPoint point, bool isDragging)
         }
 
         currentSentence->append(std::min(m_anchor, end), std::max(end, m_anchor));
-        repaint();
+
+        if (currentSentence->isValid()) {
+            int scrollBarPreviousPos = m_textEdit->verticalScrollBar()->value();
+            m_textEdit->undo();
+            m_textEdit->verticalScrollBar()->setValue(scrollBarPreviousPos);
+
+            paintObject(currentSentence);
+        }
     }
     if (toSave) {
         m_parent->appendObject(currentSentence);
+        repaint();
         m_parent->setCurrentObject(new Sentence(currentSentence->objClass()));
     }
 }
 
 void TextPainter::repaint()
 {
-    int scrollPreviousPos = m_textEdit->verticalScrollBar()->value();
+    QTextCharFormat fmt;
+    fmt.setBackground(Qt::white);
+    m_textEdit->setCurrentCharFormat(fmt);
+
     QString plainText = m_textEdit->toPlainText();
+    int scrollPreviousPos = m_textEdit->verticalScrollBar()->value();
     m_textEdit->setPlainText(plainText);
     m_textEdit->verticalScrollBar()->setValue(scrollPreviousPos);
 
