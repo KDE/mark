@@ -87,7 +87,8 @@ void TextPainter::paint(QPoint point, bool isDragging)
 
         if (currentSentence->isValid()) {
             int scrollBarPreviousPos = m_textEdit->verticalScrollBar()->value();
-            m_textEdit->undo();
+            if (isDragging)
+                m_textEdit->undo();
             m_textEdit->verticalScrollBar()->setValue(scrollBarPreviousPos);
 
             paintObject(currentSentence);
@@ -115,8 +116,6 @@ void TextPainter::repaint()
 
     for (MarkedObject* obj : m_parent->savedObjects())
         paintObject(obj);
-
-    paintObject(m_parent->currentObject());
 }
 
 void TextPainter::undo()
