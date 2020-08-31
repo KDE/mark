@@ -105,11 +105,11 @@ void TextPainter::paint(QPoint point, bool isDragging)
 void TextPainter::repaint()
 {
     QTextCharFormat fmt;
-    fmt.setBackground(Qt::white);
+    fmt.setBackground(QBrush(QColor(), Qt::NoBrush));
     m_textEdit->setCurrentCharFormat(fmt);
 
-    QString plainText = m_textEdit->toPlainText();
     int scrollPreviousPos = m_textEdit->verticalScrollBar()->value();
+    QString plainText = m_textEdit->toPlainText();
     m_textEdit->setPlainText(plainText);
     m_textEdit->verticalScrollBar()->setValue(scrollPreviousPos);
 
@@ -139,7 +139,7 @@ void TextPainter::deleteCurrentObject()
 
 void TextPainter::paintObject(MarkedObject *object)
 {
-    auto textCursor = m_textEdit->textCursor();
+    QTextCursor textCursor = m_textEdit->textCursor();
     textCursor.setPosition(object->XValueOf(), QTextCursor::MoveAnchor);
     textCursor.setPosition(object->YValueOf(), QTextCursor::KeepAnchor);
 
