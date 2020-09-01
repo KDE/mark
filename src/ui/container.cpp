@@ -55,14 +55,14 @@ void Container::changeItem(const QString& path)
         if (m_painterType != PainterType::Text) {
             m_painter = std::make_unique<TextPainter>(this);
             m_painterType = PainterType::Text;
-            Q_EMIT painterChanged(m_painterType);
+            emit painterChanged(m_painterType);
         }
     }
     else {
         if (m_painterType != PainterType::Image) {
             m_painter = std::make_unique<ImagePainter>(this);
             m_painterType = PainterType::Image;
-            Q_EMIT painterChanged(m_painterType);
+            emit painterChanged(m_painterType);
         }
     }
 
@@ -94,7 +94,7 @@ bool Container::importObjects(QVector<MarkedObject*> objects)
 void Container::appendObject(MarkedObject* object)
 {
     m_savedObjects << object;
-    Q_EMIT savedObjectsChanged();
+    emit savedObjectsChanged();
 }
 
 void Container::undo()
@@ -122,5 +122,5 @@ void Container::clear()
     scene()->clear();
     m_painter.reset();
     m_painterType = PainterType::None;
-    Q_EMIT painterChanged(m_painterType);
+    emit painterChanged(m_painterType);
 }
