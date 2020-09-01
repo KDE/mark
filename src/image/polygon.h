@@ -18,8 +18,8 @@
 #ifndef POLYGON_H
 #define POLYGON_H
 
-#include "ui/markedobject.h"
-#include "ui/markedclass.h"
+#include "core/markedobject.h"
+#include "core/markedclass.h"
 
 #include <QPolygonF>
 

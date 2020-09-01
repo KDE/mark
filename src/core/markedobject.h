@@ -5,8 +5,8 @@
 #include <QVariant>
 #include <QString>
 
-#include "ui/markedclass.h"
-#include "ui/markedobject_p.h"
+#include "core/markedclass.h"
+#include "core/markedobject_p.h"
 
 class MarkedClass;
 

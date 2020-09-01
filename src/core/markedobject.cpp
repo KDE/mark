@@ -1,5 +1,5 @@
-#include "markedobject.h"
-#include "markedobject_p.h"
+#include "core/markedobject.h"
+#include "core/markedobject_p.h"
 
 MarkedObject::MarkedObject(std::unique_ptr<MarkedObjectPrivate> d_ptr, MarkedClass* objClass) :
     d_p(std::move(d_ptr))

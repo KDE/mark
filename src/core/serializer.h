@@ -18,7 +18,7 @@
 #ifndef SERIALIZER_H
 #define SERIALIZER_H
 
-#include "ui/markedobject.h"
+#include "core/markedobject.h"
 
 #include <QVector>
 #include <QString>

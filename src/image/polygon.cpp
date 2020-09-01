@@ -16,7 +16,7 @@
  *************************************************************************/
 
 #include "image/polygon.h"
-#include "ui/markedobject_p.h"
+#include "core/markedobject_p.h"
 
 Polygon::Polygon(MarkedClass* objClass) :
     MarkedObject(std::make_unique<MarkedObjectPrivate>(), objClass)

@@ -15,9 +15,9 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.*
  *************************************************************************/
 
-#include "ui/markedclass.h"
-#include "ui/markedobject_p.h"
-#include "util/serializer.h"
+#include "core/markedclass.h"
+#include "core/markedobject_p.h"
+#include "core/serializer.h"
 #include "image/polygon.h"
 #include "text/sentence.h"
 

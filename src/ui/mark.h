@@ -18,8 +18,8 @@
 #ifndef MARK_H
 #define MARK_H
 
-#include "ui/markedclass.h"
-#include "util/serializer.h"
+#include "core/markedclass.h"
+#include "core/serializer.h"
 
 #include <QScopedPointer>
 #include <QListWidgetItem>

@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-set(UTIL_SRC
-    util/serializer.cpp
+set(CORE_SRC
+    core/markedobject.cpp
+    core/markedclass.cpp
+    core/serializer.cpp
 )

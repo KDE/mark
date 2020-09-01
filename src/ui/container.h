@@ -1,8 +1,8 @@
 #ifndef CONTAINER_H
 #define CONTAINER_H
 
-#include "ui/markedclass.h"
-#include "ui/markedobject.h"
+#include "core/markedclass.h"
+#include "core/markedobject.h"
 
 #include <memory>
 
