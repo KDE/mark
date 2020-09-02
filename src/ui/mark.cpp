@@ -355,15 +355,14 @@ void marK::selectClassColor()
 
 void marK::saveObjects(Serializer::OutputType type)
 {
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
+    QString filename = QFileDialog::getSaveFileName(this, tr("Save File"),
                            m_currentDirectory,
                            tr(Serializer::filterString(type)));
 
-    if (fileName.isEmpty())
+    if (filename.isEmpty())
         return;
 
-    Serializer serializer = Serializer(m_ui->containerWidget->savedObjects());
-    bool success = serializer.write(fileName, type);
+    bool success = Serializer::write(filename, m_ui->containerWidget->savedObjects(), type);
 
     if (!success) {
         QMessageBox msgBox;
@@ -383,8 +382,7 @@ void marK::importData()
     if (filepath.isEmpty())
         return;
 
-    Serializer serializer = Serializer(&m_objClasses);
-    auto objects = serializer.read(filepath);
+    QVector<MarkedObject*> objects = Serializer::read(filepath);
 
     bool success = m_ui->containerWidget->importObjects(objects);
 
@@ -396,6 +394,11 @@ void marK::importData()
         return;
     }
 
+    m_objClasses.clear();
+    for (MarkedObject *obj : objects) {
+        if (!m_objClasses.contains(obj->objClass()))
+            m_objClasses << obj->objClass();
+    }
     updateComboBox();
 }
 
@@ -407,13 +410,18 @@ void marK::retrieveTempFile()
     if (!QFile::exists(tempFilePath))
         return;
 
-    Serializer serializer = Serializer(&m_objClasses);
-    auto objects = serializer.read(tempFilePath);
+    QVector<MarkedObject*> objects = Serializer::read(tempFilePath);
 
     bool success = m_ui->containerWidget->importObjects(objects);
 
     if (!success)
         return;
+
+    m_objClasses.clear();
+    for (MarkedObject *obj : objects) {
+        if (!m_objClasses.contains(obj->objClass()))
+            m_objClasses << obj->objClass();
+    }
 
     updateComboBox();
 
@@ -424,8 +432,7 @@ void marK::makeTempFile()
 {
     QString tempFilePath = markDirectory().filePath(QString(m_filepath).replace("/", "_"));
 
-    Serializer serializer = Serializer(m_ui->containerWidget->savedObjects());
-    serializer.write(tempFilePath, Serializer::OutputType::JSON);
+    Serializer::write(tempFilePath, m_ui->containerWidget->savedObjects(), Serializer::OutputType::JSON);
 }
 
 void marK::toggleAutoSave()
@@ -448,8 +455,7 @@ void marK::autoSave()
     if (m_autoSaveType == Serializer::OutputType::None)
         return;
 
-    Serializer serializer = Serializer(m_ui->containerWidget->savedObjects());
-    serializer.write(m_filepath, m_autoSaveType);
+    Serializer::write(m_filepath, m_ui->containerWidget->savedObjects(), m_autoSaveType);
 }
 
 marK::~marK()

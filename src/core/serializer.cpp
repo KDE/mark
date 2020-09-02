@@ -21,25 +21,17 @@
 #include "image/polygon.h"
 #include "text/sentence.h"
 
-#include <QtGlobal>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
-#include <QXmlStreamWriter>
-#include <QFile>
-#include <QDir>
-#include <QRegularExpression>
 #include <memory>
 
-Serializer::Serializer(QVector<MarkedClass*>* markedClasses) :
-    m_markedClasses(markedClasses)
-{
-}
-
-Serializer::Serializer(const QVector<MarkedObject*>& items) :
-    m_items(items)
-{
-}
+#include <QDir>
+#include <QFile>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QMap>
+#include <QRegularExpression>
+#include <QtGlobal>
+#include <QXmlStreamWriter>
 
 QVector<MarkedObject*> Serializer::read(const QString& filename)
 {
@@ -48,28 +40,28 @@ QVector<MarkedObject*> Serializer::read(const QString& filename)
     bool fileExists = QFile::exists(filename);
     if (fileExists) {
         if (filename.endsWith(".xml"))
-            objects = this->readXML(filename);
+            objects = readXML(filename);
         else if (filename.endsWith(".json"))
-            objects = this->readJSON(filename);
+            objects = readJSON(filename);
     }
 
     return objects;
 }
 
-QString Serializer::serialize(OutputType output_type)
+QString Serializer::serialize(const QVector<MarkedObject*>& objects, OutputType output_type)
 {
     if (output_type == OutputType::XML)
-        return this->toXML();
+        return toXML(objects);
 
     else if (output_type == OutputType::JSON)
-        return this->toJSON();
+        return toJSON(objects);
 
     return nullptr;
 }
 
-QString Serializer::toXML()
+QString Serializer::toXML(const QVector<MarkedObject*>& objects)
 {
-    if (m_items.isEmpty())
+    if (objects.isEmpty())
         return nullptr;
 
 
@@ -80,7 +72,7 @@ QString Serializer::toXML()
 
     xmlWriter.writeStartElement("annotation");
 
-    for (const MarkedObject* item : m_items) {
+    for (const MarkedObject* item : objects) {
         xmlWriter.writeStartElement("object");
 
         xmlWriter.writeStartElement("class");
@@ -119,14 +111,14 @@ QString Serializer::toXML()
     return xmldoc;
 }
 
-QString Serializer::toJSON()
+QString Serializer::toJSON(const QVector<MarkedObject*>& objects)
 {
-    if (m_items.isEmpty())
+    if (objects.isEmpty())
         return nullptr;
 
     QJsonArray classesArray;
 
-    for (const MarkedObject* item : m_items) {
+    for (const MarkedObject* item : objects) {
         QJsonObject recordObject;
 
         recordObject.insert("Class", item->className());
@@ -157,22 +149,27 @@ QString Serializer::toJSON()
 
 QVector<MarkedObject*> Serializer::readJSON(const QString& filename)
 {
+    QVector<MarkedObject*> savedObjects;
+    QMap<QString, MarkedClass*> markedClasses;
+
     QByteArray data = getData(filename);
     QJsonDocument doc = QJsonDocument::fromJson(data);
 
     QJsonArray objectArray = doc.array();
 
-    QVector<MarkedObject*> savedObjects;
-
     for (const QJsonValue& classObj : qAsConst(objectArray)) {
         QString className = classObj["Class"].toString();
-        MarkedClass* objClass = getMarkedClass(className);
+        MarkedClass *markedClass = markedClasses.value(className, nullptr);
+        if (!markedClass) {
+            markedClass = new MarkedClass(className);
+            markedClasses.insert(className, markedClass);
+        }
 
         MarkedObject* object;
         if (classObj["Polygon"] != QJsonValue::Undefined)
-            object = new Polygon(objClass);
+            object = new Polygon(markedClass);
         else if (classObj["Sentence"] != QJsonValue::Undefined)
-            object = new Sentence(objClass);
+            object = new Sentence(markedClass);
         else
             return QVector<MarkedObject*>();
 
@@ -197,6 +194,7 @@ QVector<MarkedObject*> Serializer::readJSON(const QString& filename)
 QVector<MarkedObject*> Serializer::readXML(const QString& filename)
 {
     QVector<MarkedObject*> savedObjects;
+    QMap<QString, MarkedClass*> markedClasses;
 
     QByteArray data = getData(filename);
 
@@ -209,8 +207,11 @@ QVector<MarkedObject*> Serializer::readXML(const QString& filename)
             xmlReader.readNextStartElement();
 
             QString className = xmlReader.readElementText();
-            MarkedClass* markedClass = getMarkedClass(className);
-
+            MarkedClass *markedClass = markedClasses.value(className, nullptr);
+            if (!markedClass) {
+                markedClass = new MarkedClass(className);
+                markedClasses.insert(className, markedClass);
+            }
             xmlReader.readNextStartElement();
 
             MarkedObject* object;
@@ -256,27 +257,14 @@ QByteArray Serializer::getData(const QString& filename)
     return data;
 }
 
-MarkedClass* Serializer::getMarkedClass(const QString& className)
+bool Serializer::write(const QString &filepath, const QVector<MarkedObject*>& objects, OutputType output_type)
 {
-    for (MarkedClass* markedClass : *m_markedClasses) {
-        if (markedClass->name() == className)
-            return markedClass;
-    }
-
-    MarkedClass* mClass = new MarkedClass(className);
-    *m_markedClasses << mClass;
-
-    return mClass;
-}
-
-bool Serializer::write(const QString &filepath, OutputType output_type)
-{
-    if (!m_items.isEmpty()) {
+    if (!objects.isEmpty()) {
         QString filename = QString(filepath);
         // this part needs improvement
         filename.replace(QRegularExpression(".jpg|.jpeg|.png|.xpm|.txt"), (output_type == OutputType::XML ? ".xml" : ".json"));
 
-        QString document = serialize(output_type);
+        QString document = serialize(objects, output_type);
 
         if (!document.isEmpty()) {
             QFile file(filename);
