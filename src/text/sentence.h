@@ -32,21 +32,26 @@ public:
      */
     explicit Sentence(MarkedClass *objClass, quint64 begin = 0, quint64 end = 0);
 
+    void clear() override;
+    QString unitName() const override;
+
     /** Verify if a sentence is valid (its begin is different and smaller than its end). */
     bool isValid();
 
     /** Verify if a number is between the begin and end of a sentence. */
     bool hasBetween(int number);
 
-    void clear() override;
-    void append(double memberX, double memberY) override;
-    int size() const override;
-    QString unitName() const override;
-    QString type() const override;
-    QString memberX() const override;
-    QString memberY() const override;
-    qreal XValueOf(int element = 0) const override;
-    qreal YValueOf(int element = 0) const override;
+    /** Move the position of a sentence.
+     * @param anchor - new beggining of the sentence
+     * @param end - new end of the sentence
+     */
+    void move(double anchor, double end);
+
+    /** @return the begin of the sentence. */
+    qreal begin() const;
+
+    /** @return the end of the sentence. */
+    qreal end() const;
 };
 
 #endif // SENTENCE_H

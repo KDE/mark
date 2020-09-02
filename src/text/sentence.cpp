@@ -44,16 +44,11 @@ void Sentence::clear()
     dpointer->m_end = 0;
 }
 
-void Sentence::append(double memberX, double memberY)
+void Sentence::move(double anchor, double end)
 {
     auto dpointer = static_cast<SentencePrivate*>(d_p.get());
-    dpointer->m_begin = memberX;
-    dpointer->m_end = memberY;
-}
-
-int Sentence::size() const
-{
-    return 1;
+    dpointer->m_begin = anchor;
+    dpointer->m_end = end;
 }
 
 QString Sentence::unitName() const
@@ -61,30 +56,14 @@ QString Sentence::unitName() const
     return "st";
 }
 
-QString Sentence::type() const
-{
-    return "Sentence";
-}
-
-QString Sentence::memberX() const
-{
-    return "begin";
-}
-
-QString Sentence::memberY() const
-{
-    return "end";
-}
-
-qreal Sentence::XValueOf(int element) const
+qreal Sentence::begin() const
 {
     auto dpointer = static_cast<SentencePrivate*>(d_p.get());
     return dpointer->m_begin;
 }
 
-qreal Sentence::YValueOf(int element) const
+qreal Sentence::end() const
 {
     auto dpointer = static_cast<SentencePrivate*>(d_p.get());
     return dpointer->m_end;
 }
-

@@ -31,42 +31,11 @@ public:
     /** Chance the instance of MarkedClass used. */
     void setObjClass(MarkedClass* objClass);
 
-    /** @return the name of instance MarkedClass. */
-    QString className() const;
-
-    /** Delete all elements. */
+    /** Reset MarkedObject. */
     virtual void clear() = 0;
 
-    /** Add element to MarkedObject.
-     * @param memberX - first member/location of annotation.
-     * @param memberY - second member/location of annotation.
-     */
-    virtual void append(double memberX, double memberY) = 0;
-
-    /** @return how much elements a MarkedObject has. */
-    virtual int size() const = 0;
-
-    /** @return unitary name of the MarkedObject. */
+    /** @return unitary name of the MarkedObject instance. */
     virtual QString unitName() const = 0;
-
-    /** @return type of annotation. */
-    virtual QString type() const = 0;
-
-    /** @return name of first member of annotation element.*/
-    virtual QString memberX() const = 0;
-
-    /** @return name of second member of annotation element.*/
-    virtual QString memberY() const = 0;
-
-    /** @return the first member/location of given element.
-     * @param element - element to get the member/location.
-     */
-    virtual qreal XValueOf(int element = 0) const = 0;
-
-    /** @return the second member/location of given element.
-     * @param element - element to get the member/location.
-     */
-    virtual qreal YValueOf(int element = 0) const = 0;
 
 protected:
     std::unique_ptr<MarkedObjectPrivate> d_p;

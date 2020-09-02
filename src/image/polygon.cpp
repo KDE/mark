@@ -28,7 +28,7 @@ Polygon::Polygon(const Polygon* pol) :
     MarkedObject (std::make_unique<MarkedObjectPrivate>(), pol->objClass())
 {
     for (const QPointF& point : *pol)
-        QPolygonF::append(point);
+        append(point);
 }
 
 void Polygon::clear()
@@ -36,41 +36,12 @@ void Polygon::clear()
     QPolygonF::clear();
 }
 
-void Polygon::append(double memberX, double memberY)
-{
-    QPolygonF::append(QPointF(memberX, memberY));
-}
-
-int Polygon::size() const
-{
-    return QPolygonF::size();
-}
-
 QString Polygon::unitName() const
 {
     return "pt";
 }
 
-QString Polygon::type() const
+QString Polygon::type()
 {
     return "Polygon";
-}
-QString Polygon::memberX() const
-{
-    return "x";
-}
-
-QString Polygon::memberY() const
-{
-    return "y";
-}
-
-qreal Polygon::XValueOf(int element) const
-{
-    return this->at(element).x();
-}
-
-qreal Polygon::YValueOf(int element) const
-{
-    return this->at(element).y();
 }

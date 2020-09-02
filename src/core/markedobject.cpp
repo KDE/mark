@@ -22,8 +22,3 @@ void MarkedObject::setObjClass(MarkedClass* objClass)
 {
     d_p->m_objClass = objClass;
 }
-
-QString MarkedObject::className() const
-{
-    return d_p->m_objClass->name();
-}

@@ -54,11 +54,11 @@ void TextPainter::paint(QPoint point, bool isDragging)
             Sentence *obj = static_cast<Sentence*>(m_parent->savedObjects()[i]);
             if (obj->hasBetween(m_anchor) || obj->hasBetween(end))
                 return;
-            else if (m_anchor == obj->YValueOf() || end == obj->XValueOf()) {
+            else if (m_anchor == obj->end() || end == obj->begin()) {
                 idxNearbySentence = i;
                 break;
             }
-            else if (obj->YValueOf() - obj->XValueOf() == 1 && end == obj->YValueOf()) {
+            else if (obj->end() - obj->begin() == 1 && end == obj->end()) {
                 idxDoubleClick = i;
                 break;
             }
@@ -73,28 +73,29 @@ void TextPainter::paint(QPoint point, bool isDragging)
         }
 
         else if (idxNearbySentence != -1) {
-            MarkedObject* obj = m_parent->savedObjects()[idxNearbySentence];
+            Sentence* obj = static_cast<Sentence*>(m_parent->savedObjects()[idxNearbySentence]);
             if (currentSentence->objClass() == obj->objClass()) {
-                if (end == obj->XValueOf())
+                if (end == obj->begin())
                     toSave = true;
-                m_anchor = qMin(m_anchor, obj->XValueOf());
-                end = qMax(end, obj->YValueOf());
+                m_anchor = qMin(m_anchor, obj->begin());
+                end = qMax(end, obj->end());
                 m_parent->savedObjects().remove(idxNearbySentence);
             }
         }
 
-        currentSentence->append(std::min(m_anchor, end), std::max(end, m_anchor));
+        currentSentence->move(std::min(m_anchor, end), std::max(end, m_anchor));
 
         if (currentSentence->isValid()) {
-            int scrollBarPreviousPos = m_textEdit->verticalScrollBar()->value();
-            if (isDragging)
+            if (isDragging) {
+                int scrollBarPreviousPos = m_textEdit->verticalScrollBar()->value();
                 m_textEdit->undo();
-            m_textEdit->verticalScrollBar()->setValue(scrollBarPreviousPos);
+                m_textEdit->verticalScrollBar()->setValue(scrollBarPreviousPos);
+            }
 
             paintObject(currentSentence);
         }
         else
-            currentSentence->append(m_anchor, end + 1);
+            currentSentence->move(m_anchor, end + 1);
     }
     if (toSave) {
         m_parent->appendObject(currentSentence);
@@ -138,9 +139,11 @@ void TextPainter::deleteCurrentObject()
 
 void TextPainter::paintObject(MarkedObject *object)
 {
+    Sentence *sentence = static_cast<Sentence*>(object);
+
     QTextCursor textCursor = m_textEdit->textCursor();
-    textCursor.setPosition(object->XValueOf(), QTextCursor::MoveAnchor);
-    textCursor.setPosition(object->YValueOf(), QTextCursor::KeepAnchor);
+    textCursor.setPosition(sentence->begin(), QTextCursor::MoveAnchor);
+    textCursor.setPosition(sentence->end(), QTextCursor::KeepAnchor);
 
     QTextCharFormat fmt;
     QColor color (object->objClass()->color());

@@ -38,14 +38,8 @@ public:
     Polygon(const Polygon* pol);
 
     void clear() override;
-    void append(double memberX, double memberY) override;
-    int size() const override;
     QString unitName() const override;
-    QString type() const override;
-    QString memberX() const override;
-    QString memberY() const override;
-    qreal XValueOf(int element) const override;
-    qreal YValueOf(int element) const override;
+    static QString type();
 };
 
 #endif // POLYGON_H
