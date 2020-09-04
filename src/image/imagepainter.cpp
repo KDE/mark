@@ -81,18 +81,18 @@ void ImagePainter::paint(QPoint point, bool isDragging)
         else if (m_shape == Shape::Rectangle) {
             bool toSave = point.isNull() && currentPolygon->size() > 1;
             if (isImageClicked) {
-                QPointF firstPt = currentPolygon->first();
-                if (isDragging) {
-                    currentPolygon->clear();
-                    *currentPolygon << firstPt;
-                }
                 if (currentPolygon->empty())
                     *currentPolygon << clickedPoint;
 
                 else {
-                    *currentPolygon << QPointF(clickedPoint.x(), firstPt.y()) << clickedPoint << QPointF(firstPt.x(), clickedPoint.y()) << firstPt;
-                    if (!isDragging)
+                    QPointF firstPt = currentPolygon->first();
+                    if (isDragging) {
+                        currentPolygon->clear();
+                        *currentPolygon << firstPt;
+                    }
+                    else
                         toSave = true;
+                    *currentPolygon << QPointF(clickedPoint.x(), firstPt.y()) << clickedPoint << QPointF(firstPt.x(), clickedPoint.y()) << firstPt;
                 }
 
                 repaint();
