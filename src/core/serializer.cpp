@@ -16,7 +16,6 @@
  *************************************************************************/
 
 #include "core/markedclass.h"
-#include "core/markedobject_p.h"
 #include "core/serializer.h"
 #include "image/polygon.h"
 #include "text/sentence.h"
@@ -64,48 +63,65 @@ QString Serializer::toXML(const QVector<MarkedObject*>& objects)
     if (objects.isEmpty())
         return nullptr;
 
-
     QString xmldoc;
     QXmlStreamWriter xmlWriter(&xmldoc);
     xmlWriter.setAutoFormatting(true);
     xmlWriter.writeStartDocument();
-
     xmlWriter.writeStartElement("annotation");
 
-    for (const MarkedObject* item : objects) {
-        xmlWriter.writeStartElement("object");
+    if (dynamic_cast<const Sentence*>(objects.first())) {
+        for (const MarkedObject* item : objects) {
+            const Sentence *sentence = static_cast<const Sentence*>(item);
+            xmlWriter.writeStartElement("object");
 
-        xmlWriter.writeStartElement("class");
-        xmlWriter.writeCharacters(item->className());
-        xmlWriter.writeEndElement();
-
-        xmlWriter.writeStartElement(item->type());
-
-        for (int i = 0; i < item->size(); ++i) {
-            xmlWriter.writeStartElement(item->unitName());
-
-            xmlWriter.writeStartElement(item->memberX());
-
-            xmlWriter.writeCharacters(QString::number(item->XValueOf(i)));
-
+            xmlWriter.writeStartElement("class");
+            xmlWriter.writeCharacters(sentence->objClass()->name());
             xmlWriter.writeEndElement();
 
-            xmlWriter.writeStartElement(item->memberY());
+            xmlWriter.writeStartElement(sentence->unitName());
 
-            xmlWriter.writeCharacters(QString::number(item->YValueOf(i)));
-
+            xmlWriter.writeStartElement("x");
+            xmlWriter.writeCharacters(QString::number(sentence->begin()));
             xmlWriter.writeEndElement();
 
+            xmlWriter.writeStartElement("y");
+            xmlWriter.writeCharacters(QString::number(sentence->end()));
+            xmlWriter.writeEndElement();
+
+            xmlWriter.writeEndElement();
             xmlWriter.writeEndElement();
         }
+    }
+    else if (dynamic_cast<const Polygon*>(objects.first())) {
+        for (const MarkedObject* item : objects) {
+            const Polygon *polygon = static_cast<const Polygon*>(item);
+            xmlWriter.writeStartElement("object");
 
-        xmlWriter.writeEndElement();
+            xmlWriter.writeStartElement("class");
+            xmlWriter.writeCharacters(polygon->objClass()->name());
+            xmlWriter.writeEndElement();
+            xmlWriter.writeStartElement(polygon->type());
+            for (int i = 0; i < polygon->size(); ++i) {
+                xmlWriter.writeStartElement(polygon->unitName());
 
-        xmlWriter.writeEndElement();
+                xmlWriter.writeStartElement("x");
+                xmlWriter.writeCharacters(QString::number(polygon->at(i).x()));
+                xmlWriter.writeEndElement();
+
+                xmlWriter.writeStartElement("y");
+                xmlWriter.writeCharacters(QString::number(polygon->at(i).y()));
+                xmlWriter.writeEndElement();
+
+                xmlWriter.writeEndElement();
+            }
+            xmlWriter.writeEndElement();
+            xmlWriter.writeEndElement();
+        }
     }
 
     xmlWriter.writeEndElement();
 
+    xmlWriter.writeEndElement();
     xmlWriter.writeEndDocument();
 
     return xmldoc;
@@ -118,28 +134,43 @@ QString Serializer::toJSON(const QVector<MarkedObject*>& objects)
 
     QJsonArray classesArray;
 
-    for (const MarkedObject* item : objects) {
-        QJsonObject recordObject;
+    if (dynamic_cast<const Sentence*>(objects.first())) {
+        for (const MarkedObject* item : objects) {
+            const Sentence *sentence = static_cast<const Sentence*>(item);
+            QJsonObject recordObject;
+            recordObject.insert("Class", sentence->objClass()->name());
 
-        recordObject.insert("Class", item->className());
-
-        QJsonArray objectsArray;
-        QJsonObject markedObj;
-
-        for (int i = 0; i < item->size(); ++i) {
             QJsonObject unitObj;
+            unitObj.insert("x", QString::number(sentence->begin()));
+            unitObj.insert("y", QString::number(sentence->end()));
 
-            unitObj.insert(item->memberX(), QString::number(item->XValueOf(i)));
-
-            unitObj.insert(item->memberY(), QString::number(item->YValueOf(i)));
-
-            markedObj.insert(item->unitName(), unitObj);
-            objectsArray.push_back(markedObj);
+            recordObject.insert(sentence->unitName(), unitObj);
+            classesArray.push_back(recordObject);
         }
+    }
+    else if (dynamic_cast<const Polygon*>(objects.first())) {
+        for (const MarkedObject* item : objects) {
+            const Polygon *polygon = static_cast<const Polygon*>(item);
+            QJsonObject recordObject;
 
-        recordObject.insert(item->type(), objectsArray);
+            recordObject.insert("Class", polygon->objClass()->name());
 
-        classesArray.push_back(recordObject);
+            QJsonArray objectsArray;
+            QJsonObject markedObj;
+
+            for (int i = 0; i < polygon->size(); ++i) {
+                QJsonObject unitObj;
+
+                unitObj.insert("x", QString::number(polygon->at(i).x()));
+                unitObj.insert("y", QString::number(polygon->at(i).y()));
+
+                markedObj.insert(polygon->unitName(), unitObj);
+                objectsArray.push_back(markedObj);
+            }
+            recordObject.insert(polygon->type(), objectsArray);
+
+            classesArray.push_back(recordObject);
+        }
     }
 
     QJsonDocument doc(classesArray);
@@ -166,23 +197,29 @@ QVector<MarkedObject*> Serializer::readJSON(const QString& filename)
         }
 
         MarkedObject* object;
-        if (classObj["Polygon"] != QJsonValue::Undefined)
-            object = new Polygon(markedClass);
-        else if (classObj["Sentence"] != QJsonValue::Undefined)
-            object = new Sentence(markedClass);
-        else
-            return QVector<MarkedObject*>();
+        if (classObj["st"] != QJsonValue::Undefined) {
+            QJsonObject unitObj = classObj["st"].toObject();
+            double x = unitObj.value("x").toString().toDouble();
+            double y = unitObj.value("y").toString().toDouble();
 
-        QJsonArray typeArray = classObj[object->type()].toArray();
+            object = new Sentence(markedClass, x, y);
+        }
+        else if (classObj[Polygon::type()] != QJsonValue::Undefined) {
+            Polygon *pol = new Polygon(markedClass);
+            QJsonArray typeArray = classObj[Polygon::type()].toArray();
 
-        for (const QJsonValue& typeObj : qAsConst(typeArray)) {
-            QJsonObject unitObj = typeObj[object->unitName()].toObject();
+            for (const QJsonValue& typeObj : qAsConst(typeArray)) {
+                QJsonObject unitObj = typeObj[pol->unitName()].toObject();
+                double x = unitObj.value("x").toString().toDouble();
+                double y = unitObj.value("y").toString().toDouble();
 
-            // without toString() the value is 0
-            double memberX = unitObj.value(object->memberX()).toString().toDouble();
-            double memberY = unitObj.value(object->memberY()).toString().toDouble();
-
-            object->append(memberX, memberY);
+                pol->append(QPointF(x, y));
+            }
+            object = new Polygon(pol);
+        }
+        else {
+            savedObjects.clear();
+            break;
         }
 
         savedObjects.append(object);
@@ -215,29 +252,37 @@ QVector<MarkedObject*> Serializer::readXML(const QString& filename)
             xmlReader.readNextStartElement();
 
             MarkedObject* object;
-            if (xmlReader.name() == "Polygon")
-                object = new Polygon(markedClass);
-            else if (xmlReader.name() == "Sentence")
-                object = new Sentence(markedClass);
-            else
-                return QVector<MarkedObject*>();
-
-            xmlReader.readNextStartElement();
-
-            while (xmlReader.name() == object->unitName()) {
+            if (xmlReader.name() == "st") {
                 xmlReader.readNextStartElement();
-
-                double memberX = xmlReader.readElementText().toDouble();
+                double x = xmlReader.readElementText().toDouble();
 
                 xmlReader.readNextStartElement();
+                double y = xmlReader.readElementText().toDouble();
 
-                double memberY = xmlReader.readElementText().toDouble();
-
-                object->append(memberX, memberY);
+                object = new Sentence(markedClass, x, y);
+                xmlReader.readNextStartElement();
+                xmlReader.readNextStartElement();
+            }
+            else if (xmlReader.name() == Polygon::type()) {
+                Polygon *pol = new Polygon(markedClass);
 
                 xmlReader.readNextStartElement();
+                while (xmlReader.name() == pol->unitName()) {
+                    xmlReader.readNextStartElement();
+                    double x = xmlReader.readElementText().toDouble();
 
-                xmlReader.readNextStartElement();
+                    xmlReader.readNextStartElement();
+                    double y = xmlReader.readElementText().toDouble();
+
+                    pol->append(QPointF(x, y));
+                    xmlReader.readNextStartElement();
+                    xmlReader.readNextStartElement();
+                }
+                object = new Polygon(pol);
+            }
+            else {
+                savedObjects.clear();
+                break;
             }
 
             savedObjects << object;
