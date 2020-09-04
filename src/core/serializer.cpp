@@ -55,13 +55,13 @@ QString Serializer::serialize(const QVector<MarkedObject*>& objects, OutputType 
     else if (output_type == OutputType::JSON)
         return toJSON(objects);
 
-    return nullptr;
+    return QString();
 }
 
 QString Serializer::toXML(const QVector<MarkedObject*>& objects)
 {
     if (objects.isEmpty())
-        return nullptr;
+        return QString();
 
     QString xmldoc;
     QXmlStreamWriter xmlWriter(&xmldoc);
@@ -70,8 +70,8 @@ QString Serializer::toXML(const QVector<MarkedObject*>& objects)
     xmlWriter.writeStartElement("annotation");
 
     if (dynamic_cast<const Sentence*>(objects.first())) {
-        for (const MarkedObject* item : objects) {
-            const Sentence *sentence = static_cast<const Sentence*>(item);
+        for (const MarkedObject* object : objects) {
+            const Sentence *sentence = static_cast<const Sentence*>(object);
             xmlWriter.writeStartElement("object");
 
             xmlWriter.writeStartElement("class");
@@ -93,8 +93,8 @@ QString Serializer::toXML(const QVector<MarkedObject*>& objects)
         }
     }
     else if (dynamic_cast<const Polygon*>(objects.first())) {
-        for (const MarkedObject* item : objects) {
-            const Polygon *polygon = static_cast<const Polygon*>(item);
+        for (const MarkedObject* object : objects) {
+            const Polygon *polygon = static_cast<const Polygon*>(object);
             xmlWriter.writeStartElement("object");
 
             xmlWriter.writeStartElement("class");
@@ -130,13 +130,13 @@ QString Serializer::toXML(const QVector<MarkedObject*>& objects)
 QString Serializer::toJSON(const QVector<MarkedObject*>& objects)
 {
     if (objects.isEmpty())
-        return nullptr;
+        return QString();
 
     QJsonArray classesArray;
 
     if (dynamic_cast<const Sentence*>(objects.first())) {
-        for (const MarkedObject* item : objects) {
-            const Sentence *sentence = static_cast<const Sentence*>(item);
+        for (const MarkedObject* object : objects) {
+            const Sentence *sentence = static_cast<const Sentence*>(object);
             QJsonObject recordObject;
             recordObject.insert("Class", sentence->objClass()->name());
 
@@ -149,8 +149,8 @@ QString Serializer::toJSON(const QVector<MarkedObject*>& objects)
         }
     }
     else if (dynamic_cast<const Polygon*>(objects.first())) {
-        for (const MarkedObject* item : objects) {
-            const Polygon *polygon = static_cast<const Polygon*>(item);
+        for (const MarkedObject* object : objects) {
+            const Polygon *polygon = static_cast<const Polygon*>(object);
             QJsonObject recordObject;
 
             recordObject.insert("Class", polygon->objClass()->name());
