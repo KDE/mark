@@ -45,7 +45,7 @@ public:
      * @param anchor - new beggining of the sentence
      * @param end - new end of the sentence
      */
-    void move(double anchor, double end);
+    void move(double begin, double end);
 
     /** @return the begin of the sentence. */
     qreal begin() const;

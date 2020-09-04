@@ -44,10 +44,10 @@ void Sentence::clear()
     dpointer->m_end = 0;
 }
 
-void Sentence::move(double anchor, double end)
+void Sentence::move(double begin, double end)
 {
     auto dpointer = static_cast<SentencePrivate*>(d_p.get());
-    dpointer->m_begin = anchor;
+    dpointer->m_begin = begin;
     dpointer->m_end = end;
 }
 
