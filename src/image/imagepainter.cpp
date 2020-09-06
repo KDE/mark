@@ -207,9 +207,11 @@ void ImagePainter::paintObject(MarkedObject* object)
 
 bool ImagePainter::importObjects(QVector<MarkedObject*> objects)
 {
-    QPointF offset = m_currentItem->pos();
+    if (objects.first()->type() != MarkedObject::Type::Polygon)
+        return false;
 
     m_parent->reset();
+    QPointF offset = m_currentItem->pos();
 
     for (MarkedObject* object : objects) {
         Polygon* polygon = static_cast<Polygon*>(object);

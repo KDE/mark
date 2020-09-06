@@ -2,7 +2,6 @@
 #define TEXTPAINTER_H
 
 #include "ui/painter.h"
-#include "ui/container.h"
 
 #include <QVector>
 
@@ -22,7 +21,6 @@ public:
     void changeItem(const QString& path) override;
 
     bool importObjects(QVector<MarkedObject*> objects) override;
-
 private:
     QTextEdit *m_textEdit;
     double m_anchor;
