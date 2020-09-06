@@ -22,19 +22,19 @@
 
 #include <QAction>
 #include <QActionGroup>
-#include <QDir>
-#include <QToolButton>
-#include <QFileSystemWatcher>
-#include <QFileDialog>
-#include <QGraphicsPixmapItem>
-#include <QGraphicsItem>
-#include <QKeySequence>
-#include <QRandomGenerator>
-#include <QtGlobal>
 #include <QColorDialog>
+#include <QDir>
+#include <QFileDialog>
+#include <QFileSystemWatcher>
 #include <QFontMetrics>
+#include <QGraphicsItem>
+#include <QGraphicsPixmapItem>
+#include <QKeySequence>
 #include <QMessageBox>
+#include <QRandomGenerator>
 #include <QShortcut>
+#include <QToolButton>
+#include <QtGlobal>
 
 #include <KActionCollection>
 

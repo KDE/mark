@@ -1,5 +1,5 @@
-#include "text/textpainter.h"
 #include "text/sentence.h"
+#include "text/textpainter.h"
 
 #include <QFile>
 #include <QScrollBar>

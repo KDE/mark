@@ -1,8 +1,8 @@
 #ifndef IMAGEPAINTER_H
 #define IMAGEPAINTER_H
 
-#include "ui/painter.h"
 #include "ui/container.h"
+#include "ui/painter.h"
 
 #include <QVector>
 

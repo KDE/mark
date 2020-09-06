@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.*
  *************************************************************************/
 
-#include "image/polygon.h"
 #include "core/markedobject_p.h"
+#include "image/polygon.h"
 
 Polygon::Polygon(MarkedClass* objClass) :
     MarkedObject(std::make_unique<MarkedObjectPrivate>(), objClass)

@@ -21,9 +21,9 @@
 #include "core/markedclass.h"
 #include "core/serializer.h"
 
-#include <QScopedPointer>
-#include <QListWidgetItem>
 #include <QFileSystemWatcher>
+#include <QListWidgetItem>
+#include <QScopedPointer>
 
 #include <KXmlGuiWindow>
 

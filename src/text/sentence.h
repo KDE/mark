@@ -18,8 +18,8 @@
 #ifndef SENTENCE_H
 #define SENTENCE_H
 
-#include "core/markedobject.h"
 #include "core/markedclass.h"
+#include "core/markedobject.h"
 
 /** Class that represent the annotated data resulted from text annotation. */
 class Sentence : public MarkedObject

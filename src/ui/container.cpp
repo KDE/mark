@@ -1,8 +1,7 @@
 #include "container.h"
-#include "image/polygon.h"
 #include "image/imagepainter.h"
+#include "image/polygon.h"
 #include "text/textpainter.h"
-#include "text/sentence.h"
 
 #include <QGraphicsScene>
 #include <QMouseEvent>
