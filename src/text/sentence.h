@@ -34,6 +34,7 @@ public:
 
     void clear() override;
     QString unitName() const override;
+    MarkedObject::Type type() override;
 
     /** Verify if a sentence is valid (its begin is different and smaller than its end). */
     bool isValid();

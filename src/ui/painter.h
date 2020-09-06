@@ -49,7 +49,6 @@ public:
      * @param objects - objects to load.
      */
     virtual bool importObjects(QVector<MarkedObject*> objects) = 0;
-
 protected:
     Container* m_parent;
 

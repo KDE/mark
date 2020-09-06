@@ -56,6 +56,11 @@ QString Sentence::unitName() const
     return "st";
 }
 
+MarkedObject::Type Sentence::type()
+{
+    return MarkedObject::Type::Sentence;
+}
+
 qreal Sentence::begin() const
 {
     auto dpointer = static_cast<SentencePrivate*>(d_p.get());

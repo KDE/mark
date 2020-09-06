@@ -28,18 +28,24 @@ class Polygon : public MarkedObject, public QPolygonF
 {
 public:
     /** Create a Polygon, if given MarkedClass, assign it.
-     * @param objClass - MarkedClass to assign.
+     * @param objClass - MarkedClass instance to assign.
      */
     explicit Polygon(MarkedClass* objClass = nullptr);
 
-    /** Create a Polygon copying the contents of pol.
+    /** Create a Polygon copying pol.
      * @param pol - Polygon to copy.
      */
     Polygon(const Polygon* pol);
 
+    /** Create a Polygon with given MarkedClass and given values.
+     * @param objClass - MarkedClass instance to assign.
+     * @param values - A vector of pairs that represents the x and y of each point of the polygon.
+     */
+    Polygon(MarkedClass* objClass, const QVector<QPair<double, double>>& values);
+
     void clear() override;
     QString unitName() const override;
-    static QString type();
+    MarkedObject::Type type() override;
 };
 
 #endif // POLYGON_H

@@ -34,7 +34,6 @@ public:
         JSON
     };
 
-public:
     /** Write annotation to a file, the path is changed accordingly to the output_type.
      * @param filepath - path of the file, its extension is changed accordingly to output_type.
      * @param output_type - type of output to save.
