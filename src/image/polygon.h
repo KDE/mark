@@ -37,11 +37,11 @@ public:
      */
     Polygon(const Polygon* pol);
 
-    /** Create a Polygon with given MarkedClass and given values.
+    /** Create a Polygon with given MarkedClass and copying given polygon.
      * @param objClass - MarkedClass instance to assign.
-     * @param values - A vector of pairs that represents the x and y of each point of the polygon.
+     * @param values - Polygon to copy from.
      */
-    Polygon(MarkedClass* objClass, const QVector<QPair<double, double>>& values);
+    Polygon(MarkedClass* objClass, const QPolygonF& polygon);
 
     void clear() override;
     QString unitName() const override;

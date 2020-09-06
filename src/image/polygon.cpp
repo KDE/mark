@@ -18,8 +18,6 @@
 #include "image/polygon.h"
 #include "core/markedobject_p.h"
 
-#include <QPair>
-
 Polygon::Polygon(MarkedClass* objClass) :
     MarkedObject(std::make_unique<MarkedObjectPrivate>(), objClass)
 {
@@ -33,12 +31,11 @@ Polygon::Polygon(const Polygon* pol) :
         append(point);
 }
 
-Polygon::Polygon(MarkedClass* objClass, const QVector<QPair<double, double>>& values) :
+Polygon::Polygon(MarkedClass* objClass, const QPolygonF& polygon) :
     MarkedObject (std::make_unique<MarkedObjectPrivate>(), objClass)
 {
-    for (const auto& pair : values) {
-        append(QPointF(pair.first, pair.second));
-    }
+    for (const auto& point : polygon)
+        append(point);
 }
 
 void Polygon::clear()
