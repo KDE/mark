@@ -181,20 +181,20 @@ QVector<MarkedObject*> Serializer::readJSON(const QString& filename)
         MarkedObject* object = nullptr;
         if (objectType == MarkedObject::Type::Sentence) {
             QJsonObject sentenceObj = jsonObj["st"].toObject();
-            object = new Sentence(markedClasses[className], sentenceObj["x"].toDouble(), sentenceObj["y"].toDouble());
+            object = new Sentence(markedClasses[className], sentenceObj["x"].toString().toDouble(), sentenceObj["y"].toString().toDouble());
         }
         else if (objectType == MarkedObject::Type::Polygon) {
             QVector<QPointF> polygonPoints;
             for (const QJsonValue& unitObj : jsonObj["Polygon"].toArray()) {
                 QJsonObject pointJson = unitObj["pt"].toObject();
-                QPointF pointObj(pointJson["x"].toDouble(), pointJson["y"].toDouble());
+                QPointF pointObj(pointJson["x"].toString().toDouble(), pointJson["y"].toString().toDouble());
                 polygonPoints << pointObj;
             }
             object = new Polygon(markedClasses[className], polygonPoints);
         }
 
         if (object != nullptr)
-            savedObjects.append(object);
+            savedObjects << object;
     }
 
     return savedObjects;
