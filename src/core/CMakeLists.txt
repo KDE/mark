@@ -14,7 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(CORE_SRC
-    core/markedobject.cpp
     core/markedclass.cpp
+    core/markedobject.cpp
     core/serializer.cpp
 )

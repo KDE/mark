@@ -34,21 +34,21 @@ find_package(KF5 ${KF5_MIN_VERSION} REQUIRED COMPONENTS
 
 feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES FATAL_ON_MISSING_REQUIRED_PACKAGES)
 
+include(audio/CMakeLists.txt)
+include(core/CMakeLists.txt)
+include(image/CMakeLists.txt)
+include(text/CMakeLists.txt)
 include(ui/CMakeLists.txt)
 include(util/CMakeLists.txt)
-include(core/CMakeLists.txt)
-include(text/CMakeLists.txt)
-include(image/CMakeLists.txt)
-include(audio/CMakeLists.txt)
 
 set(mark_SRC
     main.cpp
+    ${AUDIO_SRC}
+    ${CORE_SRC}
+    ${IMAGE_SRC}
+    ${TEXT_SRC}
     ${UI_SRC}
     ${UTIL_SRC}
-    ${CORE_SRC}
-    ${TEXT_SRC}
-    ${IMAGE_SRC}
-    ${AUDIO_SRC}
 )
 
 add_executable(mark ${mark_SRC})

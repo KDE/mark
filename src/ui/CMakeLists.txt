@@ -14,7 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(UI_SRC
+    ui/container.cpp
     ui/mark.cpp
     ui/painter.cpp
-    ui/container.cpp
 )
