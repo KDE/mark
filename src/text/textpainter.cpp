@@ -154,10 +154,10 @@ void TextPainter::paintObject(MarkedObject *object)
 
 bool TextPainter::importObjects(QVector<MarkedObject*> objects)
 {
-    if (objects.first()->type() != MarkedObject::Type::Sentence)
+    if (objects.isEmpty() || objects.first()->type() != MarkedObject::Type::Sentence)
         return false;
 
     m_parent->savedObjects() = objects;
     repaint();
-    return !objects.isEmpty();
+    return true;
 }

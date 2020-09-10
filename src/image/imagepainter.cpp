@@ -207,7 +207,7 @@ void ImagePainter::paintObject(MarkedObject* object)
 
 bool ImagePainter::importObjects(QVector<MarkedObject*> objects)
 {
-    if (objects.first()->type() != MarkedObject::Type::Polygon)
+    if (objects.isEmpty() || objects.first()->type() != MarkedObject::Type::Polygon)
         return false;
 
     m_parent->reset();
@@ -226,7 +226,7 @@ bool ImagePainter::importObjects(QVector<MarkedObject*> objects)
 
     repaint();
 
-    return !objects.isEmpty();
+    return true;
 }
 
 MarkedObject* ImagePainter::scale(const MarkedObject* obj)
