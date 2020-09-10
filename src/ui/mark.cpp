@@ -154,7 +154,7 @@ void marK::setupConnections()
     connect(m_ui->listWidget, &QListWidget::currentItemChanged, this,
             qOverload<QListWidgetItem*, QListWidgetItem*>(&marK::changeItem));
 
-    connect(m_watcher, &QFileSystemWatcher::directoryChanged, this, [=](){ marK::updateFiles(); });
+    connect(m_watcher, &QFileSystemWatcher::directoryChanged, this, &marK::updateFiles);
 
     connect(m_ui->newClassButton, &QPushButton::clicked, this, qOverload<>(&marK::addNewClass));
 
@@ -223,11 +223,6 @@ void marK::setupConnections()
 }
 
 void marK::updateFiles()
-{
-    updateFiles(m_currentDirectory);
-}
-
-void marK::updateFiles(const QString &path)
 {
     int index = m_ui->listWidget->currentRow();
     m_ui->listWidget->clear();
@@ -301,7 +296,7 @@ void marK::changeDirectory()
         m_ui->listWidget->clear();
         m_ui->containerWidget->clear();
         m_filepath.clear();
-        updateFiles(path);
+        updateFiles();
 
         QFontMetrics metrics(m_ui->listLabel->font());
         QString elidedText = metrics.elidedText(m_currentDirectory, Qt::ElideMiddle,

@@ -49,9 +49,6 @@ public:
      */
     void changeIndex(const int count);
 
-    /** Update known files in the working directory. */
-    void updateFiles();
-
     /** Update comboBox reloading all MarkedClass's objects. */
     void updateComboBox();
 
@@ -72,10 +69,8 @@ public slots:
      */
     void changeItem(QListWidgetItem *current, QListWidgetItem *previous);
 
-    /** Update known files in the given directory and make it the current working directory.
-     * @param path - path of the directory.
-     */
-    void updateFiles(const QString &path);
+    /** Update the known files in the current working directory. */
+    void updateFiles();
 
     /** Create a new MarkedClass and add it to comboBox. */
     void addNewClass();
