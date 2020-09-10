@@ -26,8 +26,8 @@ public:
     void paintObject(MarkedObject* object) override;
     void repaint() override;
     void undo() override;
-    void deleteCurrentObject() override;
-    void changeItem(const QString& path) override;
+    void deleteObject() override;
+    void changeItem(const QString& filepath) override;
 
     bool importObjects(QVector<MarkedObject*> objects) override;
 

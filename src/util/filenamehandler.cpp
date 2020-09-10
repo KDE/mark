@@ -11,20 +11,20 @@ const char* FilenameHandler::filterString(Serializer::OutputType outputType)
     return "";
 }
 
-QString FilenameHandler::placeSuffix(const QString& filename, Serializer::OutputType outputType)
+QString FilenameHandler::placeSuffix(const QString& filepath, Serializer::OutputType outputType)
 {
     QMimeDatabase mimeDatabase;
-    QString outputFilename (filename);
-    QString suffix = mimeDatabase.suffixForFileName(filename);
+    QString outputFilepath (filepath);
+    QString suffix = mimeDatabase.suffixForFileName(filepath);
     if (!suffix.isEmpty()) {
         if (suffix == "json" || suffix == "xml")
-            outputFilename.replace(".", "_");
+            outputFilepath.replace(".", "_");
         else
-            outputFilename.remove("." + suffix);
+            outputFilepath.remove("." + suffix);
     }
 
-    outputFilename.append(outputType == Serializer::OutputType::XML ? ".xml" : ".json");
-    return outputFilename;
+    outputFilepath.append(outputType == Serializer::OutputType::XML ? ".xml" : ".json");
+    return outputFilepath;
 }
 
 bool FilenameHandler::isImageFile(const QString& filepath)

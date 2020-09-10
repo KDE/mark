@@ -41,16 +41,16 @@ public:
     static bool write(const QString& filepath, const QVector<MarkedObject*>& objects, OutputType output_type);
 
     /** Read given file and return the annotated objects inside it.
-     * @param filename - path of the file to load.
+     * @param filepath - path of the file to load.
      */
-    static QVector<MarkedObject*> read(const QString& filename);
+    static QVector<MarkedObject*> read(const QString& filepath);
 
 private:
     /** Read given file.
      * @return raw data readen.
-     * @param filename - path of the file.
+     * @param filepath - path of the file.
      */
-    static QByteArray getData(const QString& filename);
+    static QByteArray getData(const QString& filepath);
 
     /** Iterate through annnotated data and create a JSON document.
      * @return JSON document created.
@@ -64,19 +64,19 @@ private:
 
     /** Read given JSON document and create MarkedObject's objects accordingly.
      * @return created objects.
-     * @param filename - path of the JSON document.
+     * @param filepath - path of the JSON document.
      */
-    static QVector<MarkedObject*> readJSON(const QString& filename);
+    static QVector<MarkedObject*> readJSON(const QString& filepath);
 
     /** Read given XML document and create MarkedObject's objects accordingly.
      * @return created objects.
-     * @param filename - path of the XML document.
+     * @param filepath - path of the XML document.
      */
-    static QVector<MarkedObject*> readXML(const QString& filename);
+    static QVector<MarkedObject*> readXML(const QString& filepath);
 
-    /** Turns annotated objects into the file format of given output_type.
-     * @param output_type - file format to serialize the annotated objects.
+    /** Turns annotated objects into the file format of given OutputType.
+     * @param outputType - file format to serialize the annotated objects.
      */
-    static QString serialize(const QVector<MarkedObject*>& objects, OutputType output_type);
+    static QString serialize(const QVector<MarkedObject*>& objects, OutputType outputType);
 };
 #endif // SERIALIZER_H

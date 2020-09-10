@@ -33,26 +33,26 @@
 #include <QtGlobal>
 #include <QXmlStreamWriter>
 
-QVector<MarkedObject*> Serializer::read(const QString& filename)
+QVector<MarkedObject*> Serializer::read(const QString& filepath)
 {
     QVector<MarkedObject*> objects;
 
-    if (QFile::exists(filename)) {
-        if (filename.endsWith(".xml"))
-            objects = readXML(filename);
-        else if (filename.endsWith(".json"))
-            objects = readJSON(filename);
+    if (QFile::exists(filepath)) {
+        if (filepath.endsWith(".xml"))
+            objects = readXML(filepath);
+        else if (filepath.endsWith(".json"))
+            objects = readJSON(filepath);
     }
 
     return objects;
 }
 
-QString Serializer::serialize(const QVector<MarkedObject*>& objects, OutputType output_type)
+QString Serializer::serialize(const QVector<MarkedObject*>& objects, OutputType outputType)
 {
-    if (output_type == OutputType::XML)
+    if (outputType == OutputType::XML)
         return toXML(objects);
 
-    else if (output_type == OutputType::JSON)
+    else if (outputType == OutputType::JSON)
         return toJSON(objects);
 
     return QString();
@@ -157,12 +157,12 @@ QString Serializer::toJSON(const QVector<MarkedObject*>& objects)
     return QJsonDocument(classesArray).toJson();
 }
 
-QVector<MarkedObject*> Serializer::readJSON(const QString& filename)
+QVector<MarkedObject*> Serializer::readJSON(const QString& filepath)
 {
     QVector<MarkedObject*> savedObjects;
     QHash<QString, MarkedClass*> markedClasses;
 
-    QByteArray data = getData(filename);
+    QByteArray data = getData(filepath);
     QJsonDocument doc = QJsonDocument::fromJson(data);
 
     QJsonArray objectArray = doc.array();
@@ -201,12 +201,12 @@ QVector<MarkedObject*> Serializer::readJSON(const QString& filename)
     return savedObjects;
 }
 
-QVector<MarkedObject*> Serializer::readXML(const QString& filename)
+QVector<MarkedObject*> Serializer::readXML(const QString& filepath)
 {
     QVector<MarkedObject*> savedObjects;
     QHash<QString, MarkedClass*> markedClasses;
 
-    QByteArray data = getData(filename);
+    QByteArray data = getData(filepath);
 
     QXmlStreamReader xmlReader(data);
     xmlReader.readNextStartElement();
@@ -259,9 +259,9 @@ QVector<MarkedObject*> Serializer::readXML(const QString& filename)
     return savedObjects;
 }
 
-QByteArray Serializer::getData(const QString& filename)
+QByteArray Serializer::getData(const QString& filepath)
 {
-    QFile file(filename);
+    QFile file(filepath);
     file.open(QIODevice::ReadOnly|QIODevice::Text);
     QByteArray data = file.readAll();
     file.close();
@@ -269,13 +269,13 @@ QByteArray Serializer::getData(const QString& filename)
     return data;
 }
 
-bool Serializer::write(const QString &filepath, const QVector<MarkedObject*>& objects, OutputType output_type)
+bool Serializer::write(const QString &filepath, const QVector<MarkedObject*>& objects, OutputType outputType)
 {
     if (!objects.isEmpty()) {
-        QString document = serialize(objects, output_type);
+        QString document = serialize(objects, outputType);
 
         if (!document.isEmpty()) {
-            QString outputFilename = FilenameHandler::placeSuffix(filepath, output_type);
+            QString outputFilename = FilenameHandler::placeSuffix(filepath, outputType);
             QFile file(outputFilename);
             if (file.open(QIODevice::WriteOnly|QIODevice::Text))
                 return file.write(document.toUtf8()) != -1;

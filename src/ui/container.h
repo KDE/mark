@@ -66,7 +66,7 @@ public:
     /** Load given item/file.
      * @param itemPath - Path of the item.
      */
-    void changeItem(const QString& itemPath);
+    void changeItem(const QString& filepath);
 
     /** Repaint annotated objects. */
     void repaint();

@@ -39,7 +39,7 @@
 
 #include <KActionCollection>
 
-static QDir markDirectory()
+static QDir markTempDirectory()
 {
     return QDir(QDir::tempPath().append("/mark"));
 }
@@ -64,8 +64,8 @@ marK::marK(QWidget *parent) :
     updateFiles();
     addNewClass();
 
-    if (!markDirectory().exists())
-        markDirectory().mkpath(".");
+    if (!markTempDirectory().exists())
+        markTempDirectory().mkpath(".");
 }
 
 void marK::setupActions()
@@ -227,7 +227,7 @@ void marK::updateFiles()
     int index = m_ui->listWidget->currentRow();
     m_ui->listWidget->clear();
 
-    QDir resDirectory(path);
+    QDir resDirectory(m_currentDirectory);
     QStringList items = resDirectory.entryList(QDir::Files);
     // removing json and xml files that are resulted from autosave
     for (const QString &item : qAsConst(items)) {
@@ -281,17 +281,17 @@ void marK::changeItem(QListWidgetItem *current, QListWidgetItem *previous)
 
 void marK::changeDirectory()
 {
-    QString path = QFileDialog::getExistingDirectory(this, "Select Directory", QDir::homePath(),
+    QString newDirectoryPath = QFileDialog::getExistingDirectory(this, "Select Directory", QDir::homePath(),
                                                      QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
-    if (m_currentDirectory == path)
+    if (m_currentDirectory == newDirectoryPath)
         return;
 
-    if (!path.isEmpty()) {
+    if (!newDirectoryPath.isEmpty()) {
         if (m_currentDirectory != "")
             m_watcher->removePath(m_currentDirectory);
 
-        m_currentDirectory = path;
+        m_currentDirectory = newDirectoryPath;
         m_watcher->addPath(m_currentDirectory);
         m_ui->listWidget->clear();
         m_ui->containerWidget->clear();
@@ -353,16 +353,16 @@ void marK::selectClassColor()
     m_ui->containerWidget->repaint();
 }
 
-void marK::saveObjects(Serializer::OutputType type)
+void marK::saveObjects(Serializer::OutputType outputType)
 {
-    QString filename = QFileDialog::getSaveFileName(this, tr("Save File"),
+    QString filepath = QFileDialog::getSaveFileName(this, tr("Save File"),
                            m_currentDirectory,
-                           tr(FilenameHandler::filterString(type)));
+                           tr(FilenameHandler::filterString(outputType)));
 
-    if (filename.isEmpty())
+    if (filepath.isEmpty())
         return;
 
-    bool success = Serializer::write(filename, m_ui->containerWidget->savedObjects(), type);
+    bool success = Serializer::write(filepath, m_ui->containerWidget->savedObjects(), outputType);
 
     if (!success) {
         QMessageBox msgBox;
@@ -404,7 +404,7 @@ void marK::importData()
 
 void marK::retrieveTempFile()
 {
-    QString tempFilePath = markDirectory().filePath(QString(m_filepath).replace("/", "_"));
+    QString tempFilePath = markTempDirectory().filePath(QString(m_filepath).replace("/", "_"));
     tempFilePath = FilenameHandler::placeSuffix(tempFilePath, Serializer::OutputType::JSON);
 
     QVector<MarkedObject*> objects = Serializer::read(tempFilePath);
@@ -427,7 +427,7 @@ void marK::retrieveTempFile()
 
 void marK::makeTempFile()
 {
-    QString tempFilePath = markDirectory().filePath(QString(m_filepath).replace("/", "_"));
+    QString tempFilePath = markTempDirectory().filePath(QString(m_filepath).replace("/", "_"));
 
     Serializer::write(tempFilePath, m_ui->containerWidget->savedObjects(), Serializer::OutputType::JSON);
 }
@@ -457,6 +457,5 @@ void marK::autoSave()
 
 marK::~marK()
 {
-    if (markDirectory().exists())
-        markDirectory().removeRecursively();
+    markTempDirectory().removeRecursively();
 }

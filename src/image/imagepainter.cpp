@@ -106,12 +106,12 @@ void ImagePainter::paint(QPoint point, bool isDragging)
     }
 }
 
-void ImagePainter::changeItem(const QString& path)
+void ImagePainter::changeItem(const QString& filepath)
 {
     QGraphicsPixmapItem* pixmapItem = nullptr;
 
-    if (path != "") {
-        QPixmap image(path);
+    if (filepath != "") {
+        QPixmap image(filepath);
         QPixmap scaledImage;
 
         if (image.height() >= 1280)
@@ -166,7 +166,7 @@ void ImagePainter::undo()
     }
 }
 
-void ImagePainter::deleteCurrentObject()
+void ImagePainter::deleteObject()
 {
     Polygon* polygon = static_cast<Polygon*>(m_parent->currentObject());
 

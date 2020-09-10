@@ -25,13 +25,13 @@ TextPainter::~TextPainter()
     m_textEdit->close();
 }
 
-void TextPainter::changeItem(const QString& path)
+void TextPainter::changeItem(const QString& filepath)
 {
-    QFile file(path);
-    if (!file.open(QIODevice::ReadOnly|QIODevice::Text))
+    QFile textFile(filepath);
+    if (!textFile.open(QIODevice::ReadOnly|QIODevice::Text))
         return;
 
-    QTextStream textStream (&file);
+    QTextStream textStream (&textFile);
 
     m_textEdit->setText(textStream.readAll());
 }
@@ -128,7 +128,7 @@ void TextPainter::undo()
     repaint();
 }
 
-void TextPainter::deleteCurrentObject()
+void TextPainter::deleteObject()
 {
     if (m_parent->savedObjects().isEmpty())
         return;

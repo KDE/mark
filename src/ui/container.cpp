@@ -44,25 +44,25 @@ bool Container::eventFilter(QObject* watched, QEvent* event)
     return true;
 }
 
-void Container::changeItem(const QString& path)
+void Container::changeItem(const QString& filepath)
 {
     reset();
 
     scene()->setSceneRect(0, 0, 850, 640);
     scene()->clear();
 
-    if (m_painterType != PainterType::Text && FilenameHandler::isTextFile(path)) {
+    if (m_painterType != PainterType::Text && FilenameHandler::isTextFile(filepath)) {
         m_painter = std::make_unique<TextPainter>(this);
         m_painterType = PainterType::Text;
         emit painterChanged(m_painterType);
     }
-    else if (m_painterType != PainterType::Image && FilenameHandler::isImageFile(path)) {
+    else if (m_painterType != PainterType::Image && FilenameHandler::isImageFile(filepath)) {
         m_painter = std::make_unique<ImagePainter>(this);
         m_painterType = PainterType::Image;
         emit painterChanged(m_painterType);
     }
 
-    m_painter->changeItem(path);
+    m_painter->changeItem(filepath);
 }
 
 void Container::setObjClass(MarkedClass* objClass)
@@ -100,7 +100,7 @@ void Container::undo()
 
 void Container::deleteObject()
 {
-    m_painter->deleteCurrentObject();
+    m_painter->deleteObject();
 }
 
 void Container::reset()

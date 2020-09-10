@@ -79,9 +79,9 @@ public slots:
     void selectClassColor();
 
     /** Save Annotation in the selected file.
-     * @param type - type of output to save in the file.
+     * @param outputType - type of output to save in the file.
      */
-    void saveObjects(Serializer::OutputType type);
+    void saveObjects(Serializer::OutputType outputType);
 
     /** Import annotation data. */
     void importData();
