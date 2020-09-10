@@ -19,6 +19,7 @@
 #include "core/serializer.h"
 #include "image/polygon.h"
 #include "text/sentence.h"
+#include "util/filenamehandler.h"
 
 #include <memory>
 
@@ -271,30 +272,15 @@ QByteArray Serializer::getData(const QString& filename)
 bool Serializer::write(const QString &filepath, const QVector<MarkedObject*>& objects, OutputType output_type)
 {
     if (!objects.isEmpty()) {
-        QString filename = QString(filepath);
-        // this part needs improvement
-        filename.replace(QRegularExpression(".jpg|.jpeg|.png|.xpm|.txt"), (output_type == OutputType::XML ? ".xml" : ".json"));
-
         QString document = serialize(objects, output_type);
 
         if (!document.isEmpty()) {
-            QFile file(filename);
-            if (file.open(QIODevice::WriteOnly|QIODevice::Text)) {
-                file.write(document.toUtf8());
-                file.close();
-                return true;
-            }
+            QString outputFilename = FilenameHandler::placeSuffix(filepath, output_type);
+            QFile file(outputFilename);
+            if (file.open(QIODevice::WriteOnly|QIODevice::Text))
+                return file.write(document.toUtf8()) != -1;
         }
     }
 
     return false;
-}
-
-const char* Serializer::filterString(OutputType output_type)
-{
-    if (output_type == OutputType::XML)
-        return "XML files (*.xml *.XML)";
-    else if (output_type == OutputType::JSON)
-        return "JSON files (*.json *.JSON)";
-    return "";
 }

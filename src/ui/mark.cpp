@@ -15,10 +15,11 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.*
  *************************************************************************/
 
+#include "image/imagepainter.h"
 #include "ui/container.h"
 #include "ui/mark.h"
 #include "ui/ui_mark.h"
-#include "image/imagepainter.h"
+#include "util/filenamehandler.h"
 
 #include <QAction>
 #include <QActionGroup>
@@ -232,20 +233,24 @@ void marK::updateFiles(const QString &path)
     m_ui->listWidget->clear();
 
     QDir resDirectory(path);
-    QStringList items = resDirectory.entryList(QStringList() << "*.jpg" << "*.JPG" 
-                                                             << "*.jpeg" << "*.JPEG"
-                                                             << "*.png" << "*.PNG"
-                                                             << "*.txt" << "*.TXT", QDir::Files);
+    QStringList items = resDirectory.entryList(QDir::Files);
+    // removing json and xml files that are resulted from autosave
+    for (const QString &item : qAsConst(items)) {
+        items.removeOne(FilenameHandler::placeSuffix(item, Serializer::OutputType::JSON));
+        items.removeOne(FilenameHandler::placeSuffix(item, Serializer::OutputType::XML));
+    }
 
     for (const QString &item : qAsConst(items)) {
-        QPixmap item_pix = (item.endsWith(".txt") || item.endsWith(".TXT")) ? 
-                            QIcon::fromTheme("document-edit-sign").pixmap(20, 20) :
-                            QPixmap(resDirectory.filePath(item));
+        if (FilenameHandler::isTextFile(item) || FilenameHandler::isImageFile(item)) {
+            QPixmap item_pix = (FilenameHandler::isTextFile(item)) ?
+                QIcon::fromTheme("document-edit-sign").pixmap(20, 20) :
+                QPixmap(resDirectory.filePath(item));
 
-        item_pix = item_pix.scaledToWidth(20);
+            item_pix = item_pix.scaledToWidth(20);
 
-        QListWidgetItem *itemW = new QListWidgetItem(item_pix, item);
-        m_ui->listWidget->addItem(itemW);
+            QListWidgetItem *itemW = new QListWidgetItem(item_pix, item);
+            m_ui->listWidget->addItem(itemW);
+        }
     }
 
     m_ui->listWidget->setCurrentRow(index);
@@ -357,7 +362,7 @@ void marK::saveObjects(Serializer::OutputType type)
 {
     QString filename = QFileDialog::getSaveFileName(this, tr("Save File"),
                            m_currentDirectory,
-                           tr(Serializer::filterString(type)));
+                           tr(FilenameHandler::filterString(type)));
 
     if (filename.isEmpty())
         return;
@@ -405,10 +410,7 @@ void marK::importData()
 void marK::retrieveTempFile()
 {
     QString tempFilePath = markDirectory().filePath(QString(m_filepath).replace("/", "_"));
-    tempFilePath.replace(QRegularExpression(".jpg|.jpeg|.png|.xpm|.txt"), ".json");
-
-    if (!QFile::exists(tempFilePath))
-        return;
+    tempFilePath = FilenameHandler::placeSuffix(tempFilePath, Serializer::OutputType::JSON);
 
     QVector<MarkedObject*> objects = Serializer::read(tempFilePath);
 
