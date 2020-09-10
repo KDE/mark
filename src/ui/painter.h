@@ -17,9 +17,6 @@ public:
     explicit Painter(Container* parent);
     virtual ~Painter();
 
-    /** @return pointer to the current instance of QGraphicsItem. */
-    QGraphicsItem* currentItem() const { return m_currentItem; }
-
     /** paint given point.
      * @param point - point to paint.
      * @param isDragging = to know if it is a mouse drag event
@@ -51,9 +48,6 @@ public:
     virtual bool importObjects(QVector<MarkedObject*> objects) = 0;
 protected:
     Container* m_parent;
-
-    QVector<QGraphicsItem*> m_items;
-    QGraphicsItem* m_currentItem;
 };
 
 #endif // PAINTER_H

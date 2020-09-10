@@ -36,6 +36,8 @@ public:
     void setShape(Shape shape) { m_shape = shape; m_parent->currentObject()->clear(); repaint(); }
     
 private:
+    QVector<QGraphicsItem*> m_items;
+    QGraphicsItem* m_currentItem;
     qreal m_scaleW;
     qreal m_scaleH;
 
