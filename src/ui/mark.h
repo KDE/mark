@@ -64,10 +64,9 @@ public:
 public slots:
 
     /** Change working file.
-     * @param current - current item in the widget list.
-     * @param previous - previous item in the widget list.
+     * @param item - item to load.
      */
-    void changeItem(QListWidgetItem *current, QListWidgetItem *previous);
+    void changeItem(QListWidgetItem *item);
 
     /** Update the known files in the current working directory. */
     void updateFiles();

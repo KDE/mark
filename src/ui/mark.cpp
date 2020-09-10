@@ -152,7 +152,7 @@ void marK::setupConnections()
     KStandardAction::quit(qApp, SLOT(quit()), actionCollection());
 
     connect(m_ui->listWidget, &QListWidget::currentItemChanged, this,
-            qOverload<QListWidgetItem*, QListWidgetItem*>(&marK::changeItem));
+            qOverload<QListWidgetItem*>(&marK::changeItem));
 
     connect(m_watcher, &QFileSystemWatcher::directoryChanged, this, &marK::updateFiles);
 
@@ -262,13 +262,13 @@ void marK::changeIndex(const int count)
 
     m_ui->listWidget->setCurrentRow(newIndex);
     QListWidgetItem *currentItem = m_ui->listWidget->item(newIndex);
-    changeItem(currentItem, nullptr);
+    changeItem(currentItem);
 }
 
-void marK::changeItem(QListWidgetItem *current, QListWidgetItem *previous)
+void marK::changeItem(QListWidgetItem *item)
 {
-    if (current != nullptr) {
-        QString itemPath = QDir(m_currentDirectory).filePath(current->text());
+    if (item != nullptr) {
+        QString itemPath = QDir(m_currentDirectory).filePath(item->text());
 
         if (itemPath != m_filepath) {
             makeTempFile();
