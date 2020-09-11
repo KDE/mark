@@ -5,7 +5,7 @@
 
 #include <QString>
 
-class FilenameHandler
+class FileUtils
 {
 public:
 

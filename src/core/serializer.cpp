@@ -19,7 +19,7 @@
 #include "core/serializer.h"
 #include "image/polygon.h"
 #include "text/sentence.h"
-#include "util/filenamehandler.h"
+#include "util/fileutils.h"
 
 #include <memory>
 
@@ -275,7 +275,7 @@ bool Serializer::write(const QString &filepath, const QVector<MarkedObject*>& ob
         QString document = serialize(objects, outputType);
 
         if (!document.isEmpty()) {
-            QString outputFilename = FilenameHandler::placeSuffix(filepath, outputType);
+            QString outputFilename = FileUtils::placeSuffix(filepath, outputType);
             QFile file(outputFilename);
             if (file.open(QIODevice::WriteOnly|QIODevice::Text))
                 return file.write(document.toUtf8()) != -1;

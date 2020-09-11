@@ -19,7 +19,7 @@
 #include "ui/container.h"
 #include "ui/mark.h"
 #include "ui/ui_mark.h"
-#include "util/filenamehandler.h"
+#include "util/fileutils.h"
 
 #include <QAction>
 #include <QActionGroup>
@@ -231,13 +231,13 @@ void marK::updateFiles()
     QStringList items = resDirectory.entryList(QDir::Files);
     // removing json and xml files that are resulted from autosave
     for (const QString &item : qAsConst(items)) {
-        items.removeOne(FilenameHandler::placeSuffix(item, Serializer::OutputType::JSON));
-        items.removeOne(FilenameHandler::placeSuffix(item, Serializer::OutputType::XML));
+        items.removeOne(FileUtils::placeSuffix(item, Serializer::OutputType::JSON));
+        items.removeOne(FileUtils::placeSuffix(item, Serializer::OutputType::XML));
     }
 
     for (const QString &item : qAsConst(items)) {
-        if (FilenameHandler::isTextFile(item) || FilenameHandler::isImageFile(item)) {
-            QPixmap item_pix = (FilenameHandler::isTextFile(item)) ?
+        if (FileUtils::isTextFile(item) || FileUtils::isImageFile(item)) {
+            QPixmap item_pix = (FileUtils::isTextFile(item)) ?
                 QIcon::fromTheme("document-edit-sign").pixmap(20, 20) :
                 QPixmap(resDirectory.filePath(item));
 
@@ -357,7 +357,7 @@ void marK::saveObjects(Serializer::OutputType outputType)
 {
     QString filepath = QFileDialog::getSaveFileName(this, tr("Save File"),
                            m_currentDirectory,
-                           tr(FilenameHandler::filterString(outputType)));
+                           tr(FileUtils::filterString(outputType)));
 
     if (filepath.isEmpty())
         return;
@@ -405,7 +405,7 @@ void marK::importData()
 void marK::retrieveTempFile()
 {
     QString tempFilePath = markTempDirectory().filePath(QString(m_filepath).replace("/", "_"));
-    tempFilePath = FilenameHandler::placeSuffix(tempFilePath, Serializer::OutputType::JSON);
+    tempFilePath = FileUtils::placeSuffix(tempFilePath, Serializer::OutputType::JSON);
 
     QVector<MarkedObject*> objects = Serializer::read(tempFilePath);
 
