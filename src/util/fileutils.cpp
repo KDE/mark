@@ -1,8 +1,8 @@
-#include "util/filenamehandler.h"
+#include "util/fileutils.h"
 
 #include <QMimeDatabase>
 
-const char* FilenameHandler::filterString(Serializer::OutputType outputType)
+const char* FileUtils::filterString(Serializer::OutputType outputType)
 {
     if (outputType == Serializer::OutputType::XML)
         return "XML files (*.xml *.XML)";
@@ -11,7 +11,7 @@ const char* FilenameHandler::filterString(Serializer::OutputType outputType)
     return "";
 }
 
-QString FilenameHandler::placeSuffix(const QString& filepath, Serializer::OutputType outputType)
+QString FileUtils::placeSuffix(const QString& filepath, Serializer::OutputType outputType)
 {
     QMimeDatabase mimeDatabase;
     QString outputFilepath (filepath);
@@ -27,14 +27,14 @@ QString FilenameHandler::placeSuffix(const QString& filepath, Serializer::Output
     return outputFilepath;
 }
 
-bool FilenameHandler::isImageFile(const QString& filepath)
+bool FileUtils::isImageFile(const QString& filepath)
 {
     QMimeDatabase database;
     QMimeType mimeType = database.mimeTypeForFile(filepath);
     return mimeType.inherits("image/jpeg") || mimeType.inherits("image/png");
 }
 
-bool FilenameHandler::isTextFile(const QString& filepath)
+bool FileUtils::isTextFile(const QString& filepath)
 {
     QMimeDatabase database;
     QMimeType mimeType = database.mimeTypeForFile(filepath);

@@ -2,7 +2,7 @@
 #include "image/imagepainter.h"
 #include "image/polygon.h"
 #include "text/textpainter.h"
-#include "util/filenamehandler.h"
+#include "util/fileutils.h"
 
 #include <QGraphicsScene>
 #include <QMouseEvent>
@@ -51,12 +51,12 @@ void Container::changeItem(const QString& filepath)
     scene()->setSceneRect(0, 0, 850, 640);
     scene()->clear();
 
-    if (m_painterType != PainterType::Text && FilenameHandler::isTextFile(filepath)) {
+    if (m_painterType != PainterType::Text && FileUtils::isTextFile(filepath)) {
         m_painter = std::make_unique<TextPainter>(this);
         m_painterType = PainterType::Text;
         emit painterChanged(m_painterType);
     }
-    else if (m_painterType != PainterType::Image && FilenameHandler::isImageFile(filepath)) {
+    else if (m_painterType != PainterType::Image && FileUtils::isImageFile(filepath)) {
         m_painter = std::make_unique<ImagePainter>(this);
         m_painterType = PainterType::Image;
         emit painterChanged(m_painterType);
