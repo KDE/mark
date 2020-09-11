@@ -100,7 +100,7 @@ void Container::undo()
 
 void Container::deleteObject()
 {
-    m_painter->deleteObject();
+    m_painter->deleteCurrentObject();
 }
 
 void Container::reset()

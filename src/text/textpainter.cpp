@@ -128,7 +128,7 @@ void TextPainter::undo()
     repaint();
 }
 
-void TextPainter::deleteObject()
+void TextPainter::deleteCurrentObject()
 {
     if (m_parent->savedObjects().isEmpty())
         return;

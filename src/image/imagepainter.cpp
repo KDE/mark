@@ -166,7 +166,7 @@ void ImagePainter::undo()
     }
 }
 
-void ImagePainter::deleteObject()
+void ImagePainter::deleteCurrentObject()
 {
     Polygon* polygon = static_cast<Polygon*>(m_parent->currentObject());
 
