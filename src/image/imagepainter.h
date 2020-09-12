@@ -15,12 +15,8 @@ public:
         Rectangle
     };
 
-public:
     explicit ImagePainter(Container* parent);
     ~ImagePainter();
-    
-    qreal scaleW() const { return m_scaleW; }
-    qreal scaleH() const { return m_scaleH; }
     
     void paint(QPoint point, bool isDragging) override;
     void paintObject(MarkedObject* object) override;
@@ -30,12 +26,15 @@ public:
     void changeItem(const QString& filepath) override;
 
     bool importObjects(QVector<MarkedObject*> objects) override;
-
-    MarkedObject* scale(const MarkedObject* obj);
     
     void setShape(Shape shape) { m_shape = shape; m_parent->currentObject()->clear(); repaint(); }
-    
+
 private:
+    /** @return a scaled Polygon based on given Polygon.
+     * @params obj - Polygon to copy
+     */
+    MarkedObject* scale(const MarkedObject* obj);
+
     QVector<QGraphicsItem*> m_items;
     QGraphicsItem* m_currentItem;
     qreal m_scaleW;

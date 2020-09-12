@@ -106,7 +106,6 @@ void Container::deleteObject()
 void Container::reset()
 {
     m_savedObjects.clear();
-    m_tempObjects.clear();
     m_currentObject->clear();
     if (m_painterType != PainterType::None)
         m_painter->repaint();
