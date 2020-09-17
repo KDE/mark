@@ -30,11 +30,6 @@ public:
     void setShape(Shape shape) { m_shape = shape; m_parent->currentObject()->clear(); repaint(); }
 
 private:
-    /** @return a scaled Polygon based on given Polygon.
-     * @params obj - Polygon to copy
-     */
-    MarkedObject* scale(const MarkedObject* obj);
-
     QVector<QGraphicsItem*> m_items;
     QGraphicsItem* m_currentItem;
     qreal m_scaleW;

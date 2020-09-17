@@ -46,6 +46,7 @@ public:
     void clear() override;
     QString unitName() const override;
     MarkedObject::Type type() override;
+    void scale(const QPointF offset, const qreal scaleW, const qreal scaleH);
 };
 
 #endif // POLYGON_H

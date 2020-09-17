@@ -52,3 +52,11 @@ MarkedObject::Type Polygon::type()
 {
     return MarkedObject::Type::Polygon;
 }
+
+void Polygon::scale(const QPointF offset, const qreal scaleW, const qreal scaleH)
+{
+    for (QPointF& point : *this) {
+        point -= offset;
+        point = QPointF(point.x() / scaleW, point.y() / scaleH);
+    }
+}

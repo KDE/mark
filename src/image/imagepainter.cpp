@@ -69,7 +69,8 @@ void ImagePainter::paint(QPoint point, bool isDragging)
                 *currentPolygon << clickedPoint;
 
                 if (currentPolygon->size() > 1 && currentPolygon->isClosed()) {
-                    m_parent->appendObject(scale(currentPolygon));
+                    currentPolygon->scale(m_currentItem->pos(), m_scaleW, m_scaleH);
+                    m_parent->appendObject(currentPolygon);
                     m_parent->setCurrentObject(new Polygon(currentPolygon->objClass()));
                 }
 
@@ -96,7 +97,8 @@ void ImagePainter::paint(QPoint point, bool isDragging)
                 repaint();
             }
             if (toSave) {
-                m_parent->appendObject(scale(currentPolygon));
+                currentPolygon->scale(m_currentItem->pos(), m_scaleW, m_scaleH);
+                m_parent->appendObject(currentPolygon);
                 m_parent->setCurrentObject(new Polygon(m_parent->currentObject()->objClass()));
             }
         }
@@ -219,14 +221,4 @@ bool ImagePainter::importObjects(QVector<MarkedObject*> objects)
     repaint();
 
     return true;
-}
-
-MarkedObject* ImagePainter::scale(const MarkedObject* obj)
-{
-    Polygon* pol = new Polygon(static_cast<const Polygon*>(obj));
-    for (QPointF& point : *pol) {
-        point -= m_currentItem->pos();
-        point = QPointF(point.x() / m_scaleW, point.y() / m_scaleH);
-    }
-    return pol;
 }
