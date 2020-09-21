@@ -177,10 +177,8 @@ void ImagePainter::deleteCurrentObject()
 
 void ImagePainter::paintObject(MarkedObject* object)
 {
-    const Polygon* pol = static_cast<const Polygon*>(object);
-    const Polygon* currentPolygon = static_cast<const Polygon*>(m_parent->currentObject());
-    Polygon polygon (pol);
-    if (pol != currentPolygon) {
+    Polygon polygon (static_cast<const Polygon*>(object));
+    if (object != m_parent->currentObject()) {
         QPointF offset = m_currentItem->pos();
         for (QPointF& point : polygon) {
             point = QPointF(point.x() * m_scaleW, point.y() * m_scaleH);
