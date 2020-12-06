@@ -5,7 +5,6 @@
 
 #include <QVector>
 
-class QGraphicsItem;
 
 /** Base class, responsible for load, display and annotate data. */
 class Painter
