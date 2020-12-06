@@ -26,7 +26,6 @@
 #include <QColorDialog>
 #include <QDir>
 #include <QFileDialog>
-#include <QFileSystemWatcher>
 #include <QFontMetrics>
 #include <QGraphicsItem>
 #include <QGraphicsPixmapItem>
