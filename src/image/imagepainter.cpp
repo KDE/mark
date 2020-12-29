@@ -36,15 +36,17 @@ void ImagePainter::paint(QPoint point, bool isDragging)
         Polygon* currentPolygon = static_cast<Polygon*>(m_parent->currentObject());
 
         if (m_shape == Shape::Polygon) {
-
             int idxSavedPolygClicked = -1;
+            QPointF scaledClickedPoint = QPointF(-m_currentItem->pos());
+            scaledClickedPoint += QPointF(scaledClickedPoint.x()/m_scaleW, scaledClickedPoint.y()/m_scaleH);
             for (int i = 0; i < m_parent->savedObjects().size(); i++) {
                 const Polygon* polygon = static_cast<const Polygon*>(m_parent->savedObjects()[i]);
-                if (polygon->containsPoint(clickedPoint, Qt::OddEvenFill)) {
+                if (polygon->containsPoint(scaledClickedPoint, Qt::OddEvenFill)) {
                     idxSavedPolygClicked = i;
                     break;
                 }
             }
+
             bool isSavedPolygClicked = idxSavedPolygClicked != -1;
             if (isSavedPolygClicked) {
                 if (isDragging)
@@ -53,6 +55,7 @@ void ImagePainter::paint(QPoint point, bool isDragging)
                 m_parent->setCurrentObject(m_parent->savedObjects()[idxSavedPolygClicked]);
                 m_parent->savedObjects().remove(idxSavedPolygClicked);
                 currentPolygon = static_cast<Polygon*>(m_parent->currentObject());
+                currentPolygon->unscale(m_currentItem->pos(), m_scaleW, m_scaleH);
                 currentPolygon->pop_back();
             }
 

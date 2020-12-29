@@ -60,3 +60,11 @@ void Polygon::scale(const QPointF offset, const qreal scaleW, const qreal scaleH
         point = QPointF(point.x() / scaleW, point.y() / scaleH);
     }
 }
+
+void Polygon::unscale(const QPointF offset, const qreal scaleW, const qreal scaleH)
+{
+    for (QPointF& point : *this) {
+        point = QPointF(point.x() * scaleW, point.y() * scaleH);
+        point += offset;
+    }
+}
