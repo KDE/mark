@@ -35,6 +35,7 @@
 #include <QShortcut>
 #include <QToolButton>
 #include <QtGlobal>
+#include <QtConcurrent/QtConcurrentRun>
 
 #include <KActionCollection>
 
@@ -457,7 +458,9 @@ void marK::autoSave()
     if (m_autoSaveType == Serializer::OutputType::None)
         return;
 
-    Serializer::write(m_filepath, m_ui->containerWidget->savedObjects(), m_autoSaveType);
+    QtConcurrent::run(
+            Serializer::write, m_filepath, m_ui->containerWidget->savedObjects(), m_autoSaveType
+    );
 }
 
 marK::~marK()
