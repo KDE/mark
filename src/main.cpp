@@ -54,7 +54,6 @@ int main(int argc, char *argv[])
     KAboutData::setApplicationData(aboutData);
 
     marK *w = new marK();
-    w->setFixedSize(qApp->primaryScreen()->availableSize());
     w->setWindowState(Qt::WindowMaximized);
     w->setWindowIcon(QIcon::fromTheme("document-edit"));
     w->show();

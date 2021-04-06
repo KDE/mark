@@ -243,9 +243,15 @@ void marK::updateFiles()
             item_pix = item_pix.scaledToWidth(20);
 
             QListWidgetItem *itemW = new QListWidgetItem(item_pix, item);
+            itemW->setToolTip(item);
+
             m_ui->listWidget->addItem(itemW);
         }
     }
+
+    m_ui->listWidget->setGridSize(QSize(
+            m_ui->listWidget->sizeHintForColumn(0),
+            m_ui->listWidget->sizeHintForRow(0)));
 
     m_ui->listWidget->setCurrentRow(index);
 }
