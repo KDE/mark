@@ -19,7 +19,7 @@
       <Action name="undo" />
       <Action name="delete" />
       <Action name="autosave" />
-      <Menu name="autosave" ><text>autosave</text>
+      <Menu name="autosave" ><text>Autosave</text>
         <Action name="autosaveDisabled" />
         <Action name="autosaveJSON" />
         <Action name="autosaveXML" />
