@@ -38,6 +38,7 @@
 #include <QtConcurrent/QtConcurrentRun>
 
 #include <KActionCollection>
+#include <QFutureWatcher>
 
 static QDir markTempDirectory()
 {
@@ -458,9 +459,23 @@ void marK::autoSave()
     if (m_autoSaveType == Serializer::OutputType::None)
         return;
 
-    QtConcurrent::run(
+    auto *watcher = new QFutureWatcher<bool>();
+    connect(watcher, &QFutureWatcher<bool>::finished, this, [watcher]() {
+        bool success = watcher->result();
+        delete watcher;
+
+        if (!success) {
+            QMessageBox msgBox;
+            msgBox.setText("failed to auto-save annotation");
+            msgBox.setIcon(QMessageBox::Warning);
+            msgBox.exec();
+        }
+    });
+
+    QFuture<bool> future = QtConcurrent::run(
             Serializer::write, m_filepath, m_ui->containerWidget->savedObjects(), m_autoSaveType
     );
+    watcher->setFuture(future);
 }
 
 marK::~marK()
