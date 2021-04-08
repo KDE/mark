@@ -260,5 +260,7 @@ void ImagePainter::scaleImage(double factor)
 
         pixmapItem->setPos(x_scene - x_image, y_scene - y_image);
         m_currentItem = pixmapItem;
+
+        repaint();
     }
 }
