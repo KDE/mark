@@ -466,7 +466,7 @@ void marK::autoSave()
 
         if (!success) {
             QMessageBox msgBox;
-            msgBox.setText("failed to auto-save annotation");
+            msgBox.setText("Failed to auto-save annotation.");
             msgBox.setIcon(QMessageBox::Warning);
             msgBox.exec();
         }
