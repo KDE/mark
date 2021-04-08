@@ -473,7 +473,7 @@ void marK::autoSave()
     });
 
     QFuture<bool> future = QtConcurrent::run(
-            Serializer::write, m_filepath, m_ui->containerWidget->savedObjects(), m_autoSaveType
+        Serializer::write, m_filepath, m_ui->containerWidget->savedObjects(), m_autoSaveType
     );
     watcher->setFuture(future);
 }
