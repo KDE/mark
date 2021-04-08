@@ -228,12 +228,14 @@ bool ImagePainter::importObjects(QVector<MarkedObject*> objects)
 
 void ImagePainter::zoomIn()
 {
-    scaleImage(1.25);
+    if (m_scaleH < 2.5 && m_scaleW < 2.5)
+        scaleImage(1.25);
 }
 
 void ImagePainter::zoomOut()
 {
-    scaleImage(0.75);
+    if (m_scaleH > 0.5 && m_scaleW > 0.5)
+        scaleImage(0.75);
 }
 
 void ImagePainter::scaleImage(double factor)
