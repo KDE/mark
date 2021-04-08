@@ -135,6 +135,22 @@ void marK::setupActions()
     QShortcut *previousItemShortcut = new QShortcut(this);
     previousItemShortcut->setKey(Qt::Key_Up);
     connect(previousItemShortcut, &QShortcut::activated, [&]() { changeIndex(-1); });
+
+    QShortcut *zoomInShortcut = new QShortcut(this);
+    zoomInShortcut->setKey(Qt::Modifier::CTRL + Qt::Key::Key_Equal);
+    connect(zoomInShortcut, &QShortcut::activated, [&]() {
+        ImagePainter *painter = dynamic_cast<ImagePainter*>(m_ui->containerWidget->painter());
+        if (painter != nullptr)
+            painter->zoomIn();
+    });
+
+    QShortcut *zoomOutShortcut = new QShortcut(this);
+    zoomOutShortcut->setKey(Qt::Modifier::CTRL + Qt::Key::Key_Minus);
+    connect(zoomOutShortcut, &QShortcut::activated, [&]() {
+        ImagePainter *painter = dynamic_cast<ImagePainter*>(m_ui->containerWidget->painter());
+        if (painter != nullptr)
+            painter->zoomOut();
+    });
 }
 
 void marK::setupConnections()

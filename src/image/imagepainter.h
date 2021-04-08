@@ -29,6 +29,10 @@ public:
     
     void setShape(Shape shape) { m_shape = shape; m_parent->currentObject()->clear(); repaint(); }
 
+    void zoomIn();
+    void zoomOut();
+    void scaleImage(double factor);
+
 private:
     QVector<QGraphicsItem*> m_items;
     QGraphicsItem* m_currentItem;
@@ -36,6 +40,8 @@ private:
     qreal m_scaleH;
 
     Shape m_shape;
+
+    QString m_filepath;
 };
 
 #endif // IMAGEPAINTER_H

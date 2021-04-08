@@ -3,6 +3,7 @@
 
 #include <QGraphicsItem>
 
+
 ImagePainter::ImagePainter(Container* parent) :
     Painter(parent),
     m_shape(Shape::Polygon)
@@ -143,6 +144,7 @@ void ImagePainter::changeItem(const QString& filepath)
     }
 
     m_currentItem = pixmapItem;
+    m_filepath = filepath;
 }
 
 void ImagePainter::repaint()
@@ -222,4 +224,41 @@ bool ImagePainter::importObjects(QVector<MarkedObject*> objects)
     repaint();
 
     return true;
+}
+
+void ImagePainter::zoomIn()
+{
+    scaleImage(1.25);
+}
+
+void ImagePainter::zoomOut()
+{
+    scaleImage(0.75);
+}
+
+void ImagePainter::scaleImage(double factor)
+{
+    if (m_filepath != "") {
+        m_scaleH *= factor;
+        m_scaleW *= factor;
+
+        QPixmap image(m_filepath);
+        QPixmap scaledImage;
+
+        scaledImage = image.scaledToHeight(int(image.height() * m_scaleH));
+        scaledImage = image.scaledToWidth(int(image.width() * m_scaleW));
+
+        image = scaledImage;
+
+        m_parent->scene()->removeItem(m_currentItem);
+        QGraphicsPixmapItem* pixmapItem = m_parent->scene()->addPixmap(image);
+
+        int x_scene = int(m_parent->scene()->width() / 2);
+        int y_scene = int(m_parent->scene()->height() / 2);
+        int x_image = int(image.width() / 2);
+        int y_image = int(image.height() / 2);
+
+        pixmapItem->setPos(x_scene - x_image, y_scene - y_image);
+        m_currentItem = pixmapItem;
+    }
 }
