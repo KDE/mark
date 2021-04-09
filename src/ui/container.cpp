@@ -26,8 +26,23 @@ Container::~Container()
 
 bool Container::eventFilter(QObject* watched, QEvent* event)
 {
+    if (m_painterType == PainterType::None)
+        return false;
+
+    if (event->type() == QEvent::Wheel && m_painterType == PainterType::Image) {
+        ImagePainter *imagePainter = static_cast<ImagePainter*>(m_painter.get());
+        QWheelEvent *wheelEvent = static_cast<QWheelEvent*>(event);
+        const int numDegrees = wheelEvent->angleDelta().y() / 8;
+        const int numSteps = numDegrees / 15;
+        if (numSteps > 0)
+            imagePainter->zoomIn();
+        else
+            imagePainter->zoomOut();
+        return true;
+    }
+
     QMouseEvent *mouseEvent = dynamic_cast<QMouseEvent*>(event);
-    if (!mouseEvent || event->type() == QEvent::Wheel || m_painterType == PainterType::None)
+    if (mouseEvent == nullptr)
         return false;
 
     if (event->type() == QEvent::MouseButtonPress)
@@ -38,8 +53,6 @@ bool Container::eventFilter(QObject* watched, QEvent* event)
     }
     else if (event->type() == QEvent::MouseMove)
         m_painter->paint(mouseEvent->pos(), true);
-    else if (event->type() == QEvent::MouseButtonRelease)
-        m_painter->paint(QPoint(), false);
 
     return true;
 }
