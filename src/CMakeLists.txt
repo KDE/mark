@@ -60,5 +60,5 @@ target_link_libraries(mark
     KF5::XmlGui
 )
 
-install(TARGETS mark ${INSTALL_TARGETS_DEFAULT_ARGS})
-install(FILES ui/markui.rc DESTINATION ${KXMLGUI_INSTALL_DIR}/mark)
+install(TARGETS mark ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
+install(FILES ui/markui.rc DESTINATION ${KDE_INSTALL_KXMLGUI5DIR}/mark)
