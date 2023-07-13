@@ -132,3 +132,5 @@ void Container::clear()
     m_painterType = PainterType::None;
     emit painterChanged(m_painterType);
 }
+
+#include "moc_container.cpp"

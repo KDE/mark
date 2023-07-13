@@ -498,3 +498,5 @@ marK::~marK()
 {
     markTempDirectory().removeRecursively();
 }
+
+#include "moc_mark.cpp"
