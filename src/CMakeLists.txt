@@ -16,6 +16,8 @@
 find_package(ECM 1.0.0 REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
+set(KF5_MIN_VERSION 5.4)
+
 include(KDEInstallDirs)
 include(KDECMakeSettings)
 #include(KDECompilerSettings)
@@ -61,4 +63,3 @@ target_link_libraries(mark
 )
 
 install(TARGETS mark ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
-install(FILES ui/markui.rc DESTINATION ${KDE_INSTALL_KXMLGUI5DIR}/mark)

@@ -17,4 +17,6 @@ set(UI_SRC
     ui/container.cpp
     ui/mark.cpp
     ui/painter.cpp
+
+    ui/mark.qrc
 )
